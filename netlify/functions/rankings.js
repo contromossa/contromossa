@@ -4,15 +4,18 @@
 const UA = 'contromossa.it (sito di scacchi)';
 const FIDE_URLS = {
   standard: 'https://ratings.fide.com/a_top.php?list=open',
-  rapid: 'https://ratings.fide.com/a_top_var.php?var=rapid&list=open',
-  blitz: 'https://ratings.fide.com/a_top_var.php?var=blitz&list=open',
+  rapid: 'https://ratings.fide.com/a_top.php?list=men_rapid',
+  blitz: 'https://ratings.fide.com/a_top.php?list=men_blitz',
 };
+// Classifica per federazione: la FIDE la serve solo se la richiesta sembra venire dalla sua pagina (XMLHttpRequest).
+const FIDE_ITA = (r) => 'https://ratings.fide.com/a_top_var.php?continent=0&country=ITA&rating=' + r + '&gender=&age1=0&age2=0&period=1&period2=1';
 const FIDE_CACHE_MS = 6 * 60 * 60 * 1000;   // la lista FIDE cambia una volta al mese
 const ONLINE_CACHE_MS = 10 * 60 * 1000;
-let fideCache = null, fideAt = 0, onlineCache = null, onlineAt = 0;
+let fideCache = null, fideAt = 0, fideTry = 0, onlineCache = null, onlineAt = 0;
+const FIDE_RETRY_MS = 5 * 60 * 1000;   // se la FIDE non risponde, riprova al massimo ogni 5 minuti
 
 async function get(url, headers) {
-  const res = await fetch(url, { headers: Object.assign({ 'User-Agent': UA }, headers || {}), signal: AbortSignal.timeout(9000) });
+  const res = await fetch(url, { headers: Object.assign({ 'User-Agent': UA }, headers || {}), signal: AbortSignal.timeout(7000) });
   if (!res.ok) throw new Error('HTTP ' + res.status + ' da ' + new URL(url).hostname);
   return res;
 }
@@ -41,7 +44,7 @@ function parseFide(html) {
 }
 
 async function loadFide() {
-  const out = { month: '', standard: null, rapid: null, blitz: null };
+  const out = { month: '', standard: null, rapid: null, blitz: null, ita: { standard: null, rapid: null, blitz: null } };
   const errors = [];
   await Promise.all(Object.keys(FIDE_URLS).map(async (k) => {
     try {
@@ -53,6 +56,13 @@ async function loadFide() {
         if (m) out.month = m[1] + ' ' + m[2];
       }
     } catch (e) { errors.push('FIDE ' + k + ': ' + e.message); }
+  }));
+  await Promise.all(['standard', 'rapid', 'blitz'].map(async (k) => {
+    try {
+      const html = await (await get(FIDE_ITA(k), { 'X-Requested-With': 'XMLHttpRequest', Referer: 'https://ratings.fide.com/rankings.phtml' })).text();
+      const rows = parseFide(html);
+      if (rows.length >= 5) out.ita[k] = rows; else throw new Error('tabella italiana ' + k + ' non riconosciuta');
+    } catch (e) { errors.push('FIDE Italia ' + k + ': ' + e.message); }
   }));
   return { data: out, errors };
 }
@@ -96,16 +106,16 @@ exports.handler = async function () {
     'Netlify-CDN-Cache-Control': 'public, max-age=600, stale-while-revalidate=300',
   };
   const errors = [];
-  if (!fideCache || Date.now() - fideAt > FIDE_CACHE_MS) {
-    const r = await loadFide();
-    errors.push(...r.errors);
-    if (r.data.standard) { fideCache = r.data; fideAt = Date.now(); } else fideCache = fideCache || r.data;
+  const needFide = (!fideCache || !fideCache.standard || Date.now() - fideAt > FIDE_CACHE_MS) && Date.now() - fideTry > FIDE_RETRY_MS;
+  const needOnline = !onlineCache || Date.now() - onlineAt > ONLINE_CACHE_MS;
+  // le due letture partono insieme, così il tempo totale resta sotto i 10 secondi di Netlify
+  const [f, o] = await Promise.all([needFide ? loadFide() : null, needOnline ? loadOnline() : null]);
+  if (f) {
+    errors.push(...f.errors);
+    fideTry = Date.now();
+    if (f.data.standard) { fideCache = f.data; fideAt = Date.now(); } else fideCache = fideCache || f.data;
   }
-  if (!onlineCache || Date.now() - onlineAt > ONLINE_CACHE_MS) {
-    const r = await loadOnline();
-    errors.push(...r.errors);
-    onlineCache = r.data; onlineAt = Date.now();
-  }
+  if (o) { errors.push(...o.errors); onlineCache = o.data; onlineAt = Date.now(); }
   if (errors.length) console.error(errors.join('\n'));
   const body = { fide: fideCache, chesscom: onlineCache.chesscom, lichess: onlineCache.lichess, errors, updatedAt: new Date().toISOString() };
   return { statusCode: 200, headers, body: JSON.stringify(body) };
