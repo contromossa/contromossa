@@ -1111,9 +1111,9 @@
     .gv-item { text-align: left; background: transparent; border: 1px solid rgba(255,255,255,.12); border-radius: 6px; padding: 8px 10px; color: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 2px; font: inherit; }
     .gv-item span { font-size: .8rem; opacity: .75; }
     .gv-item:hover, .gv-item.gv-active { border-color: var(--primary, #e0b84d); }
-    .gv-board { display: grid; grid-template-columns: repeat(8, 1fr); width: 100%; max-width: 520px; aspect-ratio: 1; border: 2px solid #5a4630; user-select: none; }
-    .gv-sq { position: relative; display: flex; align-items: center; justify-content: center; }
-    .gv-sq img { width: 100%; height: 100%; pointer-events: none; }
+    .gv-board { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); grid-template-rows: repeat(8, minmax(0, 1fr)); width: 100%; max-width: 520px; aspect-ratio: 1; border: 2px solid #5a4630; user-select: none; }
+    .gv-sq { position: relative; aspect-ratio: 1 / 1; min-width: 0; min-height: 0; overflow: hidden; }
+    .gv-sq img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
     .gv-l { background: #f0d9b5; } .gv-d { background: #b58863; }
     .gv-l.gv-hl { background: #f7ec74; } .gv-d.gv-hl { background: #dac331; }
     .gv-rank, .gv-file { position: absolute; font-size: 10px; font-weight: 700; line-height: 1; pointer-events: none; }
@@ -1193,7 +1193,7 @@
       <div>
         <span class="coord-label">
           <i data-lucide="compass" width="14" height="14"></i>
-          13 Novembre 2026 · Community Scacchistica Italiana
+          <span id="today-label"></span> · Community Scacchistica Italiana
         </span>
         <h1 class="hero-title" id="hero-heading">
           Il portale dove gli scacchi italiani entrano in <em>contromossa</em>
@@ -1325,7 +1325,7 @@
           <h2 class="section-title" id="classifiche-title">Classifiche <em>aggiornate</em></h2>
           <p class="deck-brass">
             Classifica ufficiale FIDE (la FIDE la aggiorna una volta al mese) e classifiche online di Chess.com e Lichess,
-            lette dai siti stessi ogni pochi minuti. Scegli il ritmo di gioco.
+            lette dai siti stessi ogni pochi minuti. Scegli il ritmo di gioco. Nelle liste mondiali di rapid e blitz la FIDE considera i giocatori uomini; l'elenco italiano comprende tutti.
           </p>
         </div>
         <div class="filter-group" role="group" aria-label="Ritmo di gioco">
@@ -1341,6 +1341,10 @@
           <tbody id="fide-top10-body"><tr><td colspan="4">Caricamento…</td></tr></tbody>
         </table></div>
         <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>FIDE Italia (<span id="ita-cadence-label">Standard</span>)</th><th>Fed</th><th class="num-col">Elo</th></tr></thead>
+          <tbody id="ita-top10-body"><tr><td colspan="4">Caricamento…</td></tr></tbody>
+        </table></div>
+        <div class="table-wrap"><table>
           <thead><tr><th>#</th><th>Chess.com (<span id="cc-cadence-label">Daily</span>)</th><th>Paese</th><th class="num-col">Elo</th></tr></thead>
           <tbody id="cc-top10-body"><tr><td colspan="4">Caricamento…</td></tr></tbody>
         </table></div>
@@ -1350,11 +1354,6 @@
         </table></div>
       </div>
       <p class="coord-label" id="rank-note" style="margin-top: var(--space-sm); text-transform:none;"></p>
-      <p class="deck-brass" style="font-size: 0.9rem;">
-        La classifica dei soli giocatori italiani non è inclusa: non ho una fonte automatica affidabile.
-        La trovi sul sito della FIDE (<a href="https://ratings.fide.com/" target="_blank" rel="noopener noreferrer">ratings.fide.com</a>,
-        sezione classifiche per federazione, ITA) e su <a href="https://www.federscacchi.it/" target="_blank" rel="noopener noreferrer">federscacchi.it</a>.
-      </p>
     </section>
 
     <!-- 6. CREATOR HUB -->
@@ -1444,7 +1443,7 @@
           <h2 class="section-title" id="didattica-title">Blog &amp; <em>Didattica</em></h2>
           <p class="deck-brass">
             Guide pratiche su aperture e tattica ispirate alle lezioni dei creator e dei database magistrali,
-            l’evoluzione storica dall’automa di Kempelen alle reti neurali di Stockfish e AlphaZero, più il collegamento agli
+            l’evoluzione storica dall’automa di Kempelen alle reti neurali di Stockfish e AlphaZero, più un collegamento agli
             esercizi di Lichess.
           </p>
         </div>
@@ -1459,19 +1458,11 @@
       <div class="didattica-layout">
         <div id="articles-list" style="display: flex; flex-direction: column; gap: var(--space-md);"></div>
 
-        <aside class="puzzle-well" aria-label="Esercizi di tattica su Lichess">
-          <span class="coord-label">Esercizi · Lichess</span>
-          <h3 style="font-family: var(--font-headline); font-size: 1.35rem; margin: var(--space-xs) 0 0; font-weight: 500;">Il problema del giorno</h3>
-          <iframe src="https://lichess.org/training/frame?theme=brown&amp;bg=dark" title="Problema del giorno su Lichess"
-            loading="lazy" style="width:100%; height:420px; border:0; border-radius: 6px;" allowtransparency="true"></iframe>
-          <p class="deck-brass" style="margin:0; font-size:0.85rem;">Se qui sopra non compare la scacchiera, usa i collegamenti: gli esercizi si aprono su Lichess, gratuiti e senza registrazione.</p>
-          <div style="display:flex; flex-wrap:wrap; gap: var(--space-sm);">
-            <a class="btn btn-primary btn-sm" href="https://lichess.org/training/daily" target="_blank" rel="noopener noreferrer">Problema del giorno</a>
-            <a class="btn btn-secondary btn-sm" href="https://lichess.org/training" target="_blank" rel="noopener noreferrer">Tutti gli esercizi</a>
-            <a class="btn btn-secondary btn-sm" href="https://lichess.org/training/themes" target="_blank" rel="noopener noreferrer">Per tema</a>
-            <a class="btn btn-secondary btn-sm" href="https://lichess.org/storm" target="_blank" rel="noopener noreferrer">Puzzle Storm</a>
-            <a class="btn btn-secondary btn-sm" href="https://lichess.org/practice" target="_blank" rel="noopener noreferrer">Pratica guidata</a>
-          </div>
+        <aside class="puzzle-well" aria-label="Esercizi di tattica">
+          <span class="coord-label">Esercizi</span>
+          <h3 style="font-family: var(--font-headline); font-size: 1.35rem; margin: var(--space-xs) 0 0; font-weight: 500;">Allena la tattica</h3>
+          <p class="deck-brass" style="margin:0;">Esercizi gratuiti, senza registrazione, direttamente sul sito di Lichess.</p>
+          <a class="btn btn-primary" href="https://lichess.org/training" target="_blank" rel="noopener noreferrer">Apri gli esercizi su Lichess</a>
         </aside>
       </div>
 
@@ -1641,7 +1632,7 @@
 
     <div class="footer-bottom">
       <span>© 2026 Contromossa.it — Portale Indipendente della Community Scacchistica Italiana.</span>
-      <span>Aggiornato al 13 Novembre 2026 · Tutti i diritti riservati.</span>
+      <span>Dati aggiornati in tempo reale · Tutti i diritti riservati.</span>
     </div>
   </footer>
 
@@ -2138,6 +2129,111 @@ chess.js/dist/esm/chess.js:
         channelDomain: `youtube.com/@mattoscacco`,
         ytDomain: ``,
         notes: `Canale YouTube di scacchi.`
+      },
+      {
+        id: `rosen`,
+        name: `IM Eric Rosen`,
+        titleBadge: `IM · Didattica e Stafford`,
+        handle: `@imrosen`,
+        region: `intl`,
+        platform: `twitch`,
+        secondaryPlatform: `youtube`,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `twitch.tv/imrosen`,
+        ytDomain: `youtube.com/@imrosen`,
+        notes: `Maestro Internazionale americano, noto per uno stile calmo e per gli schemi di apertura insoliti.`
+      },
+      {
+        id: `cramling`,
+        name: `WFM Anna Cramling`,
+        titleBadge: `WFM · Streamer`,
+        handle: `@AnnaCramling`,
+        region: `intl`,
+        platform: `twitch`,
+        secondaryPlatform: `youtube`,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `twitch.tv/annacramling`,
+        ytDomain: `youtube.com/@AnnaCramling`,
+        notes: `Maestra FIDE femminile svedese, tra i canali di scacchi più seguiti al mondo.`
+      },
+      {
+        id: `chesscom`,
+        name: `Chess.com`,
+        titleBadge: `Canale ufficiale`,
+        handle: `@chess`,
+        region: `intl`,
+        platform: `twitch`,
+        secondaryPlatform: ``,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `twitch.tv/chess`,
+        ytDomain: ``,
+        notes: `Il canale principale di Chess.com su Twitch: tornei, eventi e commenti in diretta.`
+      },
+      {
+        id: `chess24`,
+        name: `chess24`,
+        titleBadge: `Canale ufficiale`,
+        handle: `@chess24`,
+        region: `intl`,
+        platform: `twitch`,
+        secondaryPlatform: ``,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `twitch.tv/chess24`,
+        ytDomain: ``,
+        notes: `Dirette di tornei di alto livello, parte della famiglia Chess.com.`
+      },
+      {
+        id: `fide`,
+        name: `FIDE Chess`,
+        titleBadge: `Federazione Internazionale`,
+        handle: `@fide_chess`,
+        region: `intl`,
+        platform: `twitch`,
+        secondaryPlatform: ``,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `twitch.tv/fide_chess`,
+        ytDomain: ``,
+        notes: `Canale ufficiale della federazione mondiale: eventi e competizioni FIDE.`
+      },
+      {
+        id: `federscacchi`,
+        name: `Federazione Scacchistica Italiana`,
+        titleBadge: `Federazione`,
+        handle: `@federscacchi`,
+        region: `it`,
+        platform: `twitch`,
+        secondaryPlatform: ``,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `twitch.tv/federscacchi`,
+        ytDomain: ``,
+        notes: `Canale Twitch della federazione italiana: eventi e iniziative nazionali.`
+      },
+      {
+        id: `reyenigma`,
+        name: `Rey Enigma`,
+        titleBadge: `Canale YouTube`,
+        handle: `@ReyEnigma`,
+        region: `intl`,
+        platform: `youtube`,
+        secondaryPlatform: ``,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `youtube.com/@ReyEnigma`,
+        ytDomain: ``,
+        notes: `Canale spagnolo con grande seguito su YouTube, noto per le sfide e i contenuti divulgativi.`
       }
     ];
 
@@ -3137,7 +3233,7 @@ var RANKINGS = null;
       renderRankings();
     }
     function renderRankings() {
-      var labelsCc = { standard: 'Daily', rapid: 'Rapid', blitz: 'Blitz' };
+      var labelsCc = { standard: 'Daily, per corrispondenza', rapid: 'Rapid', blitz: 'Blitz' };
       var labelsLi = { standard: 'Classical', rapid: 'Rapid', blitz: 'Blitz' };
       var labelsFide = { standard: 'Standard', rapid: 'Rapid', blitz: 'Blitz' };
       function fill(bodyId, list, fallbackHref) {
@@ -3156,6 +3252,8 @@ var RANKINGS = null;
       document.getElementById('cc-cadence-label').textContent = labelsCc[rankCadence];
       document.getElementById('li-cadence-label').textContent = labelsLi[rankCadence];
       fill('fide-top10-body', d.fide && d.fide[rankCadence], 'https://ratings.fide.com/');
+  document.getElementById('ita-cadence-label').textContent = labelsFide[rankCadence];
+  fill('ita-top10-body', d.fide && d.fide.ita && d.fide.ita[rankCadence], 'https://ratings.fide.com/rankings.phtml');
       fill('cc-top10-body', d.chesscom && d.chesscom[rankCadence], 'https://www.chess.com/leaderboard');
       fill('li-top10-body', d.lichess && d.lichess[rankCadence], 'https://lichess.org/player');
       var note = document.getElementById('rank-note');
@@ -3173,6 +3271,8 @@ var RANKINGS = null;
 
     async function initPortal() {
       await loadPersistedState();
+      const tl = document.getElementById(`today-label`);
+      if (tl) tl.textContent = new Date().toLocaleDateString(`it-IT`, { day: `numeric`, month: `long`, year: `numeric` });
 
       renderStreams();
       renderTournaments();
