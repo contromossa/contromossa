@@ -1,0 +1,3279 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="dashboard">
+  <meta name="design-style" content="nocturne">
+  <title>Contromossa.it — Portale & Community Scacchistica Italiana</title>
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..700;1,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
+  <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
+  <style>
+    :root {
+      color-scheme: dark;
+
+      /* Nocturne Prussian-Midnight surfaces */
+      --background: #0a101d;
+      --surface-container-low: #0e1626;
+      --surface-container: #111b2e;
+      --surface-container-high: #17243c;
+
+      /* Chess Ivory & Starlight Slate text */
+      --on-surface: #f2ece1;
+      --on-surface-variant: #9ba8bf;
+
+      /* Hairlines & Borders */
+      --outline: #384d73;
+      --outline-variant: #21304d;
+
+      /* Gold / Amber & Horizon Sky accents */
+      --primary: #dfaa5b;
+      --on-primary: #0a101d;
+      --primary-container: #2b261c;
+      --on-primary-container: #f5dcb0;
+      --secondary: #687a99;
+      --tertiary: #7cc4e8;
+      --error: #f27474;
+      --on-error: #1a0606;
+
+      /* Semantic tokens */
+      --positive: #52d19c;
+      --warning: #e8b85a;
+      --live-red: #ef5350;
+      --live-red-bg: color-mix(in srgb, #ef5350 16%, transparent);
+      --live-red-border: color-mix(in srgb, #ef5350 45%, transparent);
+      --focus: #dfaa5b;
+
+      /* Data visualization series */
+      --data-1: #dfaa5b;
+      --data-2: #7cc4e8;
+      --data-3: #52d19c;
+      --data-4: #e07a5f;
+      --data-context: #4a5d80;
+
+      /* Chessboard squares (harmonized Nocturne ivory & slate) */
+      --board-light: #e7decb;
+      --board-dark: #2c3e5e;
+      --board-highlight: color-mix(in srgb, #dfaa5b 48%, transparent);
+      --board-valid: color-mix(in srgb, #52d19c 55%, transparent);
+      --board-piece-white: #faf6ee;
+      --board-piece-black: #0f1624;
+
+      /* Typography */
+      --font-headline: 'EB Garamond', serif;
+      --font-body: 'Plus Jakarta Sans', sans-serif;
+      --font-label: 'JetBrains Mono', monospace;
+
+      /* Type Scale (Dashboard + Editorial Hybrid) */
+      --display-size: clamp(2.15rem, 1.5rem + 2.4vw, 3.35rem);
+      --headline-size: clamp(1.5rem, 1.2rem + 0.9vw, 2.05rem);
+      --subhead-size: clamp(1.0625rem, 1rem + 0.25vw, 1.25rem);
+      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --label-size: 0.75rem;
+
+      /* Shape */
+      --rounded: 0.25rem;
+      --rounded-lg: 0.375rem;
+      --rounded-full: 9999px;
+
+      /* Effects */
+      --hairline: 1px solid var(--outline-variant);
+      --hairline-strong: 1px solid var(--outline);
+      --panel-highlight: inset 0 1px 0 rgba(242, 236, 225, 0.05);
+      --brass-glow: radial-gradient(circle at 86% 12%, rgba(223, 170, 91, 0.11), transparent 48%);
+      --sky-glow: radial-gradient(circle at 12% 85%, rgba(124, 196, 232, 0.06), transparent 42%);
+      --heading-tracking: -0.015em;
+      --label-tracking: 0.06em;
+      --sky-tint: color-mix(in srgb, var(--tertiary) 12%, transparent);
+      --brass-tint: color-mix(in srgb, var(--primary) 14%, transparent);
+      --positive-tint: color-mix(in srgb, var(--positive) 14%, transparent);
+      --backdrop-blur: rgba(10, 16, 29, 0.92);
+
+      /* Spacing scale (4pt base) */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+      --space-3xl: 6rem;
+
+      /* Motion */
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+      --dur-long: 420ms;
+    }
+
+    /* Base Reset */
+    *, *::before, *::after { box-sizing: border-box; }
+    html {
+      scroll-behavior: smooth;
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      background-color: var(--background);
+      background-image: var(--brass-glow), var(--sky-glow);
+      color: var(--on-surface);
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: var(--tertiary); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    button, input, select, textarea {
+      font-family: inherit;
+      font-size: inherit;
+      color: inherit;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    /* 1. Sticky Top Header & Navigation */
+    .site-topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--backdrop-blur);
+      backdrop-filter: blur(10px);
+      border-bottom: var(--hairline);
+      box-shadow: var(--panel-highlight);
+    }
+
+    .topbar-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: var(--space-sm) var(--space-lg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+    }
+
+    .brand-mark {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      color: var(--on-surface);
+      text-decoration: none;
+      flex-shrink: 0;
+    }
+    .brand-mark:hover { text-decoration: none; }
+
+    .brand-wordmark {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+    .brand-name {
+      font-family: var(--font-headline);
+      font-size: 1.35rem;
+      font-weight: 500;
+      letter-spacing: var(--heading-tracking);
+      color: var(--on-surface);
+    }
+    .brand-name em {
+      font-style: italic;
+      color: var(--primary);
+    }
+    .brand-tag {
+      font-family: var(--font-label);
+      font-size: 0.65rem;
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: var(--space-xs);
+      flex-wrap: wrap;
+    }
+    .nav-link {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      padding: var(--space-sm) var(--space-sm);
+      border-radius: var(--rounded);
+      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out);
+      min-height: 44px;
+      display: inline-flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+    .nav-link:hover, .nav-link.active {
+      color: var(--primary);
+      background-color: var(--surface-container-high);
+      text-decoration: none;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      flex-shrink: 0;
+    }
+
+    .live-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      background: var(--live-red-bg);
+      color: var(--on-surface);
+      border: 1px solid var(--live-red-border);
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--rounded);
+      min-height: 36px;
+      cursor: pointer;
+    }
+    .live-pill:hover { background: color-mix(in srgb, var(--live-red) 25%, transparent); }
+
+    .mobile-menu-btn {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      width: 44px;
+      height: 44px;
+      background: var(--surface-container);
+      border: var(--hairline-strong);
+      border-radius: var(--rounded);
+      color: var(--on-surface);
+      cursor: pointer;
+    }
+
+    .mobile-nav-drawer {
+      display: none;
+      flex-direction: column;
+      padding: var(--space-sm) var(--space-lg) var(--space-md);
+      border-top: var(--hairline);
+      background: var(--surface-container-low);
+      gap: var(--space-xs);
+    }
+    .mobile-nav-drawer.open { display: flex; }
+
+    /* Main Layout Container */
+    .portal-shell {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-2xl);
+    }
+    .portal-shell * { min-width: 0; }
+
+    /* Section Structure */
+    .portal-section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-lg);
+      scroll-margin-top: 84px;
+    }
+
+    .section-header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--space-md);
+      padding-bottom: var(--space-md);
+      border-bottom: var(--hairline);
+    }
+
+    .section-title-group {
+      max-width: 68ch;
+    }
+
+    .coord-label {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      color: var(--tertiary);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+    }
+
+    .section-title {
+      font-family: var(--font-headline);
+      font-size: var(--headline-size);
+      font-weight: 500;
+      letter-spacing: var(--heading-tracking);
+      line-height: 1.12;
+      color: var(--on-surface);
+      margin: var(--space-xs) 0 0;
+    }
+    .section-title em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--primary);
+    }
+
+    .deck-brass {
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      color: var(--on-surface-variant);
+      margin: var(--space-xs) 0 0;
+      max-width: 64ch;
+    }
+
+    /* Nocturne Panels */
+    .panel {
+      background: var(--surface-container);
+      border: var(--hairline);
+      box-shadow: var(--panel-highlight);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+    }
+    .panel-low {
+      background: var(--surface-container-low);
+      border: var(--hairline);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-sm);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 0.625rem 1rem;
+      min-height: 44px;
+      border-radius: var(--rounded);
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: background-color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out);
+      text-decoration: none;
+    }
+    .btn:active { transform: translateY(1px); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--on-primary);
+      border-color: var(--primary);
+    }
+    .btn-primary:hover {
+      background: var(--on-primary-container);
+      border-color: var(--on-primary-container);
+      text-decoration: none;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--on-surface);
+      border: var(--hairline-strong);
+    }
+    .btn-secondary:hover {
+      background: var(--surface-container-high);
+      border-color: var(--primary);
+      color: var(--primary);
+      text-decoration: none;
+    }
+
+    .btn-sky {
+      background: var(--sky-tint);
+      color: var(--tertiary);
+      border: 1px solid color-mix(in srgb, var(--tertiary) 35%, transparent);
+    }
+    .btn-sky:hover {
+      background: color-mix(in srgb, var(--tertiary) 22%, transparent);
+      text-decoration: none;
+    }
+
+    .btn-sm {
+      min-height: 36px;
+      padding: 0.375rem 0.75rem;
+    }
+
+    /* Badges */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      padding: var(--space-xs) var(--space-sm);
+      border-radius: var(--rounded);
+      border: 1px solid transparent;
+      white-space: nowrap;
+    }
+    .badge-sky {
+      background: var(--sky-tint);
+      color: var(--tertiary);
+      border-color: color-mix(in srgb, var(--tertiary) 35%, transparent);
+    }
+    .badge-brass {
+      background: var(--brass-tint);
+      color: var(--primary);
+      border-color: color-mix(in srgb, var(--primary) 35%, transparent);
+    }
+    .badge-positive {
+      background: var(--positive-tint);
+      color: var(--positive);
+      border-color: color-mix(in srgb, var(--positive) 35%, transparent);
+    }
+    .badge-live {
+      background: var(--live-red-bg);
+      color: var(--on-surface);
+      border-color: var(--live-red-border);
+      font-weight: 600;
+    }
+    .badge-offline {
+      background: var(--surface-container-low);
+      color: var(--on-surface-variant);
+      border-color: var(--outline-variant);
+    }
+
+    /* Filter Chips & Controls */
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: var(--space-md);
+    }
+
+    .filter-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+    }
+
+    .chip-btn {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      background: var(--surface-container-low);
+      color: var(--on-surface-variant);
+      border: var(--hairline);
+      border-radius: var(--rounded);
+      padding: var(--space-sm) var(--space-md);
+      min-height: 44px;
+      cursor: pointer;
+      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out), border-color var(--dur-micro) var(--ease-out);
+    }
+    .chip-btn:hover {
+      background: var(--surface-container-high);
+      color: var(--on-surface);
+    }
+    .chip-btn.active {
+      background: var(--primary-container);
+      color: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      min-width: 220px;
+    }
+    .field-label {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+    }
+    .field-input, .field-select {
+      background: var(--background);
+      border: var(--hairline-strong);
+      border-radius: var(--rounded);
+      padding: 0.625rem 0.875rem;
+      min-height: 44px;
+      color: var(--on-surface);
+    }
+    .field-select { padding-right: 2rem; }
+
+    /* 2. Hero Section */
+    .hero-section {
+      background-color: var(--surface-container-low);
+      background-image: var(--brass-glow);
+      border: var(--hairline);
+      box-shadow: var(--panel-highlight);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-xl);
+      display: grid;
+      grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+      gap: var(--space-xl);
+      align-items: center;
+    }
+
+    .hero-title {
+      font-family: var(--font-headline);
+      font-size: var(--display-size);
+      font-weight: 500;
+      letter-spacing: var(--heading-tracking);
+      line-height: 1.06;
+      color: var(--on-surface);
+      margin: var(--space-sm) 0 var(--space-md);
+    }
+    .hero-title em {
+      font-style: italic;
+      font-weight: 400;
+      color: var(--primary);
+    }
+
+    .hero-lede {
+      font-size: 1.0625rem;
+      color: var(--on-surface-variant);
+      max-width: 58ch;
+      margin: 0 0 var(--space-lg);
+      line-height: 1.6;
+    }
+
+    .hero-cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+    }
+
+    .hero-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-md);
+    }
+
+    .kpi-tile {
+      background: var(--surface-container);
+      border: var(--hairline);
+      box-shadow: var(--panel-highlight);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+    .kpi-value {
+      font-family: var(--font-headline);
+      font-size: clamp(1.75rem, 1.4rem + 1vw, 2.25rem);
+      font-weight: 500;
+      font-variant-numeric: tabular-nums;
+      color: var(--on-surface);
+      line-height: 1.1;
+    }
+    .kpi-note {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--primary);
+    }
+
+    /* Card Grids */
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(290px, 100%), 1fr));
+      gap: var(--space-lg);
+    }
+
+    .card-grid-dense {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
+      gap: var(--space-md);
+    }
+
+    /* 3. Streamer Cards */
+    .stream-card {
+      background: var(--surface-container);
+      border: var(--hairline);
+      box-shadow: var(--panel-highlight);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: var(--space-md);
+      transition: background-color var(--dur-short) var(--ease-out), border-color var(--dur-short) var(--ease-out);
+    }
+    .stream-card.is-live {
+      border-color: color-mix(in srgb, var(--primary) 55%, var(--outline-variant));
+      background: linear-gradient(180deg, var(--surface-container-high) 0%, var(--surface-container) 100%);
+    }
+
+    .stream-top > .creator-identity { min-width: 0; flex: 1 1 200px; }
+    .stream-top > .creator-identity > div:last-child { min-width: 0; }
+    .stream-top .badge { white-space: nowrap; flex-shrink: 0; }
+    .stream-name, .stream-handle { overflow-wrap: anywhere; }
+    .bc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: var(--space-md); margin-top: var(--space-sm); }
+    .bc-item { background: var(--surface-container); border: var(--hairline); border-radius: var(--rounded-lg); padding: var(--space-md); display: flex; flex-direction: column; gap: 6px; }
+    .bc-item h4 { margin: 0; font-family: var(--font-headline); font-weight: 500; font-size: 1.05rem; color: var(--on-surface); }
+    .bc-item a { align-self: flex-start; }
+    .stream-top {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--space-sm);
+    }
+
+    .creator-identity {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+    }
+
+    .avatar-monogram {
+      width: 44px;
+      height: 44px;
+      border-radius: var(--rounded);
+      background: var(--primary-container);
+      border: 1px solid color-mix(in srgb, var(--primary) 40%, transparent);
+      color: var(--primary);
+      font-family: var(--font-headline);
+      font-size: 1.2rem;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .stream-name {
+      font-family: var(--font-headline);
+      font-size: 1.25rem;
+      font-weight: 500;
+      color: var(--on-surface);
+      margin: 0;
+      line-height: 1.2;
+    }
+    .stream-handle {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+    }
+    .stream-title {
+      margin: 0;
+      color: var(--on-surface);
+      font-weight: 500;
+      line-height: 1.45;
+    }
+    .stream-meta {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--tertiary);
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+    }
+    .stream-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: var(--hairline);
+    }
+
+    /* 4. Tournament Schedule Cards & Table */
+    .tournament-highlight-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+      gap: var(--space-md);
+    }
+
+    .tournament-card {
+      background: var(--surface-container);
+      border: var(--hairline);
+      box-shadow: var(--panel-highlight);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+    .tournament-card h3 {
+      font-family: var(--font-headline);
+      font-size: 1.3rem;
+      font-weight: 500;
+      margin: 0;
+      color: var(--on-surface);
+    }
+
+    .spec-line {
+      font-size: 0.875rem;
+      color: var(--on-surface-variant);
+      margin: 0;
+    }
+    .spec-line strong {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      background: var(--surface-container);
+      border: var(--hairline);
+      border-radius: var(--rounded-lg);
+      box-shadow: var(--panel-highlight);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+    }
+    th {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      color: var(--on-surface-variant);
+      padding: var(--space-md);
+      border-bottom: var(--hairline-strong);
+      background: var(--surface-container-low);
+      white-space: nowrap;
+    }
+    td {
+      padding: var(--space-md);
+      border-bottom: var(--hairline);
+      vertical-align: top;
+      color: var(--on-surface);
+    }
+    tr:last-child td { border-bottom: none; }
+    tbody tr:hover { background: var(--surface-container-high); }
+
+    .num-col {
+      text-align: right;
+      font-family: var(--font-label);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+
+    /* 5. Leaderboards & Chart */
+    .leaderboard-layout {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: var(--space-lg);
+    }
+
+    .creator-elo-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      gap: var(--space-lg);
+      align-items: stretch;
+    }
+
+    .chart-well {
+      background: var(--background);
+      border: var(--hairline);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      min-height: 360px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .chart-canvas-wrap {
+      position: relative;
+      min-height: 300px;
+      width: 100%;
+    }
+
+    /* 7. Blog, History & Interactive Chessboard */
+    .didattica-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: var(--space-lg);
+      align-items: start;
+    }
+
+    .article-card {
+      background: var(--surface-container);
+      border: var(--hairline);
+      box-shadow: var(--panel-highlight);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+    .article-card h3 {
+      font-family: var(--font-headline);
+      font-size: 1.35rem;
+      font-weight: 500;
+      margin: 0;
+      line-height: 1.2;
+      color: var(--on-surface);
+    }
+    .article-body {
+      display: none;
+      margin-top: var(--space-sm);
+      padding-top: var(--space-md);
+      border-top: var(--hairline);
+      color: var(--on-surface-variant);
+      max-width: 65ch;
+      line-height: 1.65;
+    }
+    .article-body.open { display: block; }
+
+    
+    /* High Contrast Chessboard Styles */
+    .chessboard-grid {
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      aspect-ratio: 1 / 1;
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+      border: 3px solid var(--outline);
+      border-radius: var(--rounded-md);
+      overflow: hidden;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .sq {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: 100%;
+      cursor: pointer;
+      position: relative;
+      border: none;
+      padding: 4px;
+      box-sizing: border-box;
+      transition: background-color 0.15s ease;
+    }
+    .sq:active {
+      transform: scale(0.95);
+    }
+    .sq.light { background-color: #f0e6d2; }
+    .sq.dark { background-color: #4b6b94; }
+    .sq.selected {
+      background-color: #dfaa5b !important;
+      box-shadow: inset 0 0 0 3px #ffffff;
+    }
+    .sq.hint-target {
+      background-color: #52d19c !important;
+    }
+
+    .sq-coord {
+      position: absolute;
+      bottom: 2px;
+      right: 3px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      opacity: 0.75;
+      pointer-events: none;
+    }
+    .sq.light .sq-coord { color: #4b6b94; }
+    .sq.dark .sq-coord { color: #f0e6d2; }
+
+    /* High visibility vectors/glyphs for white and black pieces */
+    .piece-white {
+      color: #ffffff;
+      filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.95)) drop-shadow(0px 0px 1px #000000);
+      -webkit-text-stroke: 1px #111b2e;
+      font-weight: bold;
+    }
+    .piece-black {
+      color: #111b2e;
+      filter: drop-shadow(0px 1px 2px rgba(255,255,255,0.8)) drop-shadow(0px 0px 1px #dfaa5b);
+      -webkit-text-stroke: 1px #dfaa5b;
+      font-weight: bold;
+    }
+
+
+    /* Timeline Kempelen -> Stockfish/AlphaZero */
+    .history-timeline {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(210px, 100%), 1fr));
+      gap: var(--space-md);
+    }
+    .era-step {
+      background: var(--surface-container-low);
+      border: var(--hairline);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md);
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+      transition: border-color var(--dur-micro) var(--ease-out), background-color var(--dur-micro) var(--ease-out);
+    }
+    .era-step:hover { background: var(--surface-container-high); }
+    .era-step.active {
+      background: var(--surface-container-high);
+      border-color: var(--primary);
+    }
+
+    /* 8. Gear & Tech */
+    .gear-card {
+      background: var(--surface-container);
+      border: var(--hairline);
+      box-shadow: var(--panel-highlight);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-lg);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: var(--space-sm);
+    }
+    .gear-price {
+      font-family: var(--font-headline);
+      font-size: 1.45rem;
+      font-weight: 500;
+      color: var(--primary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* 9. Breaking News */
+    .news-featured-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
+      gap: var(--space-lg);
+    }
+
+    /* 10. Footer */
+    .site-footer {
+      border-top: var(--hairline-strong);
+      background: var(--surface-container-low);
+      margin-top: var(--space-xl);
+    }
+    .footer-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: var(--space-2xl) var(--space-lg) var(--space-xl);
+      display: grid;
+      grid-template-columns: minmax(0, 1.3fr) repeat(3, minmax(0, 1fr));
+      gap: var(--space-xl);
+    }
+    .footer-title {
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      letter-spacing: var(--label-tracking);
+      text-transform: uppercase;
+      color: var(--primary);
+      margin: 0 0 var(--space-md);
+    }
+    .footer-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-sm);
+    }
+    .footer-link-btn {
+      background: transparent;
+      border: none;
+      padding: var(--space-xs) 0;
+      color: var(--on-surface-variant);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-sm);
+      text-align: left;
+      min-height: 36px;
+    }
+    .footer-link-btn:hover { color: var(--primary); }
+
+    .footer-bottom {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: var(--space-md) var(--space-lg) var(--space-xl);
+      border-top: var(--hairline);
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: var(--space-md);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+    }
+
+    /* Interactive Channel / Destination Modal */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(6, 10, 18, 0.8);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: var(--space-lg);
+      z-index: 100;
+    }
+    .modal-backdrop.open { display: flex; }
+
+    .modal-card {
+      background: var(--surface-container);
+      border: 1px solid var(--primary);
+      box-shadow: var(--panel-highlight);
+      border-radius: var(--rounded-lg);
+      max-width: 540px;
+      width: 100%;
+      padding: var(--space-xl);
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-md);
+    }
+    .modal-destination-box {
+      background: var(--background);
+      border: var(--hairline-strong);
+      border-radius: var(--rounded);
+      padding: var(--space-md);
+      font-family: var(--font-label);
+      font-size: 0.875rem;
+      color: var(--tertiary);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-sm);
+      word-break: break-all;
+    }
+
+    .toast-banner {
+      position: fixed;
+      bottom: var(--space-lg);
+      right: var(--space-lg);
+      background: var(--surface-container-high);
+      border: 1px solid var(--primary);
+      color: var(--on-surface);
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--rounded);
+      font-family: var(--font-label);
+      font-size: var(--label-size);
+      z-index: 120;
+      display: none;
+    }
+    .toast-banner.show { display: block; }
+
+    /* Responsive Breakpoints */
+    @media (max-width: 1024px) {
+      .hero-section { grid-template-columns: 1fr; }
+      .leaderboard-layout { grid-template-columns: 1fr; }
+      .creator-elo-grid { grid-template-columns: 1fr; }
+      .didattica-layout { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .nav-links { display: none; }
+      .mobile-menu-btn { display: inline-flex; }
+    }
+
+    @media (max-width: 640px) {
+      .portal-shell { padding: var(--space-md); gap: var(--space-xl); }
+      .hero-section { padding: var(--space-lg); }
+      .hero-kpi-grid { grid-template-columns: 1fr; }
+      .footer-inner { grid-template-columns: 1fr; }
+      .topbar-inner { padding: var(--space-sm) var(--space-md); }
+      .field-group { width: 100%; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+
+    /* Visualizzatore partite */
+    .gv-layout { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(300px, 1.4fr); gap: var(--space-lg, 1.5rem); align-items: start; }
+    .gv-side, .gv-main { display: flex; flex-direction: column; gap: var(--space-sm, .75rem); min-width: 0; }
+    .gv-list { display: flex; flex-direction: column; gap: 4px; max-height: 340px; overflow-y: auto; }
+    .gv-item { text-align: left; background: transparent; border: 1px solid rgba(255,255,255,.12); border-radius: 6px; padding: 8px 10px; color: inherit; cursor: pointer; display: flex; flex-direction: column; gap: 2px; font: inherit; }
+    .gv-item span { font-size: .8rem; opacity: .75; }
+    .gv-item:hover, .gv-item.gv-active { border-color: var(--primary, #e0b84d); }
+    .gv-board { display: grid; grid-template-columns: repeat(8, 1fr); width: 100%; max-width: 520px; aspect-ratio: 1; border: 2px solid #5a4630; user-select: none; }
+    .gv-sq { position: relative; display: flex; align-items: center; justify-content: center; }
+    .gv-sq img { width: 100%; height: 100%; pointer-events: none; }
+    .gv-l { background: #f0d9b5; } .gv-d { background: #b58863; }
+    .gv-l.gv-hl { background: #f7ec74; } .gv-d.gv-hl { background: #dac331; }
+    .gv-rank, .gv-file { position: absolute; font-size: 10px; font-weight: 700; line-height: 1; pointer-events: none; }
+    .gv-rank { top: 2px; left: 2px; } .gv-file { bottom: 2px; right: 3px; }
+    .gv-l .gv-rank, .gv-l .gv-file { color: #b58863; } .gv-d .gv-rank, .gv-d .gv-file { color: #f0d9b5; }
+    .gv-controls { display: flex; flex-wrap: wrap; gap: 6px; }
+    .gv-moves { max-height: 180px; overflow-y: auto; position: relative; display: flex; flex-wrap: wrap; gap: 2px 4px; align-items: baseline; padding: 6px; border: 1px solid rgba(255,255,255,.12); border-radius: 6px; }
+    .gv-num { opacity: .6; font-size: .8rem; margin-left: 6px; }
+    .gv-mv { background: transparent; border: 0; color: inherit; font: inherit; cursor: pointer; padding: 1px 4px; border-radius: 4px; }
+    .gv-mv:hover { background: rgba(255,255,255,.1); } .gv-mv.gv-cur { background: var(--primary, #e0b84d); color: #111; }
+    .gv-pgn-box { border: 1px solid rgba(255,255,255,.12); border-radius: 6px; padding: 8px 10px; }
+    .gv-pgn-box summary { cursor: pointer; }
+    .gv-pgn-box textarea { width: 100%; margin: 6px 0; }
+    @media (max-width: 760px) { .gv-layout { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <!-- 1. HEADER & MENU DI NAVIGAZIONE (fisso in alto) -->
+  <header class="site-topbar" id="top">
+    <div class="topbar-inner">
+      <a href="#hero" class="brand-mark" aria-label="Contromossa.it — Torna all'inizio">
+        <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="2" y="2" width="32" height="32" rx="4" fill="#111b2e" stroke="#dfaa5b" stroke-width="1.5"/>
+          <rect x="6" y="6" width="12" height="12" fill="#17243c"/>
+          <rect x="18" y="18" width="12" height="12" fill="#17243c"/>
+          <path d="M12 27H24V24.5H12V27ZM13.5 23H22.5L21 15.5L23.5 13.5L21.5 9.5L18 11.5L15 9.5L12.5 13.5L15.5 15.5L13.5 23Z" fill="#dfaa5b"/>
+        </svg>
+        <div class="brand-wordmark">
+          <span class="brand-name">Contromossa<em>.it</em></span>
+          <span class="brand-tag">Osservatorio Scacchi Italia</span>
+        </div>
+      </a>
+
+      <nav class="nav-links" aria-label="Sezioni del portale">
+        <a href="#live-hub" class="nav-link">Live Hub</a>
+        <a href="#tornei" class="nav-link">Tornei</a>
+        <a href="#classifiche" class="nav-link">Classifiche</a>
+        <a href="#creator-hub" class="nav-link">Creator</a>
+        <a href="#didattica" class="nav-link">Didattica</a>
+        <a href="#tech" class="nav-link">Tech &amp; Shop</a>
+        <a href="#breaking-news" class="nav-link">Breaking News</a>
+        <a href="#partite" class="nav-link">Partite</a>
+        <a href="#risorse" class="nav-link">Risorse</a>
+        <a href="#footer" class="nav-link">Contatti</a>
+      </nav>
+
+      <div class="topbar-actions">
+        <button type="button" class="live-pill" onclick="jumpToLiveFilter()">
+          <i data-lucide="radio" width="14" height="14"></i>
+          <span id="topbar-live-count">… In Onda</span>
+        </button>
+        <button type="button" class="mobile-menu-btn" id="mobile-menu-toggle" aria-label="Apri menu di navigazione" aria-expanded="false" onclick="toggleMobileMenu()">
+          <i data-lucide="menu" width="20" height="20"></i>
+        </button>
+      </div>
+    </div>
+
+    <nav class="mobile-nav-drawer" id="mobile-nav" aria-label="Menu mobile">
+      <a href="#live-hub" class="nav-link" onclick="closeMobileMenu()">Streamer in Onda (Live Hub)</a>
+      <a href="#tornei" class="nav-link" onclick="closeMobileMenu()">Calendario Tornei</a>
+      <a href="#classifiche" class="nav-link" onclick="closeMobileMenu()">Classifiche &amp; Leaderboard</a>
+      <a href="#creator-hub" class="nav-link" onclick="closeMobileMenu()">Creator Hub</a>
+      <a href="#didattica" class="nav-link" onclick="closeMobileMenu()">Blog &amp; Didattica</a>
+      <a href="#tech" class="nav-link" onclick="closeMobileMenu()">Equipaggiamento &amp; Tech</a>
+      <a href="#breaking-news" class="nav-link" onclick="closeMobileMenu()">Notizie in Evidenza</a>
+      <a href="#partite" class="nav-link" onclick="closeMobileMenu()">Partite</a>
+      <a href="#risorse" class="nav-link" onclick="closeMobileMenu()">Risorse</a>
+      <a href="#footer" class="nav-link" onclick="closeMobileMenu()">Footer &amp; Social</a>
+    </nav>
+  </header>
+
+  <main class="portal-shell">
+
+    <!-- 2. HERO BANNER & PRESENTAZIONE -->
+    <section id="hero" class="hero-section" aria-labelledby="hero-heading">
+      <div>
+        <span class="coord-label">
+          <i data-lucide="compass" width="14" height="14"></i>
+          13 Novembre 2026 · Community Scacchistica Italiana
+        </span>
+        <h1 class="hero-title" id="hero-heading">
+          Il portale dove gli scacchi italiani entrano in <em>contromossa</em>
+        </h1>
+        <p class="hero-lede">
+          Dirette Twitch e YouTube in tempo reale, il calendario completo tra Titled Tuesday ed eventi FSI,
+          le classifiche FIDE aggiornate, i migliori creator nazionali e internazionali, didattica interattiva
+          e le ultime notizie dal mondo delle 64 caselle.
+        </p>
+        <div class="hero-cta-row">
+          <a href="#live-hub" class="btn btn-primary">
+            <i data-lucide="tv" width="16" height="16"></i>
+            Vai agli Streamer in Onda
+          </a>
+          <a href="#tornei" class="btn btn-secondary">
+            <i data-lucide="calendar" width="16" height="16"></i>
+            Calendario Tornei &amp; Titled Tuesday
+          </a>
+          <a href="#didattica" class="btn btn-sky">
+            <i data-lucide="sparkles" width="16" height="16"></i>
+            Allena la Tattica
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-kpi-grid" aria-label="Indicatori del portale">
+        <div class="kpi-tile">
+          <span class="coord-label">Live Hub</span>
+          <span class="kpi-value" id="hero-live-kpi">…</span>
+          <span class="kpi-note">Canali in diretta ora</span>
+        </div>
+        <div class="kpi-tile">
+          <span class="coord-label">Tornei Monitorati</span>
+          <span class="kpi-value">8 Eventi</span>
+          <span class="kpi-note">3 Titled Tuesday + FSI &amp; FIDE</span>
+        </div>
+        <div class="kpi-tile">
+          <span class="coord-label">Archivio 365Chess</span>
+          <span class="kpi-value">4,4M+</span>
+          <span class="kpi-note">Partite analizzabili</span>
+        </div>
+        <div class="kpi-tile">
+          <span class="coord-label">Promemoria Salvati</span>
+          <span class="kpi-value" id="hero-saved-kpi">0</span>
+          <span class="kpi-note">I tuoi tornei &amp; puzzle</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. STREAMER IN ONDA (LIVE HUB) -->
+    <section id="live-hub" class="portal-section" aria-labelledby="live-hub-title">
+      <div class="section-header">
+        <div class="section-title-group">
+          <span class="coord-label">03 · Live Hub · Twitch &amp; YouTube</span>
+          <h2 class="section-title" id="live-hub-title">Streamer in <em>Onda</em></h2>
+          <p class="deck-brass">
+            Monitoraggio immediato dei creator scacchistici italiani e internazionali. Controlla chi è live adesso,
+            leggi il titolo della trasmissione e accedi direttamente al canale Twitch o YouTube.
+          </p>
+        </div>
+        <div class="filter-group" role="group" aria-label="Filtra streamer">
+          <button type="button" class="chip-btn active" onclick="filterStreams('all', this)">Tutti</button>
+          <button type="button" class="chip-btn" onclick="filterStreams('live', this)">🔴 Solo In Onda</button>
+          <button type="button" class="chip-btn" onclick="filterStreams('it', this)">Italia</button>
+          <button type="button" class="chip-btn" onclick="filterStreams('intl', this)">Internazionali</button>
+          <button type="button" class="chip-btn" onclick="filterStreams('twitch', this)">Twitch</button>
+          <button type="button" class="chip-btn" onclick="filterStreams('youtube', this)">YouTube</button>
+        </div>
+      </div>
+
+      <div id="live-hub-grid" class="card-grid"></div>
+    </section>
+
+    <!-- 4. CALENDARIO TORNEI -->
+    <section id="tornei" class="portal-section" aria-labelledby="tornei-title">
+      <div class="section-header">
+        <div class="section-title-group">
+          <span class="coord-label">04 · Agenda Agonistica &amp; Online</span>
+          <h2 class="section-title" id="tornei-title">Calendario <em>Tornei</em> &amp; Titled Tuesday</h2>
+          <p class="deck-brass">
+            Tutti gli appuntamenti nazionali FSI, i circuiti internazionali e i 3 Titled Tuesday settimanali, con
+            indicazioni esplicite su dove seguire la diretta e su quale piattaforma iscriversi o giocare.
+          </p>
+        </div>
+      </div>
+
+      <div id="broadcasts-block" style="margin-bottom: var(--space-lg);">
+        <span class="coord-label">In diretta dal mondo · Lichess Broadcast</span>
+        <div id="broadcasts-list" class="bc-grid"><p class="deck-brass">Caricamento delle dirette…</p></div>
+      </div>
+
+      <div class="controls-row">
+        <div class="filter-group" role="group" aria-label="Filtra tornei">
+          <button type="button" class="chip-btn active" onclick="filterTournaments('all', this)">Tutti gli Eventi</button>
+          <button type="button" class="chip-btn" onclick="filterTournaments('titled', this)">3 Titled Tuesday</button>
+          <button type="button" class="chip-btn" onclick="filterTournaments('nazionale', this)">Nazionali FSI</button>
+          <button type="button" class="chip-btn" onclick="filterTournaments('internazionale', this)">Internazionali FIDE</button>
+        </div>
+
+        <div class="field-group">
+          <label for="tournament-search" class="field-label">Cerca torneo, città o piattaforma</label>
+          <input type="search" id="tournament-search" class="field-input" placeholder="Es. Spilimbergo, Titled Tuesday, Lichess..." oninput="renderTournaments()">
+        </div>
+      </div>
+
+      <div id="tournament-cards-grid" class="tournament-highlight-grid"></div>
+
+      <div class="table-wrap" aria-label="Tabella riepilogativa calendario tornei">
+        <table>
+          <thead>
+            <tr>
+              <th>Evento &amp; Data</th>
+              <th>Cadenza / Formula</th>
+              <th>Dove Seguirlo in Diretta</th>
+              <th>Dove Giocarlo Online / Iscrizione</th>
+              <th>Azioni Rapide</th>
+            </tr>
+          </thead>
+          <tbody id="tournament-table-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- 5. CLASSIFICHE & LEADERBOARD -->
+    <section id="classifiche" class="portal-section" aria-labelledby="classifiche-title">
+      <div class="section-header">
+        <div class="section-title-group">
+          <span class="coord-label">05 · Classifiche</span>
+          <h2 class="section-title" id="classifiche-title">Classifiche <em>aggiornate</em></h2>
+          <p class="deck-brass">
+            Classifica ufficiale FIDE (la FIDE la aggiorna una volta al mese) e classifiche online di Chess.com e Lichess,
+            lette dai siti stessi ogni pochi minuti. Scegli il ritmo di gioco.
+          </p>
+        </div>
+        <div class="filter-group" role="group" aria-label="Ritmo di gioco">
+          <button type="button" class="chip-btn active" onclick="setRankCadence('standard', this)">Classico</button>
+          <button type="button" class="chip-btn" onclick="setRankCadence('rapid', this)">Rapid</button>
+          <button type="button" class="chip-btn" onclick="setRankCadence('blitz', this)">Blitz</button>
+        </div>
+      </div>
+
+      <div class="leaderboard-layout" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>FIDE mondiale (<span id="fide-cadence-label">Standard</span>)</th><th>Fed</th><th class="num-col">Elo</th></tr></thead>
+          <tbody id="fide-top10-body"><tr><td colspan="4">Caricamento…</td></tr></tbody>
+        </table></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>Chess.com (<span id="cc-cadence-label">Daily</span>)</th><th>Paese</th><th class="num-col">Elo</th></tr></thead>
+          <tbody id="cc-top10-body"><tr><td colspan="4">Caricamento…</td></tr></tbody>
+        </table></div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>#</th><th>Lichess (<span id="li-cadence-label">Classical</span>)</th><th></th><th class="num-col">Elo</th></tr></thead>
+          <tbody id="li-top10-body"><tr><td colspan="4">Caricamento…</td></tr></tbody>
+        </table></div>
+      </div>
+      <p class="coord-label" id="rank-note" style="margin-top: var(--space-sm); text-transform:none;"></p>
+      <p class="deck-brass" style="font-size: 0.9rem;">
+        La classifica dei soli giocatori italiani non è inclusa: non ho una fonte automatica affidabile.
+        La trovi sul sito della FIDE (<a href="https://ratings.fide.com/" target="_blank" rel="noopener noreferrer">ratings.fide.com</a>,
+        sezione classifiche per federazione, ITA) e su <a href="https://www.federscacchi.it/" target="_blank" rel="noopener noreferrer">federscacchi.it</a>.
+      </p>
+    </section>
+
+    <!-- 6. CREATOR HUB -->
+    <section id="creator-hub" class="portal-section" aria-labelledby="creator-hub-title">
+      <div class="section-header">
+        <div class="section-title-group">
+          <span class="coord-label">06 · Directory Talenti &amp; Divulgatori</span>
+          <h2 class="section-title" id="creator-hub-title">Creator <em>Hub</em></h2>
+          <p class="deck-brass">
+            Chi sono e dove trovarli: una riga per ciascuno, con i collegamenti ai canali.
+          </p>
+        </div>
+      </div>
+
+      <div class="controls-row">
+        <div class="filter-group" role="group" aria-label="Filtra creator">
+          <button type="button" class="chip-btn active" onclick="filterCreators('all', this)">Tutti</button>
+          <button type="button" class="chip-btn" onclick="filterCreators('it', this)">Scene Italiana</button>
+          <button type="button" class="chip-btn" onclick="filterCreators('intl', this)">Internazionali</button>
+          <button type="button" class="chip-btn" onclick="filterCreators('didattica', this)">Didattica &amp; Aperture</button>
+          <button type="button" class="chip-btn" onclick="filterCreators('tornei', this)">Tornei &amp; Show</button>
+        </div>
+
+        <div class="field-group">
+          <label for="creator-search" class="field-label">Cerca creator o format</label>
+          <input type="search" id="creator-search" class="field-input" placeholder="Es. Moroni, Alessia, Cobra, Gotham..." oninput="renderCreators()">
+        </div>
+      </div>
+
+      <div class="table-wrap"><table><thead><tr><th>Creator</th><th>Chi è</th><th>Canali</th></tr></thead><tbody id="creator-hub-grid"></tbody></table></div>
+    </section>
+
+    <!-- PARTITE STORICHE -->
+    <section id="partite" class="portal-section" aria-labelledby="partite-title">
+      <div class="section-header">
+        <div class="section-title-group">
+          <span class="coord-label">Archivio · Partite storiche</span>
+          <h2 class="section-title" id="partite-title">Partite <em>storiche</em></h2>
+          <p class="deck-brass">
+            Rivedi le partite mossa per mossa su una scacchiera standard. Cerca scrivendo i nomi dei due giocatori
+            (anche solo i cognomi) oppure l'anno. Puoi usare le frecce della tastiera.
+          </p>
+        </div>
+      </div>
+      <div class="gv-layout">
+        <div class="gv-side">
+          <label for="gv-search" class="field-label">Cerca giocatori, torneo o anno</label>
+          <input type="search" id="gv-search" class="field-input" placeholder="Es. Fischer Spassky" autocomplete="off">
+          <span class="coord-label" id="gv-count"></span>
+          <div id="gv-list" class="gv-list"></div>
+          <details class="gv-pgn-box">
+            <summary>Aggiungi una partita (incolla le mosse)</summary>
+            <p class="deck-brass" style="font-size:0.85rem;">Su <a href="https://www.365chess.com/" target="_blank" rel="noopener noreferrer">365Chess</a> e su Lichess puoi copiare la partita in formato PGN e incollarla qui.</p>
+            <textarea id="gv-pgn" class="field-input" rows="5" placeholder="[White &quot;Rossi&quot;] [Black &quot;Bianchi&quot;] 1. e4 e5 2. Nf3 ..."></textarea>
+            <button type="button" class="btn btn-secondary btn-sm" id="gv-add">Aggiungi</button>
+            <span class="coord-label" id="gv-pgn-msg"></span>
+          </details>
+        </div>
+        <div class="gv-main">
+          <h3 id="gv-title" style="font-family: var(--font-headline); font-size: 1.35rem; font-weight: 500; margin: 0;"></h3>
+          <span class="coord-label" id="gv-sub" style="text-transform:none;"></span>
+          <div id="gv-board" class="gv-board" role="img" aria-label="Scacchiera della partita"></div>
+          <div class="gv-controls">
+            <button type="button" class="btn btn-secondary btn-sm" id="gv-first" aria-label="Inizio">⏮</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="gv-prev" aria-label="Mossa indietro">◀</button>
+            <button type="button" class="btn btn-primary btn-sm" id="gv-auto">▶ Riproduci</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="gv-next" aria-label="Mossa avanti">▶</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="gv-last" aria-label="Fine">⏭</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="gv-flip">Ruota</button>
+          </div>
+          <p class="coord-label" id="gv-status" aria-live="polite" style="text-transform:none;"></p>
+          <div id="gv-moves" class="gv-moves"></div>
+        </div>
+      </div>
+      <p class="deck-brass" style="font-size:0.8rem; margin-top: var(--space-sm);">
+        Archivio di partenza: 12 classici, con mosse controllate dal programma (tutte legali) ma trascritte a memoria: se trovi un errore, segnalalo.
+        Per milioni di partite usa il database di <a href="https://www.365chess.com/" target="_blank" rel="noopener noreferrer">365Chess</a>.
+        Pezzi «cburnett» di Colin M. L. Burnett (licenza GPL/BSD/GFDL). Motore delle regole: chess.js (BSD-2).
+      </p>
+    </section>
+
+    <!-- 7. BLOG & DIDATTICA -->
+    <section id="didattica" class="portal-section" aria-labelledby="didattica-title">
+      <div class="section-header">
+        <div class="section-title-group">
+          <span class="coord-label">07 · Studio, Strategia &amp; Storia</span>
+          <h2 class="section-title" id="didattica-title">Blog &amp; <em>Didattica</em></h2>
+          <p class="deck-brass">
+            Guide pratiche su aperture e tattica ispirate alle lezioni dei creator e dei database magistrali,
+            l’evoluzione storica dall’automa di Kempelen alle reti neurali di Stockfish e AlphaZero, più il collegamento agli
+            esercizi di Lichess.
+          </p>
+        </div>
+        <div class="filter-group" role="group" aria-label="Filtra articoli">
+          <button type="button" class="chip-btn active" onclick="filterArticles('all', this)">Tutti</button>
+          <button type="button" class="chip-btn" onclick="filterArticles('aperture', this)">Aperture</button>
+          <button type="button" class="chip-btn" onclick="filterArticles('tattica', this)">Tattica</button>
+          <button type="button" class="chip-btn" onclick="filterArticles('storia', this)">Storia &amp; IA</button>
+        </div>
+      </div>
+
+      <div class="didattica-layout">
+        <div id="articles-list" style="display: flex; flex-direction: column; gap: var(--space-md);"></div>
+
+        <aside class="puzzle-well" aria-label="Esercizi di tattica su Lichess">
+          <span class="coord-label">Esercizi · Lichess</span>
+          <h3 style="font-family: var(--font-headline); font-size: 1.35rem; margin: var(--space-xs) 0 0; font-weight: 500;">Il problema del giorno</h3>
+          <iframe src="https://lichess.org/training/frame?theme=brown&amp;bg=dark" title="Problema del giorno su Lichess"
+            loading="lazy" style="width:100%; height:420px; border:0; border-radius: 6px;" allowtransparency="true"></iframe>
+          <p class="deck-brass" style="margin:0; font-size:0.85rem;">Se qui sopra non compare la scacchiera, usa i collegamenti: gli esercizi si aprono su Lichess, gratuiti e senza registrazione.</p>
+          <div style="display:flex; flex-wrap:wrap; gap: var(--space-sm);">
+            <a class="btn btn-primary btn-sm" href="https://lichess.org/training/daily" target="_blank" rel="noopener noreferrer">Problema del giorno</a>
+            <a class="btn btn-secondary btn-sm" href="https://lichess.org/training" target="_blank" rel="noopener noreferrer">Tutti gli esercizi</a>
+            <a class="btn btn-secondary btn-sm" href="https://lichess.org/training/themes" target="_blank" rel="noopener noreferrer">Per tema</a>
+            <a class="btn btn-secondary btn-sm" href="https://lichess.org/storm" target="_blank" rel="noopener noreferrer">Puzzle Storm</a>
+            <a class="btn btn-secondary btn-sm" href="https://lichess.org/practice" target="_blank" rel="noopener noreferrer">Pratica guidata</a>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Approfondimento Storico Interattivo: Da Kempelen a Stockfish / AlphaZero -->
+      <div class="panel">
+        <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: var(--space-md); margin-bottom: var(--space-md);">
+          <div>
+            <span class="coord-label">Dossier Storico · 1770 – 2026</span>
+            <h3 style="font-family: var(--font-headline); font-size: 1.5rem; font-weight: 500; margin: var(--space-xs) 0 0;">
+              Dalla Macchina di <em>Kempelen</em> a Stockfish e AlphaZero
+            </h3>
+          </div>
+          <span class="badge badge-sky">5 Tappe Chiave</span>
+        </div>
+
+        <div class="history-timeline" id="history-timeline"></div>
+        <div id="history-detail-box" class="panel-low" style="margin-top: var(--space-md);"></div>
+      </div>
+    </section>
+
+    <!-- 8. EQUIPAGGIAMENTO & TECH -->
+    <section id="tech" class="portal-section" aria-labelledby="tech-title">
+      <div class="section-header">
+        <div class="section-title-group">
+          <span class="coord-label">08 · Materiale da Torneo &amp; Piattaforme Digitali</span>
+          <h2 class="section-title" id="tech-title">Equipaggiamento &amp; <em>Tech</em></h2>
+          <p class="deck-brass">
+            Selezione e recensioni degli essenziali per il giocatore moderno: scacchiere in legno e set da torneo
+            Le Due Torri (dal 1986), orologi, manuali consigliati e software chiave come Chessify, Lichess, Chess.com e 365Chess.
+          </p>
+        </div>
+        <div class="filter-group" role="group" aria-label="Filtra equipaggiamento e software">
+          <button type="button" class="chip-btn active" onclick="filterGear('all', this)">Tutto</button>
+          <button type="button" class="chip-btn" onclick="filterGear('scacchiere', this)">Scacchiere &amp; Set</button>
+          <button type="button" class="chip-btn" onclick="filterGear('libri', this)">Orologi &amp; Libri</button>
+          <button type="button" class="chip-btn" onclick="filterGear('software', this)">Software &amp; Tech</button>
+        </div>
+      </div>
+
+      <div id="gear-grid" class="card-grid"></div>
+    </section>
+
+    <!-- 9. NOTIZIE IN EVIDENZA (BREAKING NEWS) — TASSATIVAMENTE IN FONDO PRIMA DEL FOOTER -->
+    <section id="breaking-news" class="portal-section" aria-labelledby="news-title">
+      <div class="section-header">
+        <div class="section-title-group">
+          <span class="coord-label">09 · Ultim'Ora · Aggiornate automaticamente</span>
+          <h2 class="section-title" id="news-title">Notizie in <em>Evidenza</em> (Breaking News)</h2>
+          <p class="deck-brass">
+            Titoli e anteprime dalle principali fonti di scacchi, italiane e internazionali. Ogni notizia rimanda
+            all'articolo originale sul sito che l'ha pubblicata.
+          </p>
+        </div>
+        <div class="filter-group" role="group" aria-label="Filtra notizie">
+          <button type="button" class="chip-btn active" onclick="filterNews('all', this)">Tutte</button>
+          <button type="button" class="chip-btn" onclick="filterNews('int', this)">Internazionali</button>
+          <button type="button" class="chip-btn" onclick="filterNews('it', this)">Italia</button>
+        </div>
+      </div>
+
+      <div id="news-grid" class="news-featured-grid"></div>
+    </section>
+
+    <section id="risorse" class="portal-section" aria-labelledby="risorse-title">
+      <div class="section-header">
+        <div class="section-title-group">
+          <span class="coord-label">10 · Archivi, Strumenti &amp; Federazioni</span>
+          <h2 class="section-title" id="risorse-title">Risorse <em>Utili</em></h2>
+          <p class="deck-brass">Siti di riferimento per giocare, studiare e seguire il mondo degli scacchi. Sono semplici collegamenti: i contenuti restano sui siti originali.</p>
+        </div>
+      </div>
+      <div class="bc-grid">
+        <div class="bc-item"><h4>Notizie ufficiali FSI</h4><span class="stream-handle">Comunicati e notizie della Federazione Scacchistica Italiana.</span><a class="btn btn-secondary btn-sm" href="https://www.federscacchi.com/fsi" target="_blank" rel="noopener noreferrer">Apri il sito</a></div>
+        <div class="bc-item"><h4>Scacco.it · Le Due Torri</h4><span class="stream-handle">Sito italiano di scacchi.</span><a class="btn btn-secondary btn-sm" href="https://www.scacco.it" target="_blank" rel="noopener noreferrer">Apri il sito</a></div>
+        <div class="bc-item"><h4>365Chess</h4><span class="stream-handle">Database di partite online.</span><a class="btn btn-secondary btn-sm" href="https://www.365chess.com" target="_blank" rel="noopener noreferrer">Apri il sito</a></div>
+        <div class="bc-item"><h4>ChessTempo</h4><span class="stream-handle">Allenamento tattico e database di partite.</span><a class="btn btn-secondary btn-sm" href="https://chesstempo.com" target="_blank" rel="noopener noreferrer">Apri il sito</a></div>
+        <div class="bc-item"><h4>GameKnot</h4><span class="stream-handle">Scacchi per corrispondenza online.</span><a class="btn btn-secondary btn-sm" href="https://gameknot.com" target="_blank" rel="noopener noreferrer">Apri il sito</a></div>
+        <div class="bc-item"><h4>Chessify</h4><span class="stream-handle">Analisi con motori scacchistici nel cloud.</span><a class="btn btn-secondary btn-sm" href="https://chessify.me" target="_blank" rel="noopener noreferrer">Apri il sito</a></div>
+        <div class="bc-item"><h4>Internet Chess Club (ICC)</h4><span class="stream-handle">Server di gioco online.</span><a class="btn btn-secondary btn-sm" href="https://www.chessclub.com" target="_blank" rel="noopener noreferrer">Apri il sito</a></div>
+        <div class="bc-item"><h4>OlimpBase</h4><span class="stream-handle">Archivio delle Olimpiadi e dei campionati a squadre.</span><a class="btn btn-secondary btn-sm" href="https://www.olimpbase.org" target="_blank" rel="noopener noreferrer">Apri il sito</a></div>
+        <div class="bc-item"><h4>Chess Notes · Edward Winter</h4><span class="stream-handle">Curiosità e storia degli scacchi.</span><a class="btn btn-secondary btn-sm" href="https://www.chesshistory.com/winter/" target="_blank" rel="noopener noreferrer">Apri il sito</a></div>
+        <div class="bc-item"><h4>World Chess</h4><span class="stream-handle">Eventi e arena online FIDE.</span><a class="btn btn-secondary btn-sm" href="https://worldchess.com" target="_blank" rel="noopener noreferrer">Apri il sito</a></div>
+        <div class="bc-item"><h4>ChessBase News</h4><span class="stream-handle">Notizie e software di scacchi.</span><a class="btn btn-secondary btn-sm" href="https://en.chessbase.com" target="_blank" rel="noopener noreferrer">Apri il sito</a></div>
+        <div class="bc-item"><h4>Lichess</h4><span class="stream-handle">Piattaforma di gioco gratuita.</span><a class="btn btn-secondary btn-sm" href="https://lichess.org" target="_blank" rel="noopener noreferrer">Apri il sito</a></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- 10. FOOTER -->
+  <footer id="footer" class="site-footer">
+    <div class="footer-inner">
+      <div>
+        <div class="brand-mark" style="margin-bottom: var(--space-md);">
+          <svg width="32" height="32" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+            <rect x="2" y="2" width="32" height="32" rx="4" fill="#111b2e" stroke="#dfaa5b" stroke-width="1.5"/>
+            <path d="M12 27H24V24.5H12V27ZM13.5 23H22.5L21 15.5L23.5 13.5L21.5 9.5L18 11.5L15 9.5L12.5 13.5L15.5 15.5L13.5 23Z" fill="#dfaa5b"/>
+          </svg>
+          <div class="brand-wordmark">
+            <span class="brand-name">Contromossa<em>.it</em></span>
+            <span class="brand-tag">Community Scacchistica Italiana</span>
+          </div>
+        </div>
+        <p class="deck-brass" style="margin: 0 0 var(--space-md); max-width: 40ch;">
+          Hub indipendente dedicato a dirette streaming, tornei italiani e internazionali, classifiche FIDE,
+          formazione scacchistica e cultura delle 64 caselle.
+        </p>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="copyText('contromossa.it@gmail.com', 'Email copiata negli appunti')">
+          <i data-lucide="mail" width="15" height="15"></i>
+          contromossa.it@gmail.com
+        </button>
+      </div>
+
+      <div>
+        <h3 class="footer-title">Canali Social Ufficiali</h3>
+        <ul class="footer-list">
+          <li>
+            <button type="button" class="footer-link-btn" onclick="openActionModal('Instagram Ufficiale', 'Contromossa.it su Instagram', 'Segui reel tattici, recap dei tornei italiani e dietro le quinte della community.', 'instagram.com/contromossa.it', '@contromossa.it')">
+              <i data-lucide="instagram" width="16" height="16"></i>
+              <span>Instagram: <strong>@contromossa.it</strong></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="footer-link-btn" onclick="openActionModal('YouTube Ufficiale', 'Contromossa.it su YouTube', 'Analisi partite, interviste ai maestri e approfondimenti storici da Kempelen ad AlphaZero.', 'youtube.com/@contromossa.it', '@contromossa.it')">
+              <i data-lucide="youtube" width="16" height="16"></i>
+              <span>YouTube: <strong>@contromossa.it</strong></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="footer-link-btn" onclick="openActionModal('TikTok Ufficiale', 'Contromossa su TikTok', 'Clip veloci, trappole in apertura e momenti cult dai tornei blitz.', 'tiktok.com/@contromossa', '@contromossa')">
+              <i data-lucide="smartphone" width="16" height="16"></i>
+              <span>TikTok: <strong>@contromossa</strong></span>
+            </button>
+          </li>
+          <li>
+            <button type="button" class="footer-link-btn" onclick="openActionModal('Twitch Ufficiale', 'Contromossa.it su Twitch', 'Dirette tornei della community, watch party Titled Tuesday e sfide abbonati.', 'twitch.tv/contromossait', 'contromossait')">
+              <i data-lucide="tv" width="16" height="16"></i>
+              <span>Twitch: <strong>contromossait</strong></span>
+            </button>
+          </li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="footer-title">Navigazione Rapida</h3>
+        <ul class="footer-list">
+          <li><a href="#live-hub" class="footer-link-btn">Streamer in Onda (Live Hub)</a></li>
+          <li><a href="#tornei" class="footer-link-btn">Calendario Tornei &amp; Titled Tuesday</a></li>
+          <li><a href="#classifiche" class="footer-link-btn">Classifiche FIDE &amp; Elo Creator</a></li>
+          <li><a href="#creator-hub" class="footer-link-btn">Creator Hub</a></li>
+          <li><a href="#didattica" class="footer-link-btn">Blog, Storia &amp; Tattica</a></li>
+          <li><a href="#tech" class="footer-link-btn">Equipaggiamento &amp; Tech</a></li>
+          <li><a href="#breaking-news" class="footer-link-btn">Notizie in Evidenza</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h3 class="footer-title">Contatti &amp; Crediti Fonti</h3>
+        <ul class="footer-list" style="font-size: 0.85rem; color: var(--on-surface-variant);">
+          <li>Redazione &amp; Partnership: <strong style="color: var(--on-surface);">contromossa.it@gmail.com</strong></li>
+          <li>Fonti dati tornei &amp; regolamenti: Federazione Scacchistica Italiana (federscacchi.it), Scacchierando.it, UnoScacchista.</li>
+          <li>Database &amp; piattaforme citate: 365Chess.com, World Chess (FIDE Online Arena), Chess.com, Lichess.org, Chessify.</li>
+          <li>Catalogo materiale tecnico: Le Due Torri Bologna (scacco.it).</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span>© 2026 Contromossa.it — Portale Indipendente della Community Scacchistica Italiana.</span>
+      <span>Aggiornato al 13 Novembre 2026 · Tutti i diritti riservati.</span>
+    </div>
+  </footer>
+
+  <!-- Modale Interattivo Canali & Iscrizioni (Sandbox-safe) -->
+  <div id="action-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title" onclick="handleBackdropClick(event)">
+    <div class="modal-card">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: var(--space-md);">
+        <div>
+          <span class="coord-label" id="modal-kicker">Destinazione Canale</span>
+          <h3 id="modal-title" style="font-family: var(--font-headline); font-size: 1.6rem; font-weight: 500; margin: var(--space-xs) 0 0;"></h3>
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="closeActionModal()" aria-label="Chiudi finestra">
+          <i data-lucide="x" width="16" height="16"></i>
+        </button>
+      </div>
+
+      <p id="modal-description" class="deck-brass" style="margin: 0;"></p>
+
+      <div>
+        <span class="field-label" style="display: block; margin-bottom: var(--space-xs);">Indirizzo / Canale di riferimento</span>
+        <div class="modal-destination-box">
+          <span id="modal-address"></span>
+          <button type="button" class="btn btn-primary btn-sm" id="modal-copy-btn" onclick="copyModalAddress()">
+            <i data-lucide="copy" width="14" height="14"></i>
+            Copia
+          </button>
+        </div>
+      </div>
+
+      <div id="modal-extra-note" style="font-family: var(--font-label); font-size: var(--label-size); color: var(--on-surface-variant);"></div>
+    </div>
+  </div>
+
+  <div id="toast-banner" class="toast-banner" role="status" aria-live="polite"></div>
+
+  <api-shim></api-shim>
+  <script>
+(()=>{function es(f){return f!==null?{comment:f,variations:[]}:{variations:[]}}function ts(f,t,e,s,r){let n={move:f,variations:r};return t&&(n.suffix=t),e&&(n.nag=e),s!==null&&(n.comment=s),n}function ss(...f){let[t,...e]=f,s=t;for(let r of e)r!==null&&(s.variations=[r,...r.variations],r.variations=[],s=r);return t}function is(f,t){if(t.marker&&t.marker.comment){let e=t.root;for(;;){let s=e.variations[0];if(!s){e.comment=t.marker.comment;break}e=s}}return{headers:f,root:t.root,result:(t.marker&&t.marker.result)??void 0}}function rs(f,t){function e(){this.constructor=f}e.prototype=t.prototype,f.prototype=new e}function W(f,t,e,s){var r=Error.call(this,f);return Object.setPrototypeOf&&Object.setPrototypeOf(r,W.prototype),r.expected=t,r.found=e,r.location=s,r.name="SyntaxError",r}rs(W,Error);function ue(f,t,e){return e=e||" ",f.length>t?f:(t-=f.length,e+=e.repeat(t),f+e.slice(0,t))}W.prototype.format=function(f){var t="Error: "+this.message;if(this.location){var e=null,s;for(s=0;s<f.length;s++)if(f[s].source===this.location.source){e=f[s].text.split(/\r\n|\n|\r/g);break}var r=this.location.start,n=this.location.source&&typeof this.location.source.offset=="function"?this.location.source.offset(r):r,c=this.location.source+":"+n.line+":"+n.column;if(e){var h=this.location.end,u=ue("",n.line.toString().length," "),g=e[r.line-1],d=r.line===h.line?h.column:g.length+1,A=d-r.column||1;t+=`
+ --> `+c+`
+`+u+` |
+`+n.line+" | "+g+`
+`+u+" | "+ue("",r.column-1," ")+ue("",A,"^")}else t+=`
+ at `+c}return t};W.buildMessage=function(f,t){var e={literal:function(g){return'"'+r(g.text)+'"'},class:function(g){var d=g.parts.map(function(A){return Array.isArray(A)?n(A[0])+"-"+n(A[1]):n(A)});return"["+(g.inverted?"^":"")+d.join("")+"]"},any:function(){return"any character"},end:function(){return"end of input"},other:function(g){return g.description}};function s(g){return g.charCodeAt(0).toString(16).toUpperCase()}function r(g){return g.replace(/\\/g,"\\\\").replace(/"/g,'\\"').replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(d){return"\\x0"+s(d)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(d){return"\\x"+s(d)})}function n(g){return g.replace(/\\/g,"\\\\").replace(/\]/g,"\\]").replace(/\^/g,"\\^").replace(/-/g,"\\-").replace(/\0/g,"\\0").replace(/\t/g,"\\t").replace(/\n/g,"\\n").replace(/\r/g,"\\r").replace(/[\x00-\x0F]/g,function(d){return"\\x0"+s(d)}).replace(/[\x10-\x1F\x7F-\x9F]/g,function(d){return"\\x"+s(d)})}function c(g){return e[g.type](g)}function h(g){var d=g.map(c),A,p;if(d.sort(),d.length>0){for(A=1,p=1;A<d.length;A++)d[A-1]!==d[A]&&(d[p]=d[A],p++);d.length=p}switch(d.length){case 1:return d[0];case 2:return d[0]+" or "+d[1];default:return d.slice(0,-1).join(", ")+", or "+d[d.length-1]}}function u(g){return g?'"'+r(g)+'"':"end of input"}return"Expected "+h(f)+" but "+u(t)+" found."};function ns(f,t){t=t!==void 0?t:{};var e={},s=t.grammarSource,r={pgn:Ue},n=Ue,c="[",h='"',u="]",g=".",d="O-O-O",A="O-O",p="0-0-0",E="0-0",$="$",y="{",q="}",ae=";",le="(",Je=")",Se="1-0",Ce="0-1",Ae="1/2-1/2",Xe="*",fe=/^[a-zA-Z]/,$e=/^[^"]/,J=/^[0-9]/,ke=/^[.]/,ye=/^[a-zA-Z1-8\-=]/,et=/^[+#]/,Te=/^[!?]/,Pe=/^[^}]/,we=/^[^\r\n]/,Ne=/^[ \t\r\n]/,tt=M("tag pair"),st=w("[",!1),Ie=w('"',!1),it=w("]",!1),rt=M("tag name"),he=R([["a","z"],["A","Z"]],!1,!1),nt=M("tag value"),Oe=R(['"'],!0,!1),ot=M("move number"),X=R([["0","9"]],!1,!1),at=w(".",!1),xe=R(["."],!1,!1),lt=M("standard algebraic notation"),ft=w("O-O-O",!1),ht=w("O-O",!1),ct=w("0-0-0",!1),ut=w("0-0",!1),Ke=R([["a","z"],["A","Z"],["1","8"],"-","="],!1,!1),_t=R(["+","#"],!1,!1),pt=M("suffix annotation"),Me=R(["!","?"],!1,!1),gt=M("NAG"),dt=w("$",!1),mt=M("brace comment"),vt=w("{",!1),Le=R(["}"],!0,!1),bt=w("}",!1),Et=M("rest of line comment"),St=w(";",!1),Re=R(["\r",`
+`],!0,!1),Ct=M("variation"),At=w("(",!1),$t=w(")",!1),kt=M("game termination marker"),yt=w("1-0",!1),Tt=w("0-1",!1),Pt=w("1/2-1/2",!1),wt=w("*",!1),Nt=M("whitespace"),qe=R([" ","	","\r",`
+`],!1,!1),It=function(i,a){return is(i,a)},Ot=function(i){return Object.fromEntries(i)},xt=function(i,a){return[i,a]},Kt=function(i,a){return{root:i,marker:a}},Mt=function(i,a){return ss(es(i),...a.flat())},Lt=function(i,a,l,v,b){return ts(i,a,l,v,b)},Rt=function(i){return i},qt=function(i){return i.replace(/[\r\n]+/g," ")},Ft=function(i){return i.trim()},Dt=function(i){return i},Ut=function(i,a){return{result:i,comment:a}},o=t.peg$currPos|0,H=[{line:1,column:1}],L=o,ee=t.peg$maxFailExpected||[],_=t.peg$silentFails|0,V;if(t.startRule){if(!(t.startRule in r))throw new Error(`Can't start parsing from rule "`+t.startRule+'".');n=r[t.startRule]}function w(i,a){return{type:"literal",text:i,ignoreCase:a}}function R(i,a,l){return{type:"class",parts:i,inverted:a,ignoreCase:l}}function Bt(){return{type:"end"}}function M(i){return{type:"other",description:i}}function Fe(i){var a=H[i],l;if(a)return a;if(i>=H.length)l=H.length-1;else for(l=i;!H[--l];);for(a=H[l],a={line:a.line,column:a.column};l<i;)f.charCodeAt(l)===10?(a.line++,a.column=1):a.column++,l++;return H[i]=a,a}function De(i,a,l){var v=Fe(i),b=Fe(a),k={source:s,start:{offset:i,line:v.line,column:v.column},end:{offset:a,line:b.line,column:b.column}};return k}function m(i){o<L||(o>L&&(L=o,ee=[]),ee.push(i))}function Qt(i,a,l){return new W(W.buildMessage(i,a),i,a,l)}function Ue(){var i,a,l;return i=o,a=jt(),l=Wt(),i=It(a,l),i}function jt(){var i,a,l;for(i=o,a=[],l=Be();l!==e;)a.push(l),l=Be();return l=x(),i=Ot(a),i}function Be(){var i,a,l,v,b,k,B;return _++,i=o,x(),f.charCodeAt(o)===91?(a=c,o++):(a=e,_===0&&m(st)),a!==e?(x(),l=Ht(),l!==e?(x(),f.charCodeAt(o)===34?(v=h,o++):(v=e,_===0&&m(Ie)),v!==e?(b=Gt(),f.charCodeAt(o)===34?(k=h,o++):(k=e,_===0&&m(Ie)),k!==e?(x(),f.charCodeAt(o)===93?(B=u,o++):(B=e,_===0&&m(it)),B!==e?i=xt(l,b):(o=i,i=e)):(o=i,i=e)):(o=i,i=e)):(o=i,i=e)):(o=i,i=e),_--,i===e&&_===0&&m(tt),i}function Ht(){var i,a,l;if(_++,i=o,a=[],l=f.charAt(o),fe.test(l)?o++:(l=e,_===0&&m(he)),l!==e)for(;l!==e;)a.push(l),l=f.charAt(o),fe.test(l)?o++:(l=e,_===0&&m(he));else a=e;return a!==e?i=f.substring(i,o):i=a,_--,i===e&&(a=e,_===0&&m(rt)),i}function Gt(){var i,a,l;for(_++,i=o,a=[],l=f.charAt(o),$e.test(l)?o++:(l=e,_===0&&m(Oe));l!==e;)a.push(l),l=f.charAt(o),$e.test(l)?o++:(l=e,_===0&&m(Oe));return i=f.substring(i,o),_--,a=e,_===0&&m(nt),i}function Wt(){var i,a,l;return i=o,a=Qe(),x(),l=Xt(),l===e&&(l=null),x(),i=Kt(a,l),i}function Qe(){var i,a,l,v;for(i=o,a=ce(),a===e&&(a=null),l=[],v=je();v!==e;)l.push(v),v=je();return i=Mt(a,l),i}function je(){var i,a,l,v,b,k,B,te;if(i=o,x(),Vt(),x(),a=Yt(),a!==e){for(l=zt(),l===e&&(l=null),v=[],b=He();b!==e;)v.push(b),b=He();for(b=x(),k=ce(),k===e&&(k=null),B=[],te=Ge();te!==e;)B.push(te),te=Ge();i=Lt(a,l,v,k,B)}else o=i,i=e;return i}function Vt(){var i,a,l,v,b,k;for(_++,i=o,a=[],l=f.charAt(o),J.test(l)?o++:(l=e,_===0&&m(X));l!==e;)a.push(l),l=f.charAt(o),J.test(l)?o++:(l=e,_===0&&m(X));if(f.charCodeAt(o)===46?(l=g,o++):(l=e,_===0&&m(at)),l!==e){for(v=x(),b=[],k=f.charAt(o),ke.test(k)?o++:(k=e,_===0&&m(xe));k!==e;)b.push(k),k=f.charAt(o),ke.test(k)?o++:(k=e,_===0&&m(xe));a=[a,l,v,b],i=a}else o=i,i=e;return _--,i===e&&(a=e,_===0&&m(ot)),i}function Yt(){var i,a,l,v,b,k;if(_++,i=o,a=o,f.substr(o,5)===d?(l=d,o+=5):(l=e,_===0&&m(ft)),l===e&&(f.substr(o,3)===A?(l=A,o+=3):(l=e,_===0&&m(ht)),l===e&&(f.substr(o,5)===p?(l=p,o+=5):(l=e,_===0&&m(ct)),l===e&&(f.substr(o,3)===E?(l=E,o+=3):(l=e,_===0&&m(ut)),l===e))))if(l=o,v=f.charAt(o),fe.test(v)?o++:(v=e,_===0&&m(he)),v!==e){if(b=[],k=f.charAt(o),ye.test(k)?o++:(k=e,_===0&&m(Ke)),k!==e)for(;k!==e;)b.push(k),k=f.charAt(o),ye.test(k)?o++:(k=e,_===0&&m(Ke));else b=e;b!==e?(v=[v,b],l=v):(o=l,l=e)}else o=l,l=e;return l!==e?(v=f.charAt(o),et.test(v)?o++:(v=e,_===0&&m(_t)),v===e&&(v=null),l=[l,v],a=l):(o=a,a=e),a!==e?i=f.substring(i,o):i=a,_--,i===e&&(a=e,_===0&&m(lt)),i}function zt(){var i,a,l;for(_++,i=o,a=[],l=f.charAt(o),Te.test(l)?o++:(l=e,_===0&&m(Me));l!==e;)a.push(l),a.length>=2?l=e:(l=f.charAt(o),Te.test(l)?o++:(l=e,_===0&&m(Me)));return a.length<1?(o=i,i=e):i=a,_--,i===e&&(a=e,_===0&&m(pt)),i}function He(){var i,a,l,v,b;if(_++,i=o,x(),f.charCodeAt(o)===36?(a=$,o++):(a=e,_===0&&m(dt)),a!==e){if(l=o,v=[],b=f.charAt(o),J.test(b)?o++:(b=e,_===0&&m(X)),b!==e)for(;b!==e;)v.push(b),b=f.charAt(o),J.test(b)?o++:(b=e,_===0&&m(X));else v=e;v!==e?l=f.substring(l,o):l=v,l!==e?i=Rt(l):(o=i,i=e)}else o=i,i=e;return _--,i===e&&_===0&&m(gt),i}function ce(){var i;return i=Zt(),i===e&&(i=Jt()),i}function Zt(){var i,a,l,v,b;if(_++,i=o,f.charCodeAt(o)===123?(a=y,o++):(a=e,_===0&&m(vt)),a!==e){for(l=o,v=[],b=f.charAt(o),Pe.test(b)?o++:(b=e,_===0&&m(Le));b!==e;)v.push(b),b=f.charAt(o),Pe.test(b)?o++:(b=e,_===0&&m(Le));l=f.substring(l,o),f.charCodeAt(o)===125?(v=q,o++):(v=e,_===0&&m(bt)),v!==e?i=qt(l):(o=i,i=e)}else o=i,i=e;return _--,i===e&&(a=e,_===0&&m(mt)),i}function Jt(){var i,a,l,v,b;if(_++,i=o,f.charCodeAt(o)===59?(a=ae,o++):(a=e,_===0&&m(St)),a!==e){for(l=o,v=[],b=f.charAt(o),we.test(b)?o++:(b=e,_===0&&m(Re));b!==e;)v.push(b),b=f.charAt(o),we.test(b)?o++:(b=e,_===0&&m(Re));l=f.substring(l,o),i=Ft(l)}else o=i,i=e;return _--,i===e&&(a=e,_===0&&m(Et)),i}function Ge(){var i,a,l,v;return _++,i=o,x(),f.charCodeAt(o)===40?(a=le,o++):(a=e,_===0&&m(At)),a!==e?(l=Qe(),l!==e?(x(),f.charCodeAt(o)===41?(v=Je,o++):(v=e,_===0&&m($t)),v!==e?i=Dt(l):(o=i,i=e)):(o=i,i=e)):(o=i,i=e),_--,i===e&&_===0&&m(Ct),i}function Xt(){var i,a,l;return _++,i=o,f.substr(o,3)===Se?(a=Se,o+=3):(a=e,_===0&&m(yt)),a===e&&(f.substr(o,3)===Ce?(a=Ce,o+=3):(a=e,_===0&&m(Tt)),a===e&&(f.substr(o,7)===Ae?(a=Ae,o+=7):(a=e,_===0&&m(Pt)),a===e&&(f.charCodeAt(o)===42?(a=Xe,o++):(a=e,_===0&&m(wt))))),a!==e?(x(),l=ce(),l===e&&(l=null),i=Ut(a,l)):(o=i,i=e),_--,i===e&&(a=e,_===0&&m(kt)),i}function x(){var i,a;for(_++,i=[],a=f.charAt(o),Ne.test(a)?o++:(a=e,_===0&&m(qe));a!==e;)i.push(a),a=f.charAt(o),Ne.test(a)?o++:(a=e,_===0&&m(qe));return _--,a=e,_===0&&m(Nt),i}if(V=n(),t.peg$library)return{peg$result:V,peg$currPos:o,peg$FAILED:e,peg$maxFailExpected:ee,peg$maxFailPos:L};if(V!==e&&o===f.length)return V;throw V!==e&&o<f.length&&m(Bt()),Qt(ee,L<f.length?f.charAt(L):null,L<f.length?De(L,L+1):De(L,L))}var ie=0xffffffffffffffffn;function _e(f,t){return(f<<t|f>>64n-t)&0xffffffffffffffffn}function We(f,t){return f*t&ie}function os(f){return function(){let t=BigInt(f&ie),e=BigInt(f>>64n&ie),s=We(_e(We(t,5n),7n),9n);return e^=t,t=(_e(t,24n)^e^e<<16n)&ie,e=_e(e,37n),f=e<<64n|t,s}}var oe=os(0xa187eb39cdcaed8f31c4b365b102e01en),as=Array.from({length:2},()=>Array.from({length:6},()=>Array.from({length:128},()=>oe()))),ls=Array.from({length:8},()=>oe()),fs=Array.from({length:16},()=>oe()),pe=oe(),O="w",K="b",T="p",be="n",re="b",z="r",U="q",P="k",ge="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",G=class{color;from;to;piece;captured;promotion;flags;san;lan;before;after;constructor(t,e){let{color:s,piece:r,from:n,to:c,flags:h,captured:u,promotion:g}=e,d=N(n),A=N(c);this.color=s,this.piece=r,this.from=d,this.to=A,this.san=t._moveToSan(e,t._moves({legal:!0})),this.lan=d+A,this.before=t.fen(),t._makeMove(e),this.after=t.fen(),t._undoMove(),this.flags="";for(let p in C)C[p]&h&&(this.flags+=Q[p]);u&&(this.captured=u),g&&(this.promotion=g,this.lan+=g)}isCapture(){return this.flags.indexOf(Q.CAPTURE)>-1}isPromotion(){return this.flags.indexOf(Q.PROMOTION)>-1}isEnPassant(){return this.flags.indexOf(Q.EP_CAPTURE)>-1}isKingsideCastle(){return this.flags.indexOf(Q.KSIDE_CASTLE)>-1}isQueensideCastle(){return this.flags.indexOf(Q.QSIDE_CASTLE)>-1}isBigPawn(){return this.flags.indexOf(Q.BIG_PAWN)>-1}},I=-1,Q={NORMAL:"n",CAPTURE:"c",BIG_PAWN:"b",EP_CAPTURE:"e",PROMOTION:"p",KSIDE_CASTLE:"k",QSIDE_CASTLE:"q",NULL_MOVE:"-"};var C={NORMAL:1,CAPTURE:2,BIG_PAWN:4,EP_CAPTURE:8,PROMOTION:16,KSIDE_CASTLE:32,QSIDE_CASTLE:64,NULL_MOVE:128},Ee={Event:"?",Site:"?",Date:"????.??.??",Round:"?",White:"?",Black:"?",Result:"*"},hs={WhiteTitle:null,BlackTitle:null,WhiteElo:null,BlackElo:null,WhiteUSCF:null,BlackUSCF:null,WhiteNA:null,BlackNA:null,WhiteType:null,BlackType:null,EventDate:null,EventSponsor:null,Section:null,Stage:null,Board:null,Opening:null,Variation:null,SubVariation:null,ECO:null,NIC:null,Time:null,UTCTime:null,UTCDate:null,TimeControl:null,SetUp:null,FEN:null,Termination:null,Annotator:null,Mode:null,PlyCount:null},cs={...Ee,...hs},S={a8:0,b8:1,c8:2,d8:3,e8:4,f8:5,g8:6,h8:7,a7:16,b7:17,c7:18,d7:19,e7:20,f7:21,g7:22,h7:23,a6:32,b6:33,c6:34,d6:35,e6:36,f6:37,g6:38,h6:39,a5:48,b5:49,c5:50,d5:51,e5:52,f5:53,g5:54,h5:55,a4:64,b4:65,c4:66,d4:67,e4:68,f4:69,g4:70,h4:71,a3:80,b3:81,c3:82,d3:83,e3:84,f3:85,g3:86,h3:87,a2:96,b2:97,c2:98,d2:99,e2:100,f2:101,g2:102,h2:103,a1:112,b1:113,c1:114,d1:115,e1:116,f1:117,g1:118,h1:119},de={b:[16,32,17,15],w:[-16,-32,-17,-15]},Ve={n:[-18,-33,-31,-14,18,33,31,14],b:[-17,-15,17,15],r:[-16,1,16,-1],q:[-17,-16,-15,1,17,16,15,-1],k:[-17,-16,-15,1,17,16,15,-1]},us=[20,0,0,0,0,0,0,24,0,0,0,0,0,0,20,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,24,24,24,24,24,24,56,0,56,24,24,24,24,24,24,0,0,0,0,0,0,2,53,56,53,2,0,0,0,0,0,0,0,0,0,0,0,20,2,24,2,20,0,0,0,0,0,0,0,0,0,0,20,0,0,24,0,0,20,0,0,0,0,0,0,0,0,20,0,0,0,24,0,0,0,20,0,0,0,0,0,0,20,0,0,0,0,24,0,0,0,0,20,0,0,0,0,20,0,0,0,0,0,24,0,0,0,0,0,20,0,0,20,0,0,0,0,0,0,24,0,0,0,0,0,0,20],_s=[17,0,0,0,0,0,0,16,0,0,0,0,0,0,15,0,0,17,0,0,0,0,0,16,0,0,0,0,0,15,0,0,0,0,17,0,0,0,0,16,0,0,0,0,15,0,0,0,0,0,0,17,0,0,0,16,0,0,0,15,0,0,0,0,0,0,0,0,17,0,0,16,0,0,15,0,0,0,0,0,0,0,0,0,0,17,0,16,0,15,0,0,0,0,0,0,0,0,0,0,0,0,17,16,15,0,0,0,0,0,0,0,1,1,1,1,1,1,1,0,-1,-1,-1,-1,-1,-1,-1,0,0,0,0,0,0,0,-15,-16,-17,0,0,0,0,0,0,0,0,0,0,0,0,-15,0,-16,0,-17,0,0,0,0,0,0,0,0,0,0,-15,0,0,-16,0,0,-17,0,0,0,0,0,0,0,0,-15,0,0,0,-16,0,0,0,-17,0,0,0,0,0,0,-15,0,0,0,0,-16,0,0,0,0,-17,0,0,0,0,-15,0,0,0,0,0,-16,0,0,0,0,0,-17,0,0,-15,0,0,0,0,0,0,-16,0,0,0,0,0,0,-17],ps={p:1,n:2,b:4,r:8,q:16,k:32},gs="pnbrqkPNBRQK",Ye=[be,re,z,U],ds=7,ms=6,vs=1,bs=0,se={[P]:C.KSIDE_CASTLE,[U]:C.QSIDE_CASTLE},F={w:[{square:S.a1,flag:C.QSIDE_CASTLE},{square:S.h1,flag:C.KSIDE_CASTLE}],b:[{square:S.a8,flag:C.QSIDE_CASTLE},{square:S.h8,flag:C.KSIDE_CASTLE}]},Es={b:vs,w:ms},me="--";function j(f){return f>>4}function Z(f){return f&15}function Ze(f){return"0123456789".indexOf(f)!==-1}function N(f){let t=Z(f),e=j(f);return"abcdefgh".substring(t,t+1)+"87654321".substring(e,e+1)}function Y(f){return f===O?K:O}function Ss(f){let t=f.split(/\s+/);if(t.length!==6)return{ok:!1,error:"Invalid FEN: must contain six space-delimited fields"};let e=parseInt(t[5],10);if(isNaN(e)||e<=0)return{ok:!1,error:"Invalid FEN: move number must be a positive integer"};let s=parseInt(t[4],10);if(isNaN(s)||s<0)return{ok:!1,error:"Invalid FEN: half move counter number must be a non-negative integer"};if(!/^(-|[abcdefgh][36])$/.test(t[3]))return{ok:!1,error:"Invalid FEN: en-passant square is invalid"};if(/[^kKqQ-]/.test(t[2]))return{ok:!1,error:"Invalid FEN: castling availability is invalid"};if(!/^(w|b)$/.test(t[1]))return{ok:!1,error:"Invalid FEN: side-to-move is invalid"};let r=t[0].split("/");if(r.length!==8)return{ok:!1,error:"Invalid FEN: piece data does not contain 8 '/'-delimited rows"};for(let c=0;c<r.length;c++){let h=0,u=!1;for(let g=0;g<r[c].length;g++)if(Ze(r[c][g])){if(u)return{ok:!1,error:"Invalid FEN: piece data is invalid (consecutive number)"};h+=parseInt(r[c][g],10),u=!0}else{if(!/^[prnbqkPRNBQK]$/.test(r[c][g]))return{ok:!1,error:"Invalid FEN: piece data is invalid (invalid piece)"};h+=1,u=!1}if(h!==8)return{ok:!1,error:"Invalid FEN: piece data is invalid (too many squares in rank)"}}if(t[3][1]=="3"&&t[1]=="w"||t[3][1]=="6"&&t[1]=="b")return{ok:!1,error:"Invalid FEN: illegal en-passant square"};let n=[{color:"white",regex:/K/g},{color:"black",regex:/k/g}];for(let{color:c,regex:h}of n){if(!h.test(t[0]))return{ok:!1,error:`Invalid FEN: missing ${c} king`};if((t[0].match(h)||[]).length>1)return{ok:!1,error:`Invalid FEN: too many ${c} kings`}}return Array.from(r[0]+r[7]).some(c=>c.toUpperCase()==="P")?{ok:!1,error:"Invalid FEN: some pawns are on the edge rows"}:{ok:!0}}function Cs(f,t){let e=f.from,s=f.to,r=f.piece,n=0,c=0,h=0;for(let u=0,g=t.length;u<g;u++){let d=t[u].from,A=t[u].to,p=t[u].piece;r===p&&e!==d&&s===A&&(n++,j(e)===j(d)&&c++,Z(e)===Z(d)&&h++)}return n>0?c>0&&h>0?N(e):h>0?N(e).charAt(1):N(e).charAt(0):""}function D(f,t,e,s,r,n=void 0,c=C.NORMAL){let h=j(s);if(r===T&&(h===ds||h===bs))for(let u=0;u<Ye.length;u++){let g=Ye[u];f.push({color:t,from:e,to:s,piece:r,captured:n,promotion:g,flags:c|C.PROMOTION})}else f.push({color:t,from:e,to:s,piece:r,captured:n,flags:c})}function ze(f){let t=f.charAt(0);return t>="a"&&t<="h"?f.match(/[a-h]\d.*[a-h]\d/)?void 0:T:(t=t.toLowerCase(),t==="o"?P:t)}function ve(f){return f.replace(/=/,"").replace(/[+#]?[?!]*$/,"")}var ne=class{_board=new Array(128);_turn=O;_header={};_kings={w:I,b:I};_epSquare=-1;_halfMoves=0;_moveNumber=0;_history=[];_comments={};_castling={w:0,b:0};_hash=0n;_positionCount=new Map;constructor(t=ge,{skipValidation:e=!1}={}){this.load(t,{skipValidation:e})}clear({preserveHeaders:t=!1}={}){this._board=new Array(128),this._kings={w:I,b:I},this._turn=O,this._castling={w:0,b:0},this._epSquare=I,this._halfMoves=0,this._moveNumber=1,this._history=[],this._comments={},this._header=t?this._header:{...cs},this._hash=this._computeHash(),this._positionCount=new Map,this._header.SetUp=null,this._header.FEN=null}load(t,{skipValidation:e=!1,preserveHeaders:s=!1}={}){let r=t.split(/\s+/);if(r.length>=2&&r.length<6){let h=["-","-","0","1"];t=r.concat(h.slice(-(6-r.length))).join(" ")}if(r=t.split(/\s+/),!e){let{ok:h,error:u}=Ss(t);if(!h)throw new Error(u)}let n=r[0],c=0;this.clear({preserveHeaders:s});for(let h=0;h<n.length;h++){let u=n.charAt(h);if(u==="/")c+=8;else if(Ze(u))c+=parseInt(u,10);else{let g=u<"a"?O:K;this._put({type:u.toLowerCase(),color:g},N(c)),c++}}this._turn=r[1],r[2].indexOf("K")>-1&&(this._castling.w|=C.KSIDE_CASTLE),r[2].indexOf("Q")>-1&&(this._castling.w|=C.QSIDE_CASTLE),r[2].indexOf("k")>-1&&(this._castling.b|=C.KSIDE_CASTLE),r[2].indexOf("q")>-1&&(this._castling.b|=C.QSIDE_CASTLE),this._epSquare=r[3]==="-"?I:S[r[3]],this._halfMoves=parseInt(r[4],10),this._moveNumber=parseInt(r[5],10),this._hash=this._computeHash(),this._updateSetup(t),this._incPositionCount()}fen({forceEnpassantSquare:t=!1}={}){let e=0,s="";for(let c=S.a8;c<=S.h1;c++){if(this._board[c]){e>0&&(s+=e,e=0);let{color:h,type:u}=this._board[c];s+=h===O?u.toUpperCase():u.toLowerCase()}else e++;c+1&136&&(e>0&&(s+=e),c!==S.h1&&(s+="/"),e=0,c+=8)}let r="";this._castling[O]&C.KSIDE_CASTLE&&(r+="K"),this._castling[O]&C.QSIDE_CASTLE&&(r+="Q"),this._castling[K]&C.KSIDE_CASTLE&&(r+="k"),this._castling[K]&C.QSIDE_CASTLE&&(r+="q"),r=r||"-";let n="-";if(this._epSquare!==I)if(t)n=N(this._epSquare);else{let c=this._epSquare+(this._turn===O?16:-16),h=[c+1,c-1];for(let u of h){if(u&136)continue;let g=this._turn;if(this._board[u]?.color===g&&this._board[u]?.type===T){this._makeMove({color:g,from:u,to:this._epSquare,piece:T,captured:T,flags:C.EP_CAPTURE});let d=!this._isKingAttacked(g);if(this._undoMove(),d){n=N(this._epSquare);break}}}}return[s,this._turn,r,n,this._halfMoves,this._moveNumber].join(" ")}_pieceKey(t){if(!this._board[t])return 0n;let{color:e,type:s}=this._board[t],r={w:0,b:1}[e],n={p:0,n:1,b:2,r:3,q:4,k:5}[s];return as[r][n][t]}_epKey(){return this._epSquare===I?0n:ls[this._epSquare&7]}_castlingKey(){let t=this._castling.w>>5|this._castling.b>>3;return fs[t]}_computeHash(){let t=0n;for(let e=S.a8;e<=S.h1;e++){if(e&136){e+=7;continue}this._board[e]&&(t^=this._pieceKey(e))}return t^=this._epKey(),t^=this._castlingKey(),this._turn==="b"&&(t^=pe),t}_updateSetup(t){this._history.length>0||(t!==ge?(this._header.SetUp="1",this._header.FEN=t):(this._header.SetUp=null,this._header.FEN=null))}reset(){this.load(ge)}get(t){return this._board[S[t]]}findPiece(t){let e=[];for(let s=S.a8;s<=S.h1;s++){if(s&136){s+=7;continue}!this._board[s]||this._board[s]?.color!==t.color||this._board[s].color===t.color&&this._board[s].type===t.type&&e.push(N(s))}return e}put({type:t,color:e},s){return this._put({type:t,color:e},s)?(this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),!0):!1}_set(t,e){this._hash^=this._pieceKey(t),this._board[t]=e,this._hash^=this._pieceKey(t)}_put({type:t,color:e},s){if(gs.indexOf(t.toLowerCase())===-1||!(s in S))return!1;let r=S[s];if(t==P&&!(this._kings[e]==I||this._kings[e]==r))return!1;let n=this._board[r];return n&&n.type===P&&(this._kings[n.color]=I),this._set(r,{type:t,color:e}),t===P&&(this._kings[e]=r),!0}_clear(t){this._hash^=this._pieceKey(t),delete this._board[t]}remove(t){let e=this.get(t);return this._clear(S[t]),e&&e.type===P&&(this._kings[e.color]=I),this._updateCastlingRights(),this._updateEnPassantSquare(),this._updateSetup(this.fen()),e}_updateCastlingRights(){this._hash^=this._castlingKey();let t=this._board[S.e1]?.type===P&&this._board[S.e1]?.color===O,e=this._board[S.e8]?.type===P&&this._board[S.e8]?.color===K;(!t||this._board[S.a1]?.type!==z||this._board[S.a1]?.color!==O)&&(this._castling.w&=-65),(!t||this._board[S.h1]?.type!==z||this._board[S.h1]?.color!==O)&&(this._castling.w&=-33),(!e||this._board[S.a8]?.type!==z||this._board[S.a8]?.color!==K)&&(this._castling.b&=-65),(!e||this._board[S.h8]?.type!==z||this._board[S.h8]?.color!==K)&&(this._castling.b&=-33),this._hash^=this._castlingKey()}_updateEnPassantSquare(){if(this._epSquare===I)return;let t=this._epSquare+(this._turn===O?-16:16),e=this._epSquare+(this._turn===O?16:-16),s=[e+1,e-1];if(this._board[t]!==null||this._board[this._epSquare]!==null||this._board[e]?.color!==Y(this._turn)||this._board[e]?.type!==T){this._hash^=this._epKey(),this._epSquare=I;return}let r=n=>!(n&136)&&this._board[n]?.color===this._turn&&this._board[n]?.type===T;s.some(r)||(this._hash^=this._epKey(),this._epSquare=I)}_attacked(t,e,s){let r=[];for(let n=S.a8;n<=S.h1;n++){if(n&136){n+=7;continue}if(this._board[n]===void 0||this._board[n].color!==t)continue;let c=this._board[n],h=n-e;if(h===0)continue;let u=h+119;if(us[u]&ps[c.type]){if(c.type===T){if(h>0&&c.color===O||h<=0&&c.color===K)if(s)r.push(N(n));else return!0;continue}if(c.type==="n"||c.type==="k")if(s){r.push(N(n));continue}else return!0;let g=_s[u],d=n+g,A=!1;for(;d!==e;){if(this._board[d]!=null){A=!0;break}d+=g}if(!A)if(s){r.push(N(n));continue}else return!0}}return s?r:!1}attackers(t,e){return e?this._attacked(e,S[t],!0):this._attacked(this._turn,S[t],!0)}_isKingAttacked(t){let e=this._kings[t];return e===-1?!1:this._attacked(Y(t),e)}hash(){return this._hash.toString(16)}isAttacked(t,e){return this._attacked(e,S[t])}isCheck(){return this._isKingAttacked(this._turn)}inCheck(){return this.isCheck()}isCheckmate(){return this.isCheck()&&this._moves().length===0}isStalemate(){return!this.isCheck()&&this._moves().length===0}isInsufficientMaterial(){let t={b:0,n:0,r:0,q:0,k:0,p:0},e=[],s=0,r=0;for(let n=S.a8;n<=S.h1;n++){if(r=(r+1)%2,n&136){n+=7;continue}let c=this._board[n];c&&(t[c.type]=c.type in t?t[c.type]+1:1,c.type===re&&e.push(r),s++)}if(s===2)return!0;if(s===3&&(t[re]===1||t[be]===1))return!0;if(s===t[re]+2){let n=0,c=e.length;for(let h=0;h<c;h++)n+=e[h];if(n===0||n===c)return!0}return!1}isThreefoldRepetition(){return this._getPositionCount(this._hash)>=3}isDrawByFiftyMoves(){return this._halfMoves>=100}isDraw(){return this.isDrawByFiftyMoves()||this.isStalemate()||this.isInsufficientMaterial()||this.isThreefoldRepetition()}isGameOver(){return this.isCheckmate()||this.isDraw()}moves({verbose:t=!1,square:e=void 0,piece:s=void 0}={}){let r=this._moves({square:e,piece:s});return t?r.map(n=>new G(this,n)):r.map(n=>this._moveToSan(n,r))}_moves({legal:t=!0,piece:e=void 0,square:s=void 0}={}){let r=s?s.toLowerCase():void 0,n=e?.toLowerCase(),c=[],h=this._turn,u=Y(h),g=S.a8,d=S.h1,A=!1;if(r)if(r in S)g=d=S[r],A=!0;else return[];for(let E=g;E<=d;E++){if(E&136){E+=7;continue}if(!this._board[E]||this._board[E].color===u)continue;let{type:$}=this._board[E],y;if($===T){if(n&&n!==$)continue;y=E+de[h][0],this._board[y]||(D(c,h,E,y,T),y=E+de[h][1],Es[h]===j(E)&&!this._board[y]&&D(c,h,E,y,T,void 0,C.BIG_PAWN));for(let q=2;q<4;q++)y=E+de[h][q],!(y&136)&&(this._board[y]?.color===u?D(c,h,E,y,T,this._board[y].type,C.CAPTURE):y===this._epSquare&&D(c,h,E,y,T,T,C.EP_CAPTURE))}else{if(n&&n!==$)continue;for(let q=0,ae=Ve[$].length;q<ae;q++){let le=Ve[$][q];for(y=E;y+=le,!(y&136);){if(!this._board[y])D(c,h,E,y,$);else{if(this._board[y].color===h)break;D(c,h,E,y,$,this._board[y].type,C.CAPTURE);break}if($===be||$===P)break}}}}if((n===void 0||n===P)&&(!A||d===this._kings[h])){if(this._castling[h]&C.KSIDE_CASTLE){let E=this._kings[h],$=E+2;!this._board[E+1]&&!this._board[$]&&!this._attacked(u,this._kings[h])&&!this._attacked(u,E+1)&&!this._attacked(u,$)&&D(c,h,this._kings[h],$,P,void 0,C.KSIDE_CASTLE)}if(this._castling[h]&C.QSIDE_CASTLE){let E=this._kings[h],$=E-2;!this._board[E-1]&&!this._board[E-2]&&!this._board[E-3]&&!this._attacked(u,this._kings[h])&&!this._attacked(u,E-1)&&!this._attacked(u,$)&&D(c,h,this._kings[h],$,P,void 0,C.QSIDE_CASTLE)}}if(!t||this._kings[h]===-1)return c;let p=[];for(let E=0,$=c.length;E<$;E++)this._makeMove(c[E]),this._isKingAttacked(h)||p.push(c[E]),this._undoMove();return p}move(t,{strict:e=!1}={}){let s=null;if(typeof t=="string")s=this._moveFromSan(t,e);else if(t===null)s=this._moveFromSan(me,e);else if(typeof t=="object"){let n=this._moves();for(let c=0,h=n.length;c<h;c++)if(t.from===N(n[c].from)&&t.to===N(n[c].to)&&(!("promotion"in n[c])||t.promotion===n[c].promotion)){s=n[c];break}}if(!s)throw typeof t=="string"?new Error(`Invalid move: ${t}`):new Error(`Invalid move: ${JSON.stringify(t)}`);if(this.isCheck()&&s.flags&C.NULL_MOVE)throw new Error("Null move not allowed when in check");let r=new G(this,s);return this._makeMove(s),this._incPositionCount(),r}_push(t){this._history.push({move:t,kings:{b:this._kings.b,w:this._kings.w},turn:this._turn,castling:{b:this._castling.b,w:this._castling.w},epSquare:this._epSquare,halfMoves:this._halfMoves,moveNumber:this._moveNumber})}_movePiece(t,e){this._hash^=this._pieceKey(t),this._board[e]=this._board[t],delete this._board[t],this._hash^=this._pieceKey(e)}_makeMove(t){let e=this._turn,s=Y(e);if(this._push(t),t.flags&C.NULL_MOVE){e===K&&this._moveNumber++,this._halfMoves++,this._turn=s,this._epSquare=I;return}if(this._hash^=this._epKey(),this._hash^=this._castlingKey(),t.captured&&(this._hash^=this._pieceKey(t.to)),this._movePiece(t.from,t.to),t.flags&C.EP_CAPTURE&&(this._turn===K?this._clear(t.to-16):this._clear(t.to+16)),t.promotion&&(this._clear(t.to),this._set(t.to,{type:t.promotion,color:e})),this._board[t.to].type===P){if(this._kings[e]=t.to,t.flags&C.KSIDE_CASTLE){let r=t.to-1,n=t.to+1;this._movePiece(n,r)}else if(t.flags&C.QSIDE_CASTLE){let r=t.to+1,n=t.to-2;this._movePiece(n,r)}this._castling[e]=0}if(this._castling[e]){for(let r=0,n=F[e].length;r<n;r++)if(t.from===F[e][r].square&&this._castling[e]&F[e][r].flag){this._castling[e]^=F[e][r].flag;break}}if(this._castling[s]){for(let r=0,n=F[s].length;r<n;r++)if(t.to===F[s][r].square&&this._castling[s]&F[s][r].flag){this._castling[s]^=F[s][r].flag;break}}if(this._hash^=this._castlingKey(),t.flags&C.BIG_PAWN){let r;e===K?r=t.to-16:r=t.to+16,!(t.to-1&136)&&this._board[t.to-1]?.type===T&&this._board[t.to-1]?.color===s||!(t.to+1&136)&&this._board[t.to+1]?.type===T&&this._board[t.to+1]?.color===s?(this._epSquare=r,this._hash^=this._epKey()):this._epSquare=I}else this._epSquare=I;t.piece===T?this._halfMoves=0:t.flags&(C.CAPTURE|C.EP_CAPTURE)?this._halfMoves=0:this._halfMoves++,e===K&&this._moveNumber++,this._turn=s,this._hash^=pe}undo(){let t=this._hash,e=this._undoMove();if(e){let s=new G(this,e);return this._decPositionCount(t),s}return null}_undoMove(){let t=this._history.pop();if(t===void 0)return null;this._hash^=this._epKey(),this._hash^=this._castlingKey();let e=t.move;this._kings=t.kings,this._turn=t.turn,this._castling=t.castling,this._epSquare=t.epSquare,this._halfMoves=t.halfMoves,this._moveNumber=t.moveNumber,this._hash^=this._epKey(),this._hash^=this._castlingKey(),this._hash^=pe;let s=this._turn,r=Y(s);if(e.flags&C.NULL_MOVE)return e;if(this._movePiece(e.to,e.from),e.piece&&(this._clear(e.from),this._set(e.from,{type:e.piece,color:s})),e.captured)if(e.flags&C.EP_CAPTURE){let n;s===K?n=e.to-16:n=e.to+16,this._set(n,{type:T,color:r})}else this._set(e.to,{type:e.captured,color:r});if(e.flags&(C.KSIDE_CASTLE|C.QSIDE_CASTLE)){let n,c;e.flags&C.KSIDE_CASTLE?(n=e.to+1,c=e.to-1):(n=e.to-2,c=e.to+1),this._movePiece(c,n)}return e}pgn({newline:t=`
+`,maxWidth:e=0}={}){let s=[],r=!1;for(let p in this._header)this._header[p]&&s.push(`[${p} "${this._header[p]}"]`+t),r=!0;r&&this._history.length&&s.push(t);let n=p=>{let E=this._comments[this.fen()];if(typeof E<"u"){let $=p.length>0?" ":"";p=`${p}${$}{${E}}`}return p},c=[];for(;this._history.length>0;)c.push(this._undoMove());let h=[],u="";for(c.length===0&&h.push(n(""));c.length>0;){u=n(u);let p=c.pop();if(!p)break;if(!this._history.length&&p.color==="b"){let E=`${this._moveNumber}. ...`;u=u?`${u} ${E}`:E}else p.color==="w"&&(u.length&&h.push(u),u=this._moveNumber+".");u=u+" "+this._moveToSan(p,this._moves({legal:!0})),this._makeMove(p)}if(u.length&&h.push(n(u)),h.push(this._header.Result||"*"),e===0)return s.join("")+h.join(" ");let g=function(){return s.length>0&&s[s.length-1]===" "?(s.pop(),!0):!1},d=function(p,E){for(let $ of E.split(" "))if($){if(p+$.length>e){for(;g();)p--;s.push(t),p=0}s.push($),p+=$.length,s.push(" "),p++}return g()&&p--,p},A=0;for(let p=0;p<h.length;p++){if(A+h[p].length>e&&h[p].includes("{")){A=d(A,h[p]);continue}A+h[p].length>e&&p!==0?(s[s.length-1]===" "&&s.pop(),s.push(t),A=0):p!==0&&(s.push(" "),A++),s.push(h[p]),A+=h[p].length}return s.join("")}header(...t){for(let e=0;e<t.length;e+=2)typeof t[e]=="string"&&typeof t[e+1]=="string"&&(this._header[t[e]]=t[e+1]);return this._header}setHeader(t,e){return this._header[t]=e??Ee[t]??null,this.getHeaders()}removeHeader(t){return t in this._header?(this._header[t]=Ee[t]||null,!0):!1}getHeaders(){let t={};for(let[e,s]of Object.entries(this._header))s!==null&&(t[e]=s);return t}loadPgn(t,{strict:e=!1,newlineChar:s=`\r?
+`}={}){s!==`\r?
+`&&(t=t.replace(new RegExp(s,"g"),`
+`));let r=ns(t);this.reset();let n=r.headers,c="";for(let g in n)g.toLowerCase()==="fen"&&(c=n[g]),this.header(g,n[g]);if(!e)c&&this.load(c,{preserveHeaders:!0});else if(n.SetUp==="1"){if(!("FEN"in n))throw new Error("Invalid PGN: FEN tag must be supplied with SetUp tag");this.load(n.FEN,{preserveHeaders:!0})}let h=r.root;for(;h;){if(h.move){let g=this._moveFromSan(h.move,e);if(g==null)throw new Error(`Invalid move in PGN: ${h.move}`);this._makeMove(g),this._incPositionCount()}h.comment!==void 0&&(this._comments[this.fen()]=h.comment),h=h.variations[0]}let u=r.result;u&&Object.keys(this._header).length&&this._header.Result!==u&&this.setHeader("Result",u)}_moveToSan(t,e){let s="";if(t.flags&C.KSIDE_CASTLE)s="O-O";else if(t.flags&C.QSIDE_CASTLE)s="O-O-O";else{if(t.flags&C.NULL_MOVE)return me;if(t.piece!==T){let r=Cs(t,e);s+=t.piece.toUpperCase()+r}t.flags&(C.CAPTURE|C.EP_CAPTURE)&&(t.piece===T&&(s+=N(t.from)[0]),s+="x"),s+=N(t.to),t.promotion&&(s+="="+t.promotion.toUpperCase())}return this._makeMove(t),this.isCheck()&&(this.isCheckmate()?s+="#":s+="+"),this._undoMove(),s}_moveFromSan(t,e=!1){let s=ve(t);if(e||(s==="0-0"?s="O-O":s==="0-0-0"&&(s="O-O-O")),s==me)return{color:this._turn,from:0,to:0,piece:"k",flags:C.NULL_MOVE};let r=ze(s),n=this._moves({legal:!0,piece:r});for(let p=0,E=n.length;p<E;p++)if(s===ve(this._moveToSan(n[p],n)))return n[p];if(e)return null;let c,h,u,g,d,A=!1;if(h=s.match(/([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/),h?(c=h[1],u=h[2],g=h[3],d=h[4],u.length==1&&(A=!0)):(h=s.match(/([pnbrqkPNBRQK])?([a-h]?[1-8]?)x?-?([a-h][1-8])([qrbnQRBN])?/),h&&(c=h[1],u=h[2],g=h[3],d=h[4],u.length==1&&(A=!0))),r=ze(s),n=this._moves({legal:!0,piece:c||r}),!g)return null;for(let p=0,E=n.length;p<E;p++)if(u){if((!c||c.toLowerCase()==n[p].piece)&&S[u]==n[p].from&&S[g]==n[p].to&&(!d||d.toLowerCase()==n[p].promotion))return n[p];if(A){let $=N(n[p].from);if((!c||c.toLowerCase()==n[p].piece)&&S[g]==n[p].to&&(u==$[0]||u==$[1])&&(!d||d.toLowerCase()==n[p].promotion))return n[p]}}else if(s===ve(this._moveToSan(n[p],n)).replace("x",""))return n[p];return null}ascii(){let t=`   +------------------------+
+`;for(let e=S.a8;e<=S.h1;e++){if(Z(e)===0&&(t+=" "+"87654321"[j(e)]+" |"),this._board[e]){let s=this._board[e].type,n=this._board[e].color===O?s.toUpperCase():s.toLowerCase();t+=" "+n+" "}else t+=" . ";e+1&136&&(t+=`|
+`,e+=8)}return t+=`   +------------------------+
+`,t+="     a  b  c  d  e  f  g  h",t}perft(t){let e=this._moves({legal:!1}),s=0,r=this._turn;for(let n=0,c=e.length;n<c;n++)this._makeMove(e[n]),this._isKingAttacked(r)||(t-1>0?s+=this.perft(t-1):s++),this._undoMove();return s}setTurn(t){return this._turn==t?!1:(this.move("--"),!0)}turn(){return this._turn}board(){let t=[],e=[];for(let s=S.a8;s<=S.h1;s++)this._board[s]==null?e.push(null):e.push({square:N(s),type:this._board[s].type,color:this._board[s].color}),s+1&136&&(t.push(e),e=[],s+=8);return t}squareColor(t){if(t in S){let e=S[t];return(j(e)+Z(e))%2===0?"light":"dark"}return null}history({verbose:t=!1}={}){let e=[],s=[];for(;this._history.length>0;)e.push(this._undoMove());for(;;){let r=e.pop();if(!r)break;t?s.push(new G(this,r)):s.push(this._moveToSan(r,this._moves())),this._makeMove(r)}return s}_getPositionCount(t){return this._positionCount.get(t)??0}_incPositionCount(){this._positionCount.set(this._hash,(this._positionCount.get(this._hash)??0)+1)}_decPositionCount(t){let e=this._positionCount.get(t)??0;e===1?this._positionCount.delete(t):this._positionCount.set(t,e-1)}_pruneComments(){let t=[],e={},s=r=>{r in this._comments&&(e[r]=this._comments[r])};for(;this._history.length>0;)t.push(this._undoMove());for(s(this.fen());;){let r=t.pop();if(!r)break;this._makeMove(r),s(this.fen())}this._comments=e}getComment(){return this._comments[this.fen()]}setComment(t){this._comments[this.fen()]=t.replace("{","[").replace("}","]")}deleteComment(){return this.removeComment()}removeComment(){let t=this._comments[this.fen()];return delete this._comments[this.fen()],t}getComments(){return this._pruneComments(),Object.keys(this._comments).map(t=>({fen:t,comment:this._comments[t]}))}deleteComments(){return this.removeComments()}removeComments(){return this._pruneComments(),Object.keys(this._comments).map(t=>{let e=this._comments[t];return delete this._comments[t],{fen:t,comment:e}})}setCastlingRights(t,e){for(let r of[P,U])e[r]!==void 0&&(e[r]?this._castling[t]|=se[r]:this._castling[t]&=~se[r]);this._updateCastlingRights();let s=this.getCastlingRights(t);return(e[P]===void 0||e[P]===s[P])&&(e[U]===void 0||e[U]===s[U])}getCastlingRights(t){return{[P]:(this._castling[t]&se[P])!==0,[U]:(this._castling[t]&se[U])!==0}}moveNumber(){return this._moveNumber}};window.Chess=ne;})();
+/*! Bundled license information:
+
+chess.js/dist/esm/chess.js:
+  (**
+   * @license
+   * Copyright (c) 2025, Jeff Hlywa (jhlywa@gmail.com)
+   * All rights reserved.
+   *
+   * Redistribution and use in source and binary forms, with or without
+   * modification, are permitted provided that the following conditions are met:
+   *
+   * 1. Redistributions of source code must retain the above copyright notice,
+   *    this list of conditions and the following disclaimer.
+   * 2. Redistributions in binary form must reproduce the above copyright notice,
+   *    this list of conditions and the following disclaimer in the documentation
+   *    and/or other materials provided with the distribution.
+   *
+   * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+   * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+   * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+   * ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE
+   * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+   * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+   * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+   * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+   * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+   * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+   * POSSIBILITY OF SUCH DAMAGE.
+   *)
+*/
+
+  </script>
+  <script>
+(function () {
+  var PIECES = {"wp":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PHBhdGggZD0iTTIyLjUgOWMtMi4yMSAwLTQgMS43OS00IDQgMCAuODkuMjkgMS43MS43OCAyLjM4QzE3LjMzIDE2LjUgMTYgMTguNTkgMTYgMjFjMCAyLjAzLjk0IDMuODQgMi40MSA1LjAzLTMgMS4wNi03LjQxIDUuNTUtNy40MSAxMy40N2gyM2MwLTcuOTItNC40MS0xMi40MS03LjQxLTEzLjQ3IDEuNDctMS4xOSAyLjQxLTMgMi40MS01LjAzIDAtMi40MS0xLjMzLTQuNS0zLjI4LTUuNjIuNDktLjY3Ljc4LTEuNDkuNzgtMi4zOCAwLTIuMjEtMS43OS00LTQtNHoiIGZpbGw9IiNmZmYiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==","wb":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxnIGZpbGw9IiNmZmYiIHN0cm9rZS1saW5lY2FwPSJidXR0Ij48cGF0aCBkPSJNOSAzNmMzLjM5LS45NyAxMC4xMS40MyAxMy41LTIgMy4zOSAyLjQzIDEwLjExIDEuMDMgMTMuNSAyIDAgMCAxLjY1LjU0IDMgMi0uNjguOTctMS42NS45OS0zIC41LTMuMzktLjk3LTEwLjExLjQ2LTEzLjUtMS0zLjM5IDEuNDYtMTAuMTEuMDMtMTMuNSAxLTEuMzU0LjQ5LTIuMzIzLjQ3LTMtLjUgMS4zNTQtMS45NCAzLTIgMy0yeiIvPjxwYXRoIGQ9Ik0xNSAzMmMyLjUgMi41IDEyLjUgMi41IDE1IDAgLjUtMS41IDAtMiAwLTIgMC0yLjUtMi41LTQtMi41LTQgNS41LTEuNSA2LTExLjUtNS0xNS41LTExIDQtMTAuNSAxNC01IDE1LjUgMCAwLTIuNSAxLjUtMi41IDQgMCAwLS41LjUgMCAyeiIvPjxwYXRoIGQ9Ik0yNSA4YTIuNSAyLjUgMCAxIDEtNSAwIDIuNSAyLjUgMCAxIDEgNSAweiIvPjwvZz48cGF0aCBkPSJNMTcuNSAyNmgxME0xNSAzMGgxNW0tNy41LTE0LjV2NU0yMCAxOGg1IiBzdHJva2UtbGluZWpvaW49Im1pdGVyIi8+PC9nPjwvc3ZnPg==","wn":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yMiAxMGMxMC41IDEgMTYuNSA4IDE2IDI5SDE1YzAtOSAxMC02LjUgOC0yMSIgZmlsbD0iI2ZmZiIvPjxwYXRoIGQ9Ik0yNCAxOGMuMzggMi45MS01LjU1IDcuMzctOCA5LTMgMi0yLjgyIDQuMzQtNSA0LTEuMDQyLS45NCAxLjQxLTMuMDQgMC0zLTEgMCAuMTkgMS4yMy0xIDItMSAwLTQuMDAzIDEtNC00IDAtMiA2LTEyIDYtMTJzMS44OS0xLjkgMi0zLjVjLS43My0uOTk0LS41LTItLjUtMyAxLTEgMyAyLjUgMyAyLjVoMnMuNzgtMS45OTIgMi41LTNjMSAwIDEgMyAxIDMiIGZpbGw9IiNmZmYiLz48cGF0aCBkPSJNOS41IDI1LjVhLjUuNSAwIDEgMS0xIDAgLjUuNSAwIDEgMSAxIDB6bTUuNDMzLTkuNzVhLjUgMS41IDMwIDEgMS0uODY2LS41LjUgMS41IDMwIDEgMSAuODY2LjV6IiBmaWxsPSIjMDAwIi8+PC9nPjwvc3ZnPg==","wr":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbD0iI2ZmZiIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik05IDM5aDI3di0zSDl2M3ptMy0zdi00aDIxdjRIMTJ6bS0xLTIyVjloNHYyaDVWOWg1djJoNVY5aDR2NSIgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiLz48cGF0aCBkPSJNMzQgMTRsLTMgM0gxNGwtMy0zIi8+PHBhdGggZD0iTTMxIDE3djEyLjVIMTRWMTciIHN0cm9rZS1saW5lY2FwPSJidXR0IiBzdHJva2UtbGluZWpvaW49Im1pdGVyIi8+PHBhdGggZD0iTTMxIDI5LjVsMS41IDIuNWgtMjBsMS41LTIuNSIvPjxwYXRoIGQ9Ik0xMSAxNGgyMyIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIvPjwvZz48L3N2Zz4=","wq":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbD0iI2ZmZiIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik04IDEyYTIgMiAwIDEgMS00IDAgMiAyIDAgMSAxIDQgMHptMTYuNS00LjVhMiAyIDAgMSAxLTQgMCAyIDIgMCAxIDEgNCAwek00MSAxMmEyIDIgMCAxIDEtNCAwIDIgMiAwIDEgMSA0IDB6TTE2IDguNWEyIDIgMCAxIDEtNCAwIDIgMiAwIDEgMSA0IDB6TTMzIDlhMiAyIDAgMSAxLTQgMCAyIDIgMCAxIDEgNCAweiIvPjxwYXRoIGQ9Ik05IDI2YzguNS0xLjUgMjEtMS41IDI3IDBsMi0xMi03IDExVjExbC01LjUgMTMuNS0zLTE1LTMgMTUtNS41LTE0VjI1TDcgMTRsMiAxMnoiIHN0cm9rZS1saW5lY2FwPSJidXR0Ii8+PHBhdGggZD0iTTkgMjZjMCAyIDEuNSAyIDIuNSA0IDEgMS41IDEgMSAuNSAzLjUtMS41IDEtMS41IDIuNS0xLjUgMi41LTEuNSAxLjUuNSAyLjUuNSAyLjUgNi41IDEgMTYuNSAxIDIzIDAgMCAwIDEuNS0xIDAtMi41IDAgMCAuNS0xLjUtMS0yLjUtLjUtMi41LS41LTIgLjUtMy41IDEtMiAyLjUtMiAyLjUtNC04LjUtMS41LTE4LjUtMS41LTI3IDB6IiBzdHJva2UtbGluZWNhcD0iYnV0dCIvPjxwYXRoIGQ9Ik0xMS41IDMwYzMuNS0xIDE4LjUtMSAyMiAwTTEyIDMzLjVjNi0xIDE1LTEgMjEgMCIgZmlsbD0ibm9uZSIvPjwvZz48L3N2Zz4=","wk":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yMi41IDExLjYzVjZNMjAgOGg1IiBzdHJva2UtbGluZWpvaW49Im1pdGVyIi8+PHBhdGggZD0iTTIyLjUgMjVzNC41LTcuNSAzLTEwLjVjMCAwLTEtMi41LTMtMi41cy0zIDIuNS0zIDIuNWMtMS41IDMgMyAxMC41IDMgMTAuNSIgZmlsbD0iI2ZmZiIgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiLz48cGF0aCBkPSJNMTEuNSAzN2M1LjUgMy41IDE1LjUgMy41IDIxIDB2LTdzOS00LjUgNi0xMC41Yy00LTYuNS0xMy41LTMuNS0xNiA0VjI3di0zLjVjLTMuNS03LjUtMTMtMTAuNS0xNi00LTMgNiA1IDEwIDUgMTBWMzd6IiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTExLjUgMzBjNS41LTMgMTUuNS0zIDIxIDBtLTIxIDMuNWM1LjUtMyAxNS41LTMgMjEgMG0tMjEgMy41YzUuNS0zIDE1LjUtMyAyMSAwIi8+PC9nPjwvc3ZnPg==","bp":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PHBhdGggZD0iTTIyLjUgOWMtMi4yMSAwLTQgMS43OS00IDQgMCAuODkuMjkgMS43MS43OCAyLjM4QzE3LjMzIDE2LjUgMTYgMTguNTkgMTYgMjFjMCAyLjAzLjk0IDMuODQgMi40MSA1LjAzLTMgMS4wNi03LjQxIDUuNTUtNy40MSAxMy40N2gyM2MwLTcuOTItNC40MS0xMi40MS03LjQxLTEzLjQ3IDEuNDctMS4xOSAyLjQxLTMgMi40MS01LjAzIDAtMi40MS0xLjMzLTQuNS0zLjI4LTUuNjIuNDktLjY3Ljc4LTEuNDkuNzgtMi4zOCAwLTIuMjEtMS43OS00LTQtNHoiIHN0cm9rZT0iIzAwMCIgc3Ryb2tlLXdpZHRoPSIxLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPjwvc3ZnPg==","bb":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxnIGZpbGw9IiMwMDAiIHN0cm9rZS1saW5lY2FwPSJidXR0Ij48cGF0aCBkPSJNOSAzNmMzLjM5LS45NyAxMC4xMS40MyAxMy41LTIgMy4zOSAyLjQzIDEwLjExIDEuMDMgMTMuNSAyIDAgMCAxLjY1LjU0IDMgMi0uNjguOTctMS42NS45OS0zIC41LTMuMzktLjk3LTEwLjExLjQ2LTEzLjUtMS0zLjM5IDEuNDYtMTAuMTEuMDMtMTMuNSAxLTEuMzU0LjQ5LTIuMzIzLjQ3LTMtLjUgMS4zNTQtMS45NCAzLTIgMy0yeiIvPjxwYXRoIGQ9Ik0xNSAzMmMyLjUgMi41IDEyLjUgMi41IDE1IDAgLjUtMS41IDAtMiAwLTIgMC0yLjUtMi41LTQtMi41LTQgNS41LTEuNSA2LTExLjUtNS0xNS41LTExIDQtMTAuNSAxNC01IDE1LjUgMCAwLTIuNSAxLjUtMi41IDQgMCAwLS41LjUgMCAyeiIvPjxwYXRoIGQ9Ik0yNSA4YTIuNSAyLjUgMCAxIDEtNSAwIDIuNSAyLjUgMCAxIDEgNSAweiIvPjwvZz48cGF0aCBkPSJNMTcuNSAyNmgxME0xNSAzMGgxNW0tNy41LTE0LjV2NU0yMCAxOGg1IiBzdHJva2U9IiNlY2VjZWMiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiLz48L2c+PC9zdmc+","bn":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yMiAxMGMxMC41IDEgMTYuNSA4IDE2IDI5SDE1YzAtOSAxMC02LjUgOC0yMSIgZmlsbD0iIzAwMCIvPjxwYXRoIGQ9Ik0yNCAxOGMuMzggMi45MS01LjU1IDcuMzctOCA5LTMgMi0yLjgyIDQuMzQtNSA0LTEuMDQyLS45NCAxLjQxLTMuMDQgMC0zLTEgMCAuMTkgMS4yMy0xIDItMSAwLTQuMDAzIDEtNC00IDAtMiA2LTEyIDYtMTJzMS44OS0xLjkgMi0zLjVjLS43My0uOTk0LS41LTItLjUtMyAxLTEgMyAyLjUgMyAyLjVoMnMuNzgtMS45OTIgMi41LTNjMSAwIDEgMyAxIDMiIGZpbGw9IiMwMDAiLz48cGF0aCBkPSJNOS41IDI1LjVhLjUuNSAwIDEgMS0xIDAgLjUuNSAwIDEgMSAxIDB6bTUuNDMzLTkuNzVhLjUgMS41IDMwIDEgMS0uODY2LS41LjUgMS41IDMwIDEgMSAuODY2LjV6IiBmaWxsPSIjZWNlY2VjIiBzdHJva2U9IiNlY2VjZWMiLz48cGF0aCBkPSJNMjQuNTUgMTAuNGwtLjQ1IDEuNDUuNS4xNWMzLjE1IDEgNS42NSAyLjQ5IDcuOSA2Ljc1UzM1Ljc1IDI5LjA2IDM1LjI1IDM5bC0uMDUuNWgyLjI1bC4wNS0uNWMuNS0xMC4wNi0uODgtMTYuODUtMy4yNS0yMS4zNC0yLjM3LTQuNDktNS43OS02LjY0LTkuMTktNy4xNmwtLjUxLS4xeiIgZmlsbD0iI2VjZWNlYyIgc3Ryb2tlPSJub25lIi8+PC9nPjwvc3ZnPg==","br":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik05IDM5aDI3di0zSDl2M3ptMy41LTdsMS41LTIuNWgxN2wxLjUgMi41aC0yMHptLS41IDR2LTRoMjF2NEgxMnoiIHN0cm9rZS1saW5lY2FwPSJidXR0Ii8+PHBhdGggZD0iTTE0IDI5LjV2LTEzaDE3djEzSDE0eiIgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiLz48cGF0aCBkPSJNMTQgMTYuNUwxMSAxNGgyM2wtMyAyLjVIMTR6TTExIDE0VjloNHYyaDVWOWg1djJoNVY5aDR2NUgxMXoiIHN0cm9rZS1saW5lY2FwPSJidXR0Ii8+PHBhdGggZD0iTTEyIDM1LjVoMjFtLTIwLTRoMTltLTE4LTJoMTdtLTE3LTEzaDE3TTExIDE0aDIzIiBmaWxsPSJub25lIiBzdHJva2U9IiNlY2VjZWMiIHN0cm9rZS13aWR0aD0iMSIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIvPjwvZz48L3N2Zz4=","bq":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxnIHN0cm9rZT0ibm9uZSI+PGNpcmNsZSBjeD0iNiIgY3k9IjEyIiByPSIyLjc1Ii8+PGNpcmNsZSBjeD0iMTQiIGN5PSI5IiByPSIyLjc1Ii8+PGNpcmNsZSBjeD0iMjIuNSIgY3k9IjgiIHI9IjIuNzUiLz48Y2lyY2xlIGN4PSIzMSIgY3k9IjkiIHI9IjIuNzUiLz48Y2lyY2xlIGN4PSIzOSIgY3k9IjEyIiByPSIyLjc1Ii8+PC9nPjxwYXRoIGQ9Ik05IDI2YzguNS0xLjUgMjEtMS41IDI3IDBsMi41LTEyLjVMMzEgMjVsLS4zLTE0LjEtNS4yIDEzLjYtMy0xNC41LTMgMTQuNS01LjItMTMuNkwxNCAyNSA2LjUgMTMuNSA5IDI2eiIgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiLz48cGF0aCBkPSJNOSAyNmMwIDIgMS41IDIgMi41IDQgMSAxLjUgMSAxIC41IDMuNS0xLjUgMS0xLjUgMi41LTEuNSAyLjUtMS41IDEuNS41IDIuNS41IDIuNSA2LjUgMSAxNi41IDEgMjMgMCAwIDAgMS41LTEgMC0yLjUgMCAwIC41LTEuNS0xLTIuNS0uNS0yLjUtLjUtMiAuNS0zLjUgMS0yIDIuNS0yIDIuNS00LTguNS0xLjUtMTguNS0xLjUtMjcgMHoiIHN0cm9rZS1saW5lY2FwPSJidXR0Ii8+PHBhdGggZD0iTTExIDM4LjVhMzUgMzUgMSAwIDAgMjMgMCIgZmlsbD0ibm9uZSIgc3Ryb2tlLWxpbmVjYXA9ImJ1dHQiLz48cGF0aCBkPSJNMTEgMjlhMzUgMzUgMSAwIDEgMjMgMG0tMjEuNSAyLjVoMjBtLTIxIDNhMzUgMzUgMSAwIDAgMjIgMG0tMjMgM2EzNSAzNSAxIDAgMCAyNCAwIiBmaWxsPSJub25lIiBzdHJva2U9IiNlY2VjZWMiLz48L2c+PC9zdmc+","bk":"data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSI0NSIgaGVpZ2h0PSI0NSI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIiBzdHJva2U9IiMwMDAiIHN0cm9rZS13aWR0aD0iMS41IiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxwYXRoIGQ9Ik0yMi41IDExLjYzVjYiIHN0cm9rZS1saW5lam9pbj0ibWl0ZXIiLz48cGF0aCBkPSJNMjIuNSAyNXM0LjUtNy41IDMtMTAuNWMwIDAtMS0yLjUtMy0yLjVzLTMgMi41LTMgMi41Yy0xLjUgMyAzIDEwLjUgMyAxMC41IiBmaWxsPSIjMDAwIiBzdHJva2UtbGluZWNhcD0iYnV0dCIgc3Ryb2tlLWxpbmVqb2luPSJtaXRlciIvPjxwYXRoIGQ9Ik0xMS41IDM3YzUuNSAzLjUgMTUuNSAzLjUgMjEgMHYtN3M5LTQuNSA2LTEwLjVjLTQtNi41LTEzLjUtMy41LTE2IDRWMjd2LTMuNWMtMy41LTcuNS0xMy0xMC41LTE2LTQtMyA2IDUgMTAgNSAxMFYzN3oiIGZpbGw9IiMwMDAiLz48cGF0aCBkPSJNMjAgOGg1IiBzdHJva2UtbGluZWpvaW49Im1pdGVyIi8+PHBhdGggZD0iTTMyIDI5LjVzOC41LTQgNi4wMy05LjY1QzM0LjE1IDE0IDI1IDE4IDIyLjUgMjQuNWwuMDEgMi4xLS4wMS0yLjFDMjAgMTggOS45MDYgMTQgNi45OTcgMTkuODVjLTIuNDk3IDUuNjUgNC44NTMgOSA0Ljg1MyA5IiBzdHJva2U9IiNlY2VjZWMiLz48cGF0aCBkPSJNMTEuNSAzMGM1LjUtMyAxNS41LTMgMjEgMG0tMjEgMy41YzUuNS0zIDE1LjUtMyAyMSAwbS0yMSAzLjVjNS41LTMgMTUuNS0zIDIxIDAiIHN0cm9rZT0iI2VjZWNlYyIvPjwvZz48L3N2Zz4="};
+  var GAMES = [{"id":"legal-1750","white":"François Légal","black":"Saint Brie","event":"Partita amichevole (il «matto di Légal»)","place":"Parigi","year":1750,"result":"1-0","moves":"1.e4 e5 2.Nf3 d6 3.Bc4 Bg4 4.Nc3 g6 5.Nxe5 Bxd1 6.Bxf7+ Ke7 7.Nd5#"},{"id":"immortal-1851","white":"Adolf Anderssen","black":"Lionel Kieseritzky","event":"Partita amichevole («La Immortale»)","place":"Londra","year":1851,"result":"1-0","moves":"1.e4 e5 2.f4 exf4 3.Bc4 Qh4+ 4.Kf1 b5 5.Bxb5 Nf6 6.Nf3 Qh6 7.d3 Nh5 8.Nh4 Qg5 9.Nf5 c6 10.g4 Nf6 11.Rg1 cxb5 12.h4 Qg6 13.h5 Qg5 14.Qf3 Ng8 15.Bxf4 Qf6 16.Nc3 Bc5 17.Nd5 Qxb2 18.Bd6 Bxg1 19.e5 Qxa1+ 20.Ke2 Na6 21.Nxg7+ Kd8 22.Qf6+ Nxf6 23.Be7#"},{"id":"evergreen-1852","white":"Adolf Anderssen","black":"Jean Dufresne","event":"Partita amichevole («La Sempreverde»)","place":"Berlino","year":1852,"result":"1-0","moves":"1.e4 e5 2.Nf3 Nc6 3.Bc4 Bc5 4.b4 Bxb4 5.c3 Ba5 6.d4 exd4 7.O-O d3 8.Qb3 Qf6 9.e5 Qg6 10.Re1 Nge7 11.Ba3 b5 12.Qxb5 Rb8 13.Qa4 Bb6 14.Nbd2 Bb7 15.Ne4 Qf5 16.Bxd3 Qh5 17.Nf6+ gxf6 18.exf6 Rg8 19.Rad1 Qxf3 20.Rxe7+ Nxe7 21.Qxd7+ Kxd7 22.Bf5+ Ke8 23.Bd7+ Kf8 24.Bxe7#"},{"id":"opera-1858","white":"Paul Morphy","black":"Duca di Brunswick e conte Isouard","event":"Partita all'Opera («La partita dell'Opera»)","place":"Parigi","year":1858,"result":"1-0","moves":"1.e4 e5 2.Nf3 d6 3.d4 Bg4 4.dxe5 Bxf3 5.Qxf3 dxe5 6.Bc4 Nf6 7.Qb3 Qe7 8.Nc3 c6 9.Bg5 b5 10.Nxb5 cxb5 11.Bxb5+ Nbd7 12.O-O-O Rd8 13.Rxd7 Rxd7 14.Rd1 Qe6 15.Bxd7+ Nxd7 16.Qb8+ Nxb8 17.Rd8#"},{"id":"rotlewi-1907","white":"Georg Rotlewi","black":"Akiba Rubinstein","event":"Torneo di Łódź («La Gioiello di Rubinstein»)","place":"Łódź","year":1907,"result":"0-1","moves":"1.d4 d5 2.Nf3 e6 3.e3 c5 4.c4 Nc6 5.Nc3 Nf6 6.dxc5 Bxc5 7.a3 a6 8.b4 Bd6 9.Bb2 O-O 10.Qd2 Qe7 11.Bd3 dxc4 12.Bxc4 b5 13.Bd3 Rd8 14.Qe2 Bb7 15.O-O Ne5 16.Nxe5 Bxe5 17.f4 Bc7 18.e4 Rac8 19.e5 Bb6+ 20.Kh1 Ng4 21.Be4 Qh4 22.g3 Rxc3 23.gxh4 Rd2 24.Qxd2 Bxe4+ 25.Qg2 Rh3"},{"id":"reti-1910","white":"Richard Réti","black":"Savielly Tartakower","event":"Partita di Vienna","place":"Vienna","year":1910,"result":"1-0","moves":"1.e4 c6 2.d4 d5 3.Nc3 dxe4 4.Nxe4 Nf6 5.Qd3 e5 6.dxe5 Qa5+ 7.Bd2 Qxe5 8.O-O-O Nxe4 9.Qd8+ Kxd8 10.Bg5+ Kc7 11.Bd8#"},{"id":"lasker-thomas-1912","white":"Edward Lasker","black":"George Thomas","event":"Torneo di Londra («Il sacrificio di donna»)","place":"Londra","year":1912,"result":"1-0","moves":"1.d4 e6 2.Nf3 f5 3.Nc3 Nf6 4.Bg5 Be7 5.Bxf6 Bxf6 6.e4 fxe4 7.Nxe4 b6 8.Ne5 O-O 9.Bd3 Bb7 10.Qh5 Qe7 11.Qxh7+ Kxh7 12.Nxf6+ Kh6 13.Neg4+ Kg5 14.h4+ Kf4 15.g3+ Kf3 16.Be2+ Kg2 17.Rh2+ Kg1 18.Kd2#"},{"id":"byrne-fischer-1956","white":"Donald Byrne","black":"Bobby Fischer","event":"Rosenwald Memorial («La partita del secolo»)","place":"New York","year":1956,"result":"0-1","moves":"1.Nf3 Nf6 2.c4 g6 3.Nc3 Bg7 4.d4 O-O 5.Bf4 d5 6.Qb3 dxc4 7.Qxc4 c6 8.e4 Nbd7 9.Rd1 Nb6 10.Qc5 Bg4 11.Bg5 Na4 12.Qa3 Nxc3 13.bxc3 Nxe4 14.Bxe7 Qb6 15.Bc4 Nxc3 16.Bc5 Rfe8+ 17.Kf1 Be6 18.Bxb6 Bxc4+ 19.Kg1 Ne2+ 20.Kf1 Nxd4+ 21.Kg1 Ne2+ 22.Kf1 Nc3+ 23.Kg1 axb6 24.Qb4 Ra4 25.Qxb6 Nxd1 26.h3 Rxa2 27.Kh2 Nxf2 28.Re1 Rxe1 29.Qd8+ Bf8 30.Nxe1 Bd5 31.Nf3 Ne4 32.Qb8 b5 33.h4 h5 34.Ne5 Kg7 35.Kg1 Bc5+ 36.Kf1 Ng3+ 37.Ke1 Bb4+ 38.Kd1 Bb3+ 39.Kc1 Ne2+ 40.Kb1 Nc3+ 41.Kc1 Rc2#"},{"id":"fischer-spassky-1972","white":"Bobby Fischer","black":"Boris Spassky","event":"Campionato del mondo, partita 6","place":"Reykjavik","year":1972,"result":"1-0","moves":"1.c4 e6 2.Nf3 d5 3.d4 Nf6 4.Nc3 Be7 5.Bg5 O-O 6.e3 h6 7.Bh4 b6 8.cxd5 Nxd5 9.Bxe7 Qxe7 10.Nxd5 exd5 11.Rc1 Be6 12.Qa4 c5 13.Qa3 Rc8 14.Bb5 a6 15.dxc5 bxc5 16.O-O Ra7 17.Be2 Nd7 18.Nd4 Qf8 19.Nxe6 fxe6 20.e4 d4 21.f4 Qe7 22.e5 Rb8 23.Bc4 Kh8 24.Qh3 Nf8 25.b3 a5 26.f5 exf5 27.Rxf5 Nh7 28.Rcf1 Qd8 29.Qg3 Re7 30.h4 Rbb7 31.e6 Rbc7 32.Qe5 Qe8 33.a4 Qd8 34.R1f2 Qe8 35.R2f3 Qd8 36.Bd3 Qe8 37.Qe4 Nf6 38.Rxf6 gxf6 39.Rxf6 Kg8 40.Bc4 Kh8 41.Qf4"},{"id":"karpov-kasparov-1985","white":"Anatoly Karpov","black":"Garry Kasparov","event":"Campionato del mondo, partita 24","place":"Mosca","year":1985,"result":"0-1","moves":"1.e4 c5 2.Nf3 e6 3.d4 cxd4 4.Nxd4 Nc6 5.Nb5 d6 6.c4 Nf6 7.N1c3 a6 8.Na3 d5 9.cxd5 exd5 10.exd5 Nb4 11.Be2 Bc5 12.O-O O-O 13.Bf3 Bf5 14.Bg5 Re8 15.Qd2 b5 16.Rad1 Nd3 17.Nab1 h6 18.Bh4 b4 19.Na4 Bd6 20.Bg3 Rc8 21.b3 g5 22.Bxd6 Qxd6 23.g3 Nd7 24.Bg2 Qf6 25.a3 a5 26.axb4 axb4 27.Qa2 Bg6 28.d6 g4 29.Qd2 Kg7 30.f3 Qxd6 31.fxg4 Qd4+ 32.Kh1 Nf6 33.Rf4 Ne4 34.Qxd3 Nf2+ 35.Rxf2 Bxd3 36.Rfd2 Qe3 37.Rxd3 Rc1 38.Nb2 Qf2 39.Nd2 Rxd1+ 40.Nxd1 Re1+"},{"id":"deepblue-1997","white":"Deep Blue","black":"Garry Kasparov","event":"Match Deep Blue – Kasparov, partita 6","place":"New York","year":1997,"result":"1-0","moves":"1.e4 c6 2.d4 d5 3.Nc3 dxe4 4.Nxe4 Nd7 5.Ng5 Ngf6 6.Bd3 e6 7.N1f3 h6 8.Nxe6 Qe7 9.O-O fxe6 10.Bg6+ Kd8 11.Bf4 b5 12.a4 Bb7 13.Re1 Nd5 14.Bg3 Kc8 15.axb5 cxb5 16.Qd3 Bc6 17.Bf5 exf5 18.Rxe7 Bxe7 19.c4"},{"id":"kasparov-topalov-1999","white":"Garry Kasparov","black":"Veselin Topalov","event":"Torneo di Wijk aan Zee","place":"Wijk aan Zee","year":1999,"result":"1-0","moves":"1.e4 d6 2.d4 Nf6 3.Nc3 g6 4.Be3 Bg7 5.Qd2 c6 6.f3 b5 7.Nge2 Nbd7 8.Bh6 Bxh6 9.Qxh6 Bb7 10.a3 e5 11.O-O-O Qe7 12.Kb1 a6 13.Nc1 O-O-O 14.Nb3 exd4 15.Rxd4 c5 16.Rd1 Nb6 17.g3 Kb8 18.Na5 Ba8 19.Bh3 d5 20.Qf4+ Ka7 21.Rhe1 d4 22.Nd5 Nbxd5 23.exd5 Qd6 24.Rxd4 cxd4 25.Re7+ Kb6 26.Qxd4+ Kxa5 27.b4+ Ka4 28.Qc3 Qxd5 29.Ra7 Bb7 30.Rxb7 Qc4 31.Qxf6 Kxa3 32.Qxa6+ Kxb4 33.c3+ Kxc3 34.Qa1+ Kd2 35.Qb2+ Kd1 36.Bf1 Rd2 37.Rd7 Rxd7 38.Bxc4 bxc4 39.Qxh8 Rd3 40.Qa8 c3 41.Qa4+ Ke1 42.f4 f5 43.Kc1 Rd2 44.Qa7"}];
+  var state = { game: null, positions: [], ply: 0, flipped: false, timer: null, query: '' };
+
+  function $(id) { return document.getElementById(id); }
+  function norm(s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); }
+
+  function buildPositions(game) {
+    var chess = new window.Chess();
+    var list = [{ board: chess.board(), san: '', from: null, to: null }];
+    var toks = game.moves.replace(/\d+\.(\.\.)?/g, ' ').trim().split(/\s+/).filter(Boolean);
+    for (var i = 0; i < toks.length; i++) {
+      var m = chess.move(toks[i]);
+      list.push({ board: chess.board(), san: m.san, from: m.from, to: m.to });
+    }
+    return list;
+  }
+
+  function sqName(file, rank) { return 'abcdefgh'[file] + (rank + 1); }
+
+  function renderBoard() {
+    var pos = state.positions[state.ply];
+    var el = $('gv-board');
+    if (!pos || !el) return;
+    var html = '';
+    for (var r = 0; r < 8; r++) {
+      for (var c = 0; c < 8; c++) {
+        var row = state.flipped ? 7 - r : r;
+        var col = state.flipped ? 7 - c : c;
+        var cell = pos.board[row][col];
+        var rank = 7 - row;
+        var name = sqName(col, rank);
+        var light = (row + col) % 2 === 0;
+        var hl = (name === pos.from || name === pos.to) ? ' gv-hl' : '';
+        var coord = '';
+        if (c === 0) coord += '<span class="gv-rank">' + (rank + 1) + '</span>';
+        if (r === 7) coord += '<span class="gv-file">' + 'abcdefgh'[col] + '</span>';
+        var piece = cell ? '<img alt="" draggable="false" src="' + PIECES[cell.color + cell.type] + '">' : '';
+        html += '<div class="gv-sq ' + (light ? 'gv-l' : 'gv-d') + hl + '">' + coord + piece + '</div>';
+      }
+    }
+    el.innerHTML = html;
+    var g = state.game;
+    var total = state.positions.length - 1;
+    var status = state.ply === 0 ? 'Posizione iniziale' :
+      'Mossa ' + Math.ceil(state.ply / 2) + (state.ply % 2 ? ' (Bianco)' : ' (Nero)') + ': ' + pos.san;
+    if (state.ply === total) status += ' · Risultato: ' + g.result;
+    $('gv-status').textContent = status + '  [' + state.ply + '/' + total + ']';
+    var cur = document.querySelector('.gv-mv.gv-cur');
+    if (cur) cur.classList.remove('gv-cur');
+    var next = document.querySelector('.gv-mv[data-ply="' + state.ply + '"]');
+    if (next) {
+      next.classList.add('gv-cur');
+      var box = $('gv-moves');
+      if (box && (next.offsetTop < box.scrollTop || next.offsetTop + next.offsetHeight > box.scrollTop + box.clientHeight)) {
+        box.scrollTop = next.offsetTop - box.clientHeight / 2;
+      }
+    }
+  }
+
+  function renderMoves() {
+    var html = '';
+    for (var i = 1; i < state.positions.length; i++) {
+      if (i % 2 === 1) html += '<span class="gv-num">' + Math.ceil(i / 2) + '.</span>';
+      html += '<button type="button" class="gv-mv" data-ply="' + i + '">' + escHtml(state.positions[i].san) + '</button>';
+    }
+    $('gv-moves').innerHTML = html;
+  }
+
+  function stop() { if (state.timer) { clearInterval(state.timer); state.timer = null; } var b = $('gv-auto'); if (b) b.textContent = '▶ Riproduci'; }
+  function goto_(n) {
+    var total = state.positions.length - 1;
+    state.ply = Math.max(0, Math.min(total, n));
+    renderBoard();
+  }
+  function toggleAuto() {
+    if (state.timer) { stop(); return; }
+    if (state.ply >= state.positions.length - 1) goto_(0);
+    $('gv-auto').textContent = '⏸ Pausa';
+    state.timer = setInterval(function () {
+      if (state.ply >= state.positions.length - 1) { stop(); return; }
+      goto_(state.ply + 1);
+    }, 1000);
+  }
+
+  function selectGame(id) {
+    var g = GAMES.filter(function (x) { return x.id === id; })[0];
+    if (!g) return;
+    stop();
+    state.game = g;
+    try { state.positions = buildPositions(g); }
+    catch (e) { $('gv-status').textContent = 'Partita non leggibile.'; return; }
+    state.ply = 0;
+    $('gv-title').textContent = g.white + ' – ' + g.black;
+    $('gv-sub').textContent = g.event + (g.place ? ' · ' + g.place : '') + (g.year ? ' · ' + g.year : '') + ' · ' + g.result;
+    renderMoves();
+    renderBoard();
+    renderList();
+  }
+
+  function matches(g) {
+    var raw = norm(state.query).replace(/\bvs\b|\bcontro\b|\bv\b/g, ' ');
+    var toks = raw.split(/[\s,;\-–—:]+/).filter(function (t) { return t && t !== 'e'; });
+    if (!toks.length) return true;
+    var hay = norm(g.white + ' ' + g.black + ' ' + g.event + ' ' + g.place + ' ' + g.year);
+    return toks.every(function (t) { return hay.indexOf(t) !== -1; });
+  }
+
+  function renderList() {
+    var shown = GAMES.filter(matches);
+    var html = shown.map(function (g) {
+      return '<button type="button" class="gv-item' + (state.game && state.game.id === g.id ? ' gv-active' : '') + '" data-id="' + escHtml(g.id) + '">' +
+        '<strong>' + escHtml(g.white) + ' – ' + escHtml(g.black) + '</strong>' +
+        '<span>' + escHtml(g.event) + ' · ' + escHtml(g.year) + ' · ' + escHtml(g.result) + '</span></button>';
+    }).join('');
+    $('gv-list').innerHTML = html || '<p class="deck-brass">Nessuna partita trovata. Prova con un solo cognome, oppure incolla tu le mosse qui sotto.</p>';
+    $('gv-count').textContent = shown.length + (shown.length === 1 ? ' partita' : ' partite') + (state.query ? ' trovate' : ' nell\'archivio');
+  }
+
+  function header(pgn, tag) {
+    var m = pgn.match(new RegExp('\\[' + tag + '\\s+"([^"]*)"\\]', 'i'));
+    return m ? m[1] : '';
+  }
+
+  function addPgn() {
+    var text = ($('gv-pgn').value || '').trim();
+    var msg = $('gv-pgn-msg');
+    if (!text) { msg.textContent = 'Incolla prima le mosse della partita (formato PGN).'; return; }
+    try {
+      var c = new window.Chess();
+      c.loadPgn(text);
+      var san = c.history();
+      if (!san.length) throw new Error('vuota');
+      var y = (header(text, 'Date').match(/\d{4}/) || [''])[0];
+      var g = {
+        id: 'custom-' + Date.now(),
+        white: header(text, 'White') || 'Bianco',
+        black: header(text, 'Black') || 'Nero',
+        event: header(text, 'Event') || 'Partita incollata',
+        place: header(text, 'Site') && header(text, 'Site') !== '?' ? header(text, 'Site') : '',
+        year: y,
+        result: header(text, 'Result') || '*',
+        moves: san.map(function (s, i) { return (i % 2 === 0 ? (i / 2 + 1) + '.' : '') + s; }).join(' ')
+      };
+      GAMES.unshift(g);
+      state.query = ''; $('gv-search').value = '';
+      msg.textContent = 'Partita aggiunta (resta finché non ricarichi la pagina).';
+      $('gv-pgn').value = '';
+      selectGame(g.id);
+    } catch (e) {
+      msg.textContent = 'Non riesco a leggere queste mosse. Controlla che siano in formato PGN e complete.';
+    }
+  }
+
+  window.initGameViewer = function () {
+    if (!$('gv-board') || !window.Chess) return;
+    $('gv-search').addEventListener('input', function (e) { state.query = e.target.value; renderList(); });
+    $('gv-list').addEventListener('click', function (e) { var b = e.target.closest('.gv-item'); if (b) selectGame(b.getAttribute('data-id')); });
+    $('gv-moves').addEventListener('click', function (e) { var b = e.target.closest('.gv-mv'); if (b) { stop(); goto_(parseInt(b.getAttribute('data-ply'), 10)); } });
+    $('gv-first').addEventListener('click', function () { stop(); goto_(0); });
+    $('gv-prev').addEventListener('click', function () { stop(); goto_(state.ply - 1); });
+    $('gv-next').addEventListener('click', function () { stop(); goto_(state.ply + 1); });
+    $('gv-last').addEventListener('click', function () { stop(); goto_(1e6); });
+    $('gv-auto').addEventListener('click', toggleAuto);
+    $('gv-flip').addEventListener('click', function () { state.flipped = !state.flipped; renderBoard(); });
+    $('gv-add').addEventListener('click', addPgn);
+    $('partite').addEventListener('keydown', function (e) {
+      var tag = (e.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea') return;
+      if (e.key === 'ArrowRight') { e.preventDefault(); stop(); goto_(state.ply + 1); }
+      else if (e.key === 'ArrowLeft') { e.preventDefault(); stop(); goto_(state.ply - 1); }
+      else if (e.key === 'Home') { e.preventDefault(); stop(); goto_(0); }
+      else if (e.key === 'End') { e.preventDefault(); stop(); goto_(1e6); }
+    });
+    renderList();
+    selectGame(GAMES[0].id);
+  };
+})();
+
+  </script>
+  <script>
+    // =========================================================================
+    // DATA LAYER (Template literals used throughout for safe Italian apostrophes)
+    // =========================================================================
+
+    const STREAMS_DATA = [
+      {
+        id: `gm_moro`,
+        name: `GM Luca Moroni`,
+        titleBadge: `GM · 4× Campione Italiano`,
+        handle: `@gm_moro`,
+        region: `it`,
+        platform: `twitch`,
+        secondaryPlatform: `youtube`,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `twitch.tv/gm_moro`,
+        ytDomain: `youtube.com/@gm_moro`,
+        notes: `4 volte Campione Italiano Assoluto (2017, 2022, 2023, 2025). Live ogni martedì dalle 16:30 su Titled Tuesday e Freestyle Chess.`
+      },
+      {
+        id: `nicolochess`,
+        name: `Nicolò Chess`,
+        titleBadge: `Streamer & Coach`,
+        handle: `@Scacchipertutti`,
+        region: `it`,
+        platform: `youtube`,
+        secondaryPlatform: `twitch`,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `youtube.com/@Scacchipertutti`,
+        ytDomain: `youtube.com/@Scacchipertutti`,
+        notes: `Streaming Titled Tuesday, Speedrun Rapid su Chess.com e lezioni sul Metodo del Picchio. 7.42K iscritti su YouTube.`
+      },
+      {
+        id: `hikaru`,
+        name: `GM Hikaru Nakamura`,
+        titleBadge: `Super GM · Blitz Icon`,
+        handle: `@GMHikaru`,
+        region: `intl`,
+        platform: `twitch`,
+        secondaryPlatform: `youtube`,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `twitch.tv/gmhikaru`,
+        ytDomain: `youtube.com/@GMHikaru`,
+        notes: `Numero 1 al mondo per continuità nello streaming blitz/bullet, commento live dei grandi eventi FIDE e Titled Tuesday.`
+      },
+      {
+        id: `chessburger`,
+        name: `chessburger TV`,
+        titleBadge: `Community & Recap Show`,
+        handle: `@chessburgerTV`,
+        region: `it`,
+        platform: `twitch`,
+        secondaryPlatform: `youtube`,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `twitch.tv/chessburger_tv`,
+        ytDomain: `youtube.com/@chessburgerTV`,
+        notes: `Sponsorizzato da Chess.com Italiano e Lotus Chess. Ogni sera dalle 21:30 su Twitch per i recap dei grandi tornei e della Nazionale Italiana.`
+      },
+      {
+        id: `alessia`,
+        name: `WFM Alessia Santeramo`,
+        titleBadge: `WFM · Coach & Creator`,
+        handle: `@Alessia_Santeramo`,
+        region: `it`,
+        platform: `youtube`,
+        secondaryPlatform: `twitch`,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `youtube.com/@Alessia_Santeramo`,
+        ytDomain: `youtube.com/@Alessia_Santeramo`,
+        notes: `266K iscritti su YouTube, co-autrice con il marito GM Noël Studer del programma Real Chess Training (1000–1500 Elo).`
+      },
+      {
+        id: `gabriel`,
+        name: `Scacchi con Gabriel`,
+        titleBadge: `Teorico & Divulgatore`,
+        handle: `@ScacchiconGabriel`,
+        region: `it`,
+        platform: `youtube`,
+        secondaryPlatform: `youtube`,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `youtube.com/@ScacchiconGabriel`,
+        ytDomain: `youtube.com/@ScacchiconGabriel`,
+        notes: `Specializzato in Difesa Slava, Giuoco Piano, partite immortali (Leonhardt–Nimzowitsch) e analisi di Lodici e Faustino Oro.`
+      },
+      {
+        id: `cobra`,
+        name: `Cobra Scacchi e Passione`,
+        titleBadge: `Istruttore FSI & Agonista`,
+        handle: `@cobrascacchi`,
+        region: `it`,
+        platform: `youtube`,
+        secondaryPlatform: `twitch`,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `youtube.com/@cobrascacchi`,
+        ytDomain: `youtube.com/@cobrascacchi`,
+        notes: `Istruttore FSI, sfide con FM Marco Corvi, il_Nordico_yt e organizzatore di tornei community e Ibiza Chess Festival.`
+      },
+      {
+        id: `gotham`,
+        name: `IM Levy Rozman (GothamChess)`,
+        titleBadge: `IM · Road to GM`,
+        handle: `@GothamChess`,
+        region: `intl`,
+        platform: `youtube`,
+        secondaryPlatform: `twitch`,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `youtube.com/@GothamChess`,
+        ytDomain: `twitch.tv/gothamchess`,
+        notes: `Il canale didattico più seguito al mondo su YouTube; copre giornalmente i tornei FIDE e i propri tornei classici Road to GM.`
+      },
+      {
+        id: `botez`,
+        name: `BotezLive (Alexandra & Andrea)`,
+        titleBadge: `WFM · Streamer & DJ`,
+        handle: `@BotezLive`,
+        region: `intl`,
+        platform: `twitch`,
+        secondaryPlatform: `youtube`,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `twitch.tv/botezlive`,
+        ytDomain: `youtube.com/@BotezLive`,
+        notes: `Due milioni di iscritti YouTube, sfide IRL, tornei in piazza e Botez Sisters Podcast.`
+      },
+      {
+        id: `chessbrah`,
+        name: `Chessbrah`,
+        titleBadge: `Streamer di scacchi`,
+        handle: `@chessbrah`,
+        region: `intl`,
+        platform: `twitch`,
+        secondaryPlatform: `youtube`,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `twitch.tv/chessbrah`,
+        ytDomain: `youtube.com/results?search_query=chessbrah`,
+        notes: `Canale Twitch di scacchi.`
+      },
+      {
+        id: `akanemsko`,
+        name: `akaNemsko`,
+        titleBadge: `WGM · Streamer`,
+        handle: `@akanemsko`,
+        region: `intl`,
+        platform: `twitch`,
+        secondaryPlatform: `youtube`,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `twitch.tv/akanemsko`,
+        ytDomain: `youtube.com/results?search_query=akanemsko`,
+        notes: `Canale Twitch di akaNemsko.`
+      },
+      {
+        id: `chesssociety`,
+        name: `ChessSociety`,
+        titleBadge: `Canale Twitch`,
+        handle: `@chesssociety`,
+        region: `intl`,
+        platform: `twitch`,
+        secondaryPlatform: ``,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `twitch.tv/chesssociety`,
+        ytDomain: ``,
+        notes: `Canale Twitch di scacchi.`
+      },
+      {
+        id: `chesscomit`,
+        name: `Chess.com Italia`,
+        titleBadge: `Canale Twitch`,
+        handle: `@chesscomit`,
+        region: `it`,
+        platform: `twitch`,
+        secondaryPlatform: ``,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `twitch.tv/chesscomit`,
+        ytDomain: ``,
+        notes: `Canale Twitch di Chess.com in italiano.`
+      },
+      {
+        id: `agadmator`,
+        name: `agadmator`,
+        titleBadge: `Canale YouTube`,
+        handle: `@agadmator`,
+        region: `intl`,
+        platform: `youtube`,
+        secondaryPlatform: ``,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `youtube.com/@agadmator`,
+        ytDomain: ``,
+        notes: `Canale YouTube di scacchi.`
+      },
+      {
+        id: `mattoscacco`,
+        name: `Affari Square (mattoscacco)`,
+        titleBadge: `Canale YouTube`,
+        handle: `@mattoscacco`,
+        region: `it`,
+        platform: `youtube`,
+        secondaryPlatform: ``,
+        isLive: false,
+        streamTitle: `Stato della diretta non ancora verificato`,
+        scheduleOrViewers: `Controllo in corso…`,
+        channelDomain: `youtube.com/@mattoscacco`,
+        ytDomain: ``,
+        notes: `Canale YouTube di scacchi.`
+      }
+    ];
+
+    const TOURNAMENTS_DATA = [
+      {
+        id: `tt-early`,
+        liveLinks: [{label:`Twitch Chess.com Italia`,url:`https://www.twitch.tv/chesscomit`},{label:`YouTube (cerca Chess.com Italia)`,url:`https://www.youtube.com/results?search_query=chess.com+italia+live`}],
+        name: `Titled Tuesday — Sessione Early`,
+        category: `titled`,
+        dateLabel: `Ogni Martedì · 17:00 CET`,
+        format: `11 Turni Svizzero · Blitz 3+1`,
+        liveWhere: `Diretta Ufficiale in Italiano su Chess.com Italia (Twitch / YouTube)`,
+        playWhere: `Chess.com (Tornei Titolati FIDE / Arena Open paralleli)`,
+        liveDomain: `https://www.twitch.tv/chesscomit`,
+        playDomain: `chess.com/play/tournaments`,
+        status: `Settimanale · Prossimo 17 Nov`
+      },
+      {
+        id: `tt-late`,
+        liveLinks: [{label:`Twitch Chess.com Italia`,url:`https://www.twitch.tv/chesscomit`},{label:`YouTube (cerca Chess.com Italia)`,url:`https://www.youtube.com/results?search_query=chess.com+italia+live`}],
+        name: `Titled Tuesday — Sessione Late`,
+        category: `titled`,
+        dateLabel: `Ogni Martedì · 23:00 CET`,
+        format: `11 Turni Svizzero · Blitz 3+1`,
+        liveWhere: `Diretta Ufficiale in Italiano su Chess.com Italia (Twitch / YouTube)`,
+        playWhere: `Chess.com (Sezione Eventi Live · Iscrizione 1 ora prima)`,
+        liveDomain: `https://www.twitch.tv/chesscomit`,
+        playDomain: `chess.com/events`,
+        status: `Settimanale · Prossimo 17 Nov`
+      },
+      {
+        id: `tt-freestyle`,
+        liveLinks: [{label:`Lichess TV`,url:`https://lichess.org/tv`},{label:`Twitch Moroni`,url:`https://www.twitch.tv/gm_moro`},{label:`YouTube Moroni`,url:`https://www.youtube.com/@gm_moro`},{label:`Twitch chessburger`,url:`https://www.twitch.tv/chessburger_tv`},{label:`YouTube chessburger`,url:`https://www.youtube.com/@chessburgerTV`}],
+        name: `Titled Tuesday — Freestyle & Lichess Titled Arena`,
+        category: `titled`,
+        dateLabel: `Martedì & Weekend · 19:00 CET`,
+        format: `Arena / 960 Freestyle · 3+0 & 3+1`,
+        liveWhere: `Lichess TV (lichess.org/tv) · Diretta Freestyle GM Luca Moroni · chessburger TV`,
+        playWhere: `Chess.com (Freestyle Friday/Tuesday) & Lichess.org (Lichess Arena)`,
+        liveDomain: `lichess.org/tv`,
+        playDomain: `lichess.org/tournament`,
+        status: `Settimanale · Attivo`
+      },
+      {
+        id: `total-chess-budapest`,
+        liveLinks: [{label:`Twitch Chess.com Italia`,url:`https://www.twitch.tv/chesscomit`},{label:`YouTube (cerca Chess.com Italia)`,url:`https://www.youtube.com/results?search_query=chess.com+italia+live`}],
+        name: `Total Chess World Championship Tour Pilot (Budapest)`,
+        category: `internazionale`,
+        dateLabel: `12 – 15 Novembre 2026 · LIVE`,
+        format: `Gironi Classic, Rapid & Blitz Tie-breaker`,
+        liveWhere: `Diretta Ufficiale in Italiano su Chess.com Italia (Twitch / YouTube)`,
+        playWhere: `Evento su invito FIDE · Tornei satellite su World Chess (worldchess.com)`,
+        liveDomain: `https://www.twitch.tv/chesscomit`,
+        playDomain: `worldchess.com/lobby`,
+        status: `IN CORSO ORA (Giorno 2 h. 15:00 & 18:30)`
+      },
+      {
+        id: `spilimbergo-rapido`,
+        liveLinks: [{label:`YouTube (cerca FSI)`,url:`https://www.youtube.com/results?search_query=federscacchi+spilimbergo`},{label:`Scacchierando`,url:`https://www.scacchierando.it/`}],
+        name: `Campionati Italiani Gioco Rapido (Blitz, 960, Rapid)`,
+        category: `nazionale`,
+        dateLabel: `27 – 29 Novembre 2026 · Spilimbergo`,
+        format: `27 Nov Blitz (11t) · 28 Nov 960 (7t) · 29 Nov Rapid (9t)`,
+        liveWhere: `Canale YouTube FSI · Scacchierando.it Live · Copertura Circoli Italiani`,
+        playWhere: `In presenza (Centro Sportivo La Favorita) — Iscrizione su Vesus (€35/€65/€90)`,
+        liveDomain: `federscacchi.it`,
+        playDomain: `vesus.org/event/L7HQWeVS`,
+        status: `Iscrizioni Aperte`
+      },
+      {
+        id: `piacenza-rapid`,
+        liveLinks: [{label:`Scacchierando`,url:`https://www.scacchierando.it/`}],
+        name: `Rapid a Squadre di Piacenza (1ª Edizione)`,
+        category: `nazionale`,
+        dateLabel: `29 Novembre 2026 · Piacenza`,
+        format: `Torneo Rapid a Squadre · Cadenza FIDE`,
+        liveWhere: `Aggiornamenti Scacchierando.it & Canale WhatsApp Scacchierando`,
+        playWhere: `In presenza FSI · Tornei preparatori online su Chess.com Club Italia`,
+        liveDomain: `scacchierando.it`,
+        playDomain: `federscacchi.it/fsi/index.php/calendario`,
+        status: `In Arrivo`
+      },
+      {
+        id: `europeo-giovanile`,
+        liveLinks: [{label:`Lichess Broadcast`,url:`https://lichess.org/broadcast`}],
+        name: `Campionato Europeo Giovanile 2026`,
+        category: `internazionale`,
+        dateLabel: `Novembre 2026 · Ultimo Turno h. 13:00`,
+        format: `9 Turni Standard FIDE (Open & Femminile)`,
+        liveWhere: `Lichess Broadcast · ECU Live · Aggiornamenti Azzurrini su Scacchierando.it`,
+        playWhere: `Qualificati FSI (Ferrante, Fava, Ginebri, Arun, Viti, Alessi in gara)`,
+        liveDomain: `lichess.org/broadcast`,
+        playDomain: `europechess.org`,
+        status: `Ultimo Turno LIVE`
+      },
+      {
+        id: `spilimbergo-gm`,
+        liveLinks: [{label:`YouTube (cerca FSI)`,url:`https://www.youtube.com/results?search_query=federscacchi+spilimbergo`}],
+        name: `Spilimbergo Grandmaster (IX Categoria · Media Elo 2465)`,
+        category: `nazionale`,
+        dateLabel: `7 – 15 Ottobre 2026 (Concluso)`,
+        format: `Round Robin 9 Turni · 90'+30'+30''`,
+        liveWhere: `Interviste ai protagonisti (Martinovici 1°, Godena, Lumachi) su YouTube FSI`,
+        playWhere: `Partite complete analizzabili su 365Chess.com & Lichess`,
+        liveDomain: `youtube.com/@federscacchi`,
+        playDomain: `365chess.com/tournaments.php`,
+        status: `Concluso · Vince Martinovici (7/9)`
+      }
+    ];
+
+    const CREATORS_DIRECTORY = [
+      {
+        name: `GM Luca Moroni`,
+        handle: `@gm_moro`,
+        region: `it`,
+        focus: `tornei`,
+        stats: `23.7K iscritti YT · 526 video`,
+        bio: `Grande Maestro e 4 volte Campione Italiano Assoluto (2017, 2022, 2023, 2025). Dirette ad altissimo livello ogni martedì nel Titled Tuesday e tornei Freestyle.`,
+        channels: [
+          { label: `YouTube`, domain: `youtube.com/@gm_moro` },
+          { label: `Twitch`, domain: `twitch.tv/gm_moro` }
+        ]
+      },
+      {
+        name: `Alessia Santeramo`,
+        handle: `@Alessia_Santeramo`,
+        region: `it`,
+        focus: `didattica`,
+        stats: `266K iscritti YT · 1.1K video`,
+        bio: `WFM pugliese, creatrice bilingue di spicco internazionale. Format "0–2000 Elo in 30 Days", partite IRL e corsi "Real Chess Training" con il GM Noël Studer.`,
+        channels: [
+          { label: `YouTube`, domain: `youtube.com/@Alessia_Santeramo` },
+          { label: `Instagram`, domain: `instagram.com/alessia_santeramo` }
+        ]
+      },
+      {
+        name: `Nicolò Chess`,
+        handle: `@Scacchipertutti`,
+        region: `it`,
+        focus: `didattica`,
+        stats: `7.42K iscritti YT · Speedrun`,
+        bio: `Streaming Titled Tuesday, analisi live e la celebre serie didattica "Da 400 a 2500 — Speedrun Rapid", oltre al "Corso di Tattica: Il Metodo del Picchio".`,
+        channels: [
+          { label: `YouTube`, domain: `youtube.com/@Scacchipertutti` },
+          { label: `Club Chess.com`, domain: `chess.com/club/chess-ibiza` }
+        ]
+      },
+      {
+        name: `Cobra Scacchi e Passione`,
+        handle: `@cobrascacchi`,
+        region: `it`,
+        focus: `tornei`,
+        stats: `30.9K iscritti YT · Istruttore FSI`,
+        bio: `Istruttore FSI e giocatore agonista in corsa verso 2100. Collaborazioni con FM Marco Corvi (Attacco Grob, Gambetto Elefante), Ibiza Chess Festival e Circolo Capablanca.`,
+        channels: [
+          { label: `YouTube`, domain: `youtube.com/@cobrascacchi` },
+          { label: `Chess.com`, domain: `go.chess.com/cobrascacchi` }
+        ]
+      },
+      {
+        name: `Scacchi con Gabriel`,
+        handle: `@ScacchiconGabriel`,
+        region: `it`,
+        focus: `didattica`,
+        stats: `Lezioni Aperture & Immortali`,
+        bio: `Approfondimenti chiari su Difesa Slava, Giuoco Piano, trappole contro il Sistema di Londra, partite classiche di Nimzowitsch e analisi di talenti come Lodici e Faustino Oro.`,
+        channels: [
+          { label: `YouTube`, domain: `youtube.com/@ScacchiconGabriel` }
+        ]
+      },
+      {
+        name: `chessburger TV`,
+        handle: `@chessburgerTV`,
+        region: `it`,
+        focus: `tornei`,
+        stats: `Sponsor: Chess.com IT & Lotus`,
+        bio: `Punto di riferimento serale (h. 21:30 Twitch) per i recap di Olimpiadi 2026, grandi tornei internazionali e partite della Nazionale Italiana.`,
+        channels: [
+          { label: `Twitch`, domain: `twitch.tv/chessburgertv` },
+          { label: `YouTube`, domain: `youtube.com/@chessburgerTV` }
+        ]
+      },
+      {
+        name: `Mattoscacco`,
+        handle: `@Themattoscacco`,
+        region: `it`,
+        focus: `tornei`,
+        stats: `154K iscritti YT`,
+        bio: `Tra i creator italiani più seguiti per intrattenimento scacchistico, sfide rapide e divulgazione verso il grande pubblico.`,
+        channels: [
+          { label: `YouTube`, domain: `youtube.com/@Themattoscacco` }
+        ]
+      },
+      {
+        name: `BotezLive`,
+        handle: `@BotezLive`,
+        region: `intl`,
+        focus: `tornei`,
+        stats: `2M iscritti YT · 1K video`,
+        bio: `Alexandra e Andrea Botez: "two sisters who like chess and chaos", tra sfide a Union Square Park, festival europei (Stoccolma) e Botez Sisters Podcast.`,
+        channels: [
+          { label: `Twitch`, domain: `twitch.tv/botezlive` },
+          { label: `YouTube`, domain: `youtube.com/@BotezLive` }
+        ]
+      },
+      {
+        name: `Hikaru Nakamura`,
+        handle: `@GMHikaru`,
+        region: `intl`,
+        focus: `tornei`,
+        stats: `Super GM · Twitch & YT`,
+        bio: `Uno dei giocatori più forti della storia nel gioco veloce e il pioniere assoluto dello streaming scacchistico moderno.`,
+        channels: [
+          { label: `Twitch`, domain: `twitch.tv/gmhikaru` },
+          { label: `YouTube`, domain: `youtube.com/@GMHikaru` }
+        ]
+      },
+      {
+        name: `GothamChess (Levy Rozman)`,
+        handle: `@GothamChess`,
+        region: `intl`,
+        focus: `didattica`,
+        stats: `IM · #1 Educatore YT`,
+        bio: `Recap quotidiani dei tornei mondiali, serie "Guess the Elo" e percorso documentato verso il titolo di Grande Maestro.`,
+        channels: [
+          { label: `YouTube`, domain: `youtube.com/@GothamChess` },
+          { label: `Twitch`, domain: `twitch.tv/gothamchess` }
+        ]
+      },
+      {
+        name: `Rey Enigma`,
+        handle: `@ReyEnigma`,
+        region: `intl`,
+        focus: `tornei`,
+        stats: `2.17M iscritti YT`,
+        bio: `Il misterioso giocatore mascherato protagonista di sfide pubbliche ad alta posta e collaborazioni internazionali anche con creator italiani.`,
+        channels: [
+          { label: `YouTube`, domain: `youtube.com/@ReyEnigma` }
+        ]
+      }
+    ];
+
+    const ARTICLES_DATA = [
+      {
+        id: `art-aperture`,
+        category: `aperture`,
+        badge: `Aperture · Repertorio Pratico`,
+        title: `Difesa Slava, Giuoco Piano (d5) e setup solidi contro 1.d4 senza memorizzazione`,
+        summary: `Come costruire un repertorio coerente tra 1000 e 1800 Elo combinando idee posizionali (Af5/Ag4 nella Slava) e spinte centrali dinamiche.`,
+        sourceCredit: `Sintesi didattica da lezioni Scacchi con Gabriel, Alessia Santeramo & 365Chess Opening Explorer`,
+        body: `In apertura il problema più comune sotto i 1600 Elo non è dimenticare la diciottesima mossa di teoria, bensì non riconoscere i piani tipici del mediogioco. Nel Giuoco Piano (1.e4 e5 2.Cf3 Cc6 3.Ac4 Ac5), quando il Nero prepara la rottura centrale in d5, il controllo della casa e4 e la sicurezza del Re determinano l'iniziativa. Contro 1.d4, la Difesa Slava (1...d5 2.c4 c6) garantisce una catena pedonale compatta senza murare l'Alfiere camposcuro, permettendo lo sviluppo attivo in f5 o g4 prima di chiudere con e6. Per consolidare le linee, il metodo a 4 passi di 365Chess (visione della linea, esecuzione guidata, risposta a memoria e richiamo casuale) elimina gli errori nelle prime dieci mosse.`
+      },
+      {
+        id: `art-tattica`,
+        category: `tattica`,
+        badge: `Tattica · Metodo di Calcolo`,
+        title: `Il Metodo del Picchio e il "Real Chess Training": riconoscere quando NON c'è tattica`,
+        summary: `Perché risolvere solo puzzle "a colpo sicuro" non basta in torneo: allenare il processo decisionale tra difesa, profilassi e combinazione.`,
+        sourceCredit: `Ispirato a Nicolochess (Corso di Tattica 1) e Real Chess Training di Alessia Santeramo & GM Noël Studer`,
+        body: `Il Metodo del Picchio (Woodpecker Method), reso popolare anche nei corsi italiani di Nicolò Chess, si basa sulla ripetizione ciclica dello stesso set di problemi tattici dimezzando via via il tempo per sviluppare il riconoscimento automatico dei pattern (inchiodatura, deviazione, doppio attacco su casa indifesa, Re al centro). Tuttavia, come sottolineano Alessia Santeramo e il GM Noël Studer nel progetto Real Chess Training, in una partita reale nessuno ci avvisa che esiste una combinazione vincente: bisogna saper valutare prima le minacce avversarie, scartare i sacrifici che non funzionano e giocare una semplice mossa di sviluppo o consolidamento quando la posizione lo richiede.`
+      },
+      {
+        id: `art-storia-ia`,
+        category: `storia`,
+        badge: `Storia & IA · Saggio di Approfondimento`,
+        title: `Da Wolfgang von Kempelen a Stockfish e AlphaZero: due secoli e mezzo di intelligenza scacchistica`,
+        summary: `Dal celebre Turco Meccanico del 1770 alla sfida Deep Blue–Kasparov, fino alla rivoluzione neurale NNUE che oggi guida l'analisi moderna.`,
+        sourceCredit: `Dossier editoriale Contromossa.it · Cultura & Storia degli Scacchi`,
+        body: `Nel 1770 l'inventore austriaco Wolfgang von Kempelen presentò a Vienna "Il Turco", un automa capace di sconfiggere abili giocatori. Sebbene celasse un maestro umano all'interno del mobile, quell'illusione accese il sogno di una macchina pensante: da Leonardo Torres Quevedo (1912) con il primo automa elettrico per il finale Torre+Re contro Re, fino al saggio fondativo di Claude Shannon (1950) sulla programmazione degli scacchi. Nel 1997 Deep Blue sconfisse Garry Kasparov grazie alla forza bruta di calcolo (200 milioni di posizioni al secondo). Vent'anni dopo, nel 2017, AlphaZero di DeepMind imparò gli scacchi in poche ore giocando solo contro sé stesso tramite reti neurali e Monte Carlo Tree Search, introducendo sacrifici posizionali a lungo termine che hanno trasformato lo stile dei Grandi Maestri. Oggi motori open-source come Stockfish (con valutazione NNUE) e Leela Chess Zero uniscono precisione tattica assoluta e comprensione strategica.`
+      }
+    ];
+
+    const HISTORY_ERAS = [
+      {
+        year: `1770`,
+        title: `Il Turco di Kempelen`,
+        tag: `L'illusione meccanica`,
+        detail: `Wolfgang von Kempelen costruisce a Vienna l'automa scacchistico più famoso della storia. Pur nascondendo al suo interno forti maestri umani (tra cui Allgaier e Mouret), dimostra al mondo che il gioco degli scacchi è il banco di prova simbolico dell'intelligenza artificiale.`
+      },
+      {
+        year: `1950`,
+        title: `L'Algoritmo di Shannon`,
+        tag: `Teoria della ricerca`,
+        detail: `Claude Shannon pubblica "Programming a Computer for Playing Chess", formalizzando la funzione di valutazione statica e la potatura dell'albero delle varianti (strategia Tipo A vs Tipo B), base matematica di tutti i motori moderni.`
+      },
+      {
+        year: `1997`,
+        title: `Deep Blue vs Kasparov`,
+        tag: `Forza bruta VLSI`,
+        detail: `A New York il supercomputer IBM Deep Blue batte il Campione del Mondo Garry Kasparov 3,5–2,5. L'analisi profonda con potatura alfa-beta supera per la prima volta in match regolamentare la mente umana.`
+      },
+      {
+        year: `2017`,
+        title: `Rivoluzione AlphaZero`,
+        tag: `Deep Reinforcement Learning`,
+        detail: `DeepMind addestra AlphaZero partendo dalle sole regole del gioco, senza libri d'apertura né partite umane. Battendo Stockfish 8, AlphaZero svela l'importanza dinamica dell'attività dei pezzi e dei sacrifici posizionali di pedone.`
+      },
+      {
+        year: `2020–2026`,
+        title: `Stockfish NNUE & Lc0`,
+        tag: `Sintesi Ibrida`,
+        detail: `Stockfish integra reti neurali efficientemente aggiornabili (NNUE) dentro una ricerca alfa-beta ultraveloce, raggiungendo oltre 3600 Elo stimati ed entrando quotidianamente nelle analisi live su Chessify, Lichess e Chess.com.`
+      }
+    ];
+
+    const GEAR_DATA = [
+      {
+        category: `scacchiere`,
+        vendor: `Le Due Torri · Dal 1986`,
+        name: `Set Ufficiale FIDE Home Edition (Noce)`,
+        price: `€ 449,00`,
+        rating: `9.8 / 10 · Da Collezione & Studio`,
+        desc: `Riedizione casalinga del set ufficiale dei tornei FIDE in noce lavorato, pensato per chi desidera il massimo comfort tattile nell'analisi quotidiana.`
+      },
+      {
+        category: `scacchiere`,
+        vendor: `Le Due Torri · Bologna`,
+        name: `Completo Cortez Scacchi + Scacchiera da Torneo`,
+        price: `€ 299,00`,
+        rating: `9.5 / 10 · Legno Piombato`,
+        desc: `Pezzi Staunton proporzionati con piombatura equilibrata e scacchiera da torneo FIDE in legno opaco antiriflesso. Ideale per studio serio e circoli.`
+      },
+      {
+        category: `scacchiere`,
+        vendor: `Le Due Torri · Best Value`,
+        name: `Completo Scacchi + Scacchiera da Torneo con Borsa`,
+        price: `€ 18,00`,
+        rating: `9.6 / 10 · Essenziale Circoli`,
+        desc: `Set portatile leggero e indistruttibile con borsa a tracolla (listino € 19,90). Lo standard pratico per tornei rapid, parchi e scuole scacchi.`
+      },
+      {
+        category: `libri`,
+        vendor: `Le Due Torri Editore · Orologi & Manuali`,
+        name: `Orologi Digitali FIDE + "Il Libro Completo delle Aperture"`,
+        price: `€ 31,05`,
+        rating: `9.4 / 10 · Claudio Pantaleoni`,
+        desc: `Accanto agli orologi digitali omologati con incremento Fischer (es. DGT), il bestseller italiano di Claudio Pantaleoni offre una mappa completa dei sistemi d'apertura.`
+      },
+      {
+        category: `libri`,
+        vendor: `Le Due Torri Editore · Didattica`,
+        name: `"1001 Esercizi per Principianti" & "Pattern Scacchistici 2"`,
+        price: `€ 15,75 – € 23,85`,
+        rating: `9.5 / 10 · Masetti / Oudeweetering`,
+        desc: `Due pilastri cartacei per allenare la visione tattica (Franco Masetti) e i ferri del mestiere nel mediogioco (Arthur Van de Oudeweetering).`
+      },
+      {
+        category: `software`,
+        vendor: `Cloud Engine & Scanner`,
+        name: `Chessify (Cloud Stockfish & OCR)`,
+        price: `Freemium / Pro`,
+        rating: `9.7 / 10 · Analisi Cloud`,
+        desc: `Permette di scansionare diagrammi da libri cartacei con la fotocamera e lanciare analisi su server dedicati fino a decine di milioni di nodi al secondo.`
+      },
+      {
+        category: `software`,
+        vendor: `Open-Source Ecosystem`,
+        name: `Lichess.org (Study, Lichess TV & Broadcast)`,
+        price: `100% Gratuito`,
+        rating: `9.9 / 10 · Indispensabile`,
+        desc: `Piattaforma open-source priva di pubblicità: server ultraveloce, Lichess Studies condivisi per preparare aperture, puzzle illimitati e dirette ufficiali FIDE.`
+      },
+      {
+        category: `software`,
+        vendor: `Tornei Titolati & Game Review`,
+        name: `Chess.com & 365Chess.com (4,4M Partite)`,
+        price: `Free / Supporter`,
+        rating: `9.6 / 10 · Database & Live`,
+        desc: `Chess.com ospita i Titled Tuesday e la community più grande al mondo; 365Chess.com affianca un Opening Explorer gratuito da oltre 4,4 milioni di partite.`
+      }
+    ];
+
+    let NEWS_LIVE = { loaded: false, items: [] };
+
+    // 3 Interactive Tactical Puzzles (64-square setup)
+    // =========================================================================
+    // STATE & PERSISTENCE (notebookAppApi symmetric getAppState / setAppState)
+    // =========================================================================
+
+    let appState = {
+      savedTournaments: [],
+      solvedPuzzles: [],
+      cadence: `standard`,
+      selectedEraIdx: 0
+    };
+
+    let activeStreamFilter = `all`;
+    let activeTournamentFilter = `all`;
+    let activeCreatorFilter = `all`;
+    let activeArticleFilter = `all`;
+    let activeGearFilter = `all`;
+    let activeNewsFilter = `all`;
+
+
+    async function persistState() {
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === `function`) {
+          await window.notebookAppApi.setAppState(appState);
+        }
+      } catch (err) {
+        console.warn(`Persistenza non disponibile:`, err);
+      }
+      updateSavedCounter();
+    }
+
+    async function loadPersistedState() {
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === `function`) {
+          const restored = await window.notebookAppApi.getAppState();
+          if (restored && typeof restored === `object`) {
+            if (Array.isArray(restored.savedTournaments)) appState.savedTournaments = restored.savedTournaments;
+            if (Array.isArray(restored.solvedPuzzles)) appState.solvedPuzzles = restored.solvedPuzzles;
+            if (typeof restored.selectedEraIdx === `number`) {
+              appState.selectedEraIdx = restored.selectedEraIdx;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn(`Ripristino stato saltato:`, err);
+      }
+    }
+
+    function updateSavedCounter() {
+      const kpi = document.getElementById(`hero-saved-kpi`);
+      if (kpi) {
+        const total = appState.savedTournaments.length + appState.solvedPuzzles.length;
+        kpi.textContent = `${total}`;
+      }
+    }
+
+    // =========================================================================
+    // NAVIGATION & MODAL HELPERS
+    // =========================================================================
+
+    function toggleMobileMenu() {
+      const drawer = document.getElementById(`mobile-nav`);
+      const btn = document.getElementById(`mobile-menu-toggle`);
+      if (!drawer || !btn) return;
+      const isOpen = drawer.classList.toggle(`open`);
+      btn.setAttribute(`aria-expanded`, isOpen ? `true` : `false`);
+    }
+
+    function closeMobileMenu() {
+      const drawer = document.getElementById(`mobile-nav`);
+      const btn = document.getElementById(`mobile-menu-toggle`);
+      if (drawer) drawer.classList.remove(`open`);
+      if (btn) btn.setAttribute(`aria-expanded`, `false`);
+    }
+
+    function jumpToLiveFilter() {
+      const liveSection = document.getElementById(`live-hub`);
+      if (liveSection) liveSection.scrollIntoView({ behavior: `smooth` });
+      const liveChip = document.querySelector(`#live-hub .chip-btn:nth-child(2)`);
+      if (liveChip) filterStreams(`live`, liveChip);
+    }
+
+    function openActionModal(kicker, title, description, address, extraNote) {
+      const modal = document.getElementById(`action-modal`);
+      const kEl = document.getElementById(`modal-kicker`);
+      const tEl = document.getElementById(`modal-title`);
+      const dEl = document.getElementById(`modal-description`);
+      const aEl = document.getElementById(`modal-address`);
+      const eEl = document.getElementById(`modal-extra-note`);
+      if (!modal || !kEl || !tEl || !dEl || !aEl || !eEl) return;
+
+      kEl.textContent = kicker;
+      tEl.textContent = title;
+      dEl.textContent = description;
+      aEl.textContent = address;
+      eEl.textContent = extraNote ? `Riferimento: ${extraNote}` : ``;
+      modal.classList.add(`open`);
+    }
+
+    function closeActionModal() {
+      const modal = document.getElementById(`action-modal`);
+      if (modal) modal.classList.remove(`open`);
+    }
+
+    function handleBackdropClick(event) {
+      const modal = document.getElementById(`action-modal`);
+      if (modal && event.target === modal) closeActionModal();
+    }
+
+    function copyModalAddress() {
+      const aEl = document.getElementById(`modal-address`);
+      if (!aEl) return;
+      copyText(aEl.textContent, `Indirizzo copiato negli appunti`);
+    }
+
+    function copyText(text, successMsg) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function() {
+          showToast(`${successMsg}: ${text}`);
+        }).catch(function() {
+          showToast(`${text} (copiabile manualmente)`);
+        });
+      } else {
+        showToast(`${text} (copiabile manualmente)`);
+      }
+    }
+
+    let toastTimer = null;
+    function showToast(msg) {
+      const banner = document.getElementById(`toast-banner`);
+      if (!banner) return;
+      banner.textContent = msg;
+      banner.classList.add(`show`);
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(function() {
+        banner.classList.remove(`show`);
+      }, 3200);
+    }
+
+    function setActiveChip(btn) {
+      if (!btn || !btn.parentElement) return;
+      const siblings = btn.parentElement.querySelectorAll(`.chip-btn`);
+      siblings.forEach(function(el) { el.classList.remove(`active`); });
+      btn.classList.add(`active`);
+    }
+
+    // =========================================================================
+    // 3. LIVE HUB RENDERING
+    // =========================================================================
+
+    function filterStreams(filterKey, btnEl) {
+      activeStreamFilter = filterKey;
+      if (btnEl) setActiveChip(btnEl);
+      renderStreams();
+    }
+
+    function renderStreams() {
+      const container = document.getElementById(`live-hub-grid`);
+      if (!container) return;
+
+      const filtered = STREAMS_DATA.filter(function(s) {
+        if (activeStreamFilter === `live`) return s.isLive;
+        if (activeStreamFilter === `it`) return s.region === `it`;
+        if (activeStreamFilter === `intl`) return s.region === `intl`;
+        if (activeStreamFilter === `twitch`) return s.platform === `twitch` || s.secondaryPlatform === `twitch`;
+        if (activeStreamFilter === `youtube`) return s.platform === `youtube` || s.secondaryPlatform === `youtube`;
+        return true;
+      });
+
+      const liveTotal = STREAMS_DATA.filter(function(s) { return s.isLive; }).length;
+      const topLiveCount = document.getElementById(`topbar-live-count`);
+      const heroLiveKpi = document.getElementById(`hero-live-kpi`);
+      if (topLiveCount) topLiveCount.textContent = `${liveTotal} In Onda`;
+      if (heroLiveKpi) heroLiveKpi.textContent = `${liveTotal} / ${STREAMS_DATA.length}`;
+
+      if (!filtered.length) {
+        container.innerHTML = `<div class="panel"><p class="deck-brass">Nessuno streamer corrisponde al filtro selezionato. Prova a visualizzare tutti i creator.</p></div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(function(s) {
+        const initials = s.name.replace(/GM |IM |WFM /g, ``).slice(0, 2).toUpperCase();
+        const statusBadge = s.isLive
+          ? `<span class="badge badge-live">🔴 IN ONDA</span>`
+          : `<span class="badge badge-offline">⚪ OFFLINE</span>`;
+        const shownPlatform = (s.isLive && s.livePlatform) ? s.livePlatform : s.platform;
+        const primaryBtnLabel = shownPlatform === `twitch` ? `Guarda su Twitch` : `Guarda su YouTube`;
+        const secondaryBtnLabel = s.platform === `twitch` ? `Canale YouTube` : `Canale Twitch`;
+
+        return `
+          <article class="stream-card ${s.isLive ? `is-live` : ``}">
+            <div style="display: flex; flex-direction: column; gap: var(--space-sm);">
+              <div class="stream-top">
+                <div class="creator-identity">
+                  <div class="avatar-monogram" aria-hidden="true">${initials}</div>
+                  <div>
+                    <h3 class="stream-name">${s.name}</h3>
+                    <span class="stream-handle">${s.handle} · ${s.titleBadge}</span>
+                  </div>
+                </div>
+                ${statusBadge}
+              </div>
+
+              <p class="stream-title">${s.streamTitle}</p>
+              <div class="stream-meta">
+                <span>${s.scheduleOrViewers}</span>
+              </div>
+              <p class="spec-line" style="font-size: 0.85rem;">${s.notes}</p>
+            </div>
+
+            <div class="stream-actions">
+              <button type="button" class="btn ${s.isLive ? `btn-primary` : `btn-secondary`} btn-sm"
+                onclick="openStreamChannel('${s.id}', 'primary')">
+                <i data-lucide="play" width="14" height="14"></i>
+                ${primaryBtnLabel}
+              </button>
+              ${(s.ytDomain && s.ytDomain !== s.channelDomain) ? `<button type="button" class="btn btn-sky btn-sm"
+                onclick="openStreamChannel('${s.id}', 'secondary')">
+                ${secondaryBtnLabel}
+              </button>` : ``}
+            </div>
+          </article>
+        `;
+      }).join(``);
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function openStreamChannel(streamId, which) {
+      const s = STREAMS_DATA.find(function(item) { return item.id === streamId; });
+      if (!s) return;
+      let url = which === 'primary' ? s.channelDomain : s.ytDomain;
+      if (which === 'primary' && s.isLive && s.liveUrl && /^https:\/\//.test(s.liveUrl)) url = s.liveUrl;
+      if (url) {
+        if (!url.startsWith('http')) url = 'https://' + url;
+        window.open(url, '_blank');
+      }
+    }
+
+    // =========================================================================
+    // 4. TOURNAMENTS RENDERING & REMINDER PERSISTENCE
+    // =========================================================================
+
+    function filterTournaments(filterKey, btnEl) {
+      activeTournamentFilter = filterKey;
+      if (btnEl) setActiveChip(btnEl);
+      renderTournaments();
+    }
+
+    function toggleTournamentReminder(tournamentId) {
+      const idx = appState.savedTournaments.indexOf(tournamentId);
+      if (idx === -1) {
+        appState.savedTournaments.push(tournamentId);
+        showToast(`Promemoria salvato per il torneo`);
+      } else {
+        appState.savedTournaments.splice(idx, 1);
+        showToast(`Promemoria rimosso`);
+      }
+      persistState();
+      renderTournaments();
+    }
+
+    function renderTournaments() {
+      const cardsGrid = document.getElementById(`tournament-cards-grid`);
+      const tableBody = document.getElementById(`tournament-table-body`);
+      const searchInput = document.getElementById(`tournament-search`);
+      if (!cardsGrid || !tableBody) return;
+
+      const query = searchInput ? searchInput.value.trim().toLowerCase() : ``;
+
+      const filtered = TOURNAMENTS_DATA.filter(function(t) {
+        const matchCat = activeTournamentFilter === `all` || t.category === activeTournamentFilter;
+        const haystack = `${t.name} ${t.dateLabel} ${t.liveWhere} ${t.playWhere}`.toLowerCase();
+        const matchQuery = !query || haystack.indexOf(query) !== -1;
+        return matchCat && matchQuery;
+      });
+
+      if (!filtered.length) {
+        cardsGrid.innerHTML = `<div class="panel"><p class="deck-brass">Nessun torneo trovato con i criteri inseriti. Prova a ripulire la ricerca.</p></div>`;
+        tableBody.innerHTML = `<tr><td colspan="5">Nessun evento corrispondente.</td></tr>`;
+        return;
+      }
+
+      // Highlight top 3 matching cards (e.g. the 3 Titled Tuesdays or current main events)
+      cardsGrid.innerHTML = filtered.slice(0, 4).map(function(t) {
+        const isSaved = appState.savedTournaments.indexOf(t.id) !== -1;
+        return `
+          <article class="tournament-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); flex-wrap: wrap;">
+              <span class="badge ${t.status.indexOf(`CORSO`) !== -1 || t.status.indexOf(`LIVE`) !== -1 ? `badge-live` : `badge-brass`}">${t.status}</span>
+              <span class="coord-label">${t.dateLabel}</span>
+            </div>
+            <h3>${t.name}</h3>
+            <p class="spec-line"><strong>Formula:</strong> ${t.format}</p>
+            <p class="spec-line"><strong>Dove seguirlo in diretta:</strong> ${t.liveWhere}</p>
+            <p class="spec-line"><strong>Dove giocarlo online:</strong> ${t.playWhere}</p>
+            <div style="display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-top: auto; padding-top: var(--space-sm); border-top: var(--hairline);">
+              ${liveButtons(t)}
+              <button type="button" class="btn btn-secondary btn-sm" onclick="openTournamentAction('${t.id}', 'play')">
+                <i data-lucide="arrow-up-right" width="14" height="14"></i>
+                Iscriviti / Gioca
+              </button>
+              <button type="button" class="btn ${isSaved ? `btn-sky` : `btn-secondary`} btn-sm" onclick="toggleTournamentReminder('${t.id}')" aria-pressed="${isSaved ? `true` : `false`}">
+                <i data-lucide="${isSaved ? `bell-ring` : `bell`}" width="14" height="14"></i>
+                ${isSaved ? `Salvato` : `Ricordami`}
+              </button>
+            </div>
+          </article>
+        `;
+      }).join(``);
+
+      tableBody.innerHTML = filtered.map(function(t) {
+        const isSaved = appState.savedTournaments.indexOf(t.id) !== -1;
+        return `
+          <tr>
+            <td>
+              <strong style="color: var(--on-surface); display: block;">${t.name}</strong>
+              <span class="coord-label" style="color: var(--primary);">${t.dateLabel}</span>
+            </td>
+            <td style="font-size: 0.875rem; color: var(--on-surface-variant);">${t.format}</td>
+            <td style="font-size: 0.875rem;">${t.liveWhere}</td>
+            <td style="font-size: 0.875rem;">${t.playWhere}</td>
+            <td>
+              <div style="display: flex; flex-wrap: wrap; gap: var(--space-xs);">
+                ${liveButtons(t)}
+                <button type="button" class="btn btn-secondary btn-sm" onclick="openTournamentAction('${t.id}', 'play')">Iscriviti/Gioca</button>
+                <button type="button" class="btn ${isSaved ? `btn-sky` : `btn-secondary`} btn-sm" onclick="toggleTournamentReminder('${t.id}')" title="Salva promemoria">
+                  ${isSaved ? `★` : `☆`}
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join(``);
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function liveButtons(t, cls) {
+      const links = t.liveLinks || [];
+      if (!links.length) return `<button type="button" class="btn btn-primary btn-sm" onclick="openTournamentAction('${t.id}', 'live')">Guarda la Diretta</button>`;
+      return links.map(function(l, i) {
+        return `<button type="button" class="btn ${i === 0 ? `btn-primary` : `btn-secondary`} btn-sm" onclick="openTournamentLive('${t.id}', ${i})">${l.label}</button>`;
+      }).join(` `);
+    }
+    function openTournamentLive(tId, i) {
+      const t = TOURNAMENTS_DATA.find(function(x) { return x.id === tId; });
+      if (!t || !t.liveLinks || !t.liveLinks[i]) return;
+      window.open(t.liveLinks[i].url, '_blank', 'noopener');
+    }
+
+    function openTournamentAction(tId, mode) {
+      const t = TOURNAMENTS_DATA.find(function(item) { return item.id === tId; });
+      if (!t) return;
+      let url = mode === 'live' ? t.liveDomain : t.playDomain;
+      if (url) {
+        if (!url.startsWith('http')) url = 'https://' + url;
+        window.open(url, '_blank');
+      }
+    }
+
+    // =========================================================================
+    // 5. LEADERBOARDS & CHART.JS
+    // =========================================================================
+
+    function filterCreators(filterKey, btnEl) {
+      activeCreatorFilter = filterKey;
+      if (btnEl) setActiveChip(btnEl);
+      renderCreators();
+    }
+
+    function renderCreators() {
+      const container = document.getElementById(`creator-hub-grid`);
+      const searchInput = document.getElementById(`creator-search`);
+      if (!container) return;
+      const query = searchInput ? searchInput.value.trim().toLowerCase() : ``;
+      const filtered = CREATORS_DIRECTORY.filter(function(c) {
+        const matchCat = activeCreatorFilter === `all` || c.region === activeCreatorFilter || c.focus === activeCreatorFilter;
+        const haystack = `${c.name} ${c.handle} ${c.bio}`.toLowerCase();
+        return matchCat && (!query || haystack.indexOf(query) !== -1);
+      });
+      if (!filtered.length) {
+        container.innerHTML = `<tr><td colspan="3">Nessun creator corrisponde alla ricerca.</td></tr>`;
+        return;
+      }
+      container.innerHTML = filtered.map(function(c) {
+        const idx = CREATORS_DIRECTORY.indexOf(c);
+        const short = c.bio.split(/\.\s+(?=[A-ZÈ"«])/)[0].replace(/\.$/, ``) + `.`;
+        const btns = c.channels.map(function(ch, cIdx) {
+          return `<button type="button" class="btn btn-secondary btn-sm" onclick="openCreatorProfileChannel(${idx}, ${cIdx}, '${c.name.replace(/'/g, ``)}')">${ch.label}</button>`;
+        }).join(` `);
+        return `<tr>
+          <td><strong style="color: var(--on-surface); display:block;">${c.name}</strong><span class="coord-label">${c.region === `it` ? `Italia` : `Internazionale`} · ${c.handle}</span></td>
+          <td style="font-size: 0.875rem;">${short}</td>
+          <td><div style="display:flex; flex-wrap:wrap; gap: var(--space-xs);">${btns}</div></td>
+        </tr>`;
+      }).join(``);
+    }
+
+    function openCreatorProfileChannel(creatorIdx, channelIdx, creatorName) {
+      const creator = CREATORS_DIRECTORY.find(function(item) {
+        return item.name.replace(/'/g, '') === creatorName;
+      }) || CREATORS_DIRECTORY[creatorIdx];
+      if (!creator) return;
+      const ch = creator.channels[channelIdx] || creator.channels[0];
+      let url = ch ? ch.domain : '';
+      if (url) {
+        if (!url.startsWith('http')) url = 'https://' + url;
+        window.open(url, '_blank');
+      }
+    }
+
+    // =========================================================================
+    // 7. BLOG, HISTORY TIMELINE & INTERACTIVE CHESSBOARD PUZZLES
+    // =========================================================================
+
+    function filterArticles(filterKey, btnEl) {
+      activeArticleFilter = filterKey;
+      if (btnEl) setActiveChip(btnEl);
+      renderArticles();
+    }
+
+    function toggleArticleBody(articleId) {
+      const body = document.getElementById(`body-${articleId}`);
+      const btn = document.getElementById(`btn-${articleId}`);
+      if (!body || !btn) return;
+      const isOpen = body.classList.toggle(`open`);
+      btn.textContent = isOpen ? `Chiudi approfondimento` : `Leggi guida completa`;
+    }
+
+    function renderArticles() {
+      const container = document.getElementById(`articles-list`);
+      if (!container) return;
+
+      const filtered = ARTICLES_DATA.filter(function(a) {
+        return activeArticleFilter === `all` || a.category === activeArticleFilter;
+      });
+
+      container.innerHTML = filtered.map(function(a, i) {
+        const defaultOpen = i === 0 ? `open` : ``;
+        return `
+          <article class="article-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); flex-wrap: wrap;">
+              <span class="badge badge-sky">${a.badge}</span>
+              <span style="font-family: var(--font-label); font-size: 0.7rem; color: var(--on-surface-variant);">${a.sourceCredit}</span>
+            </div>
+            <h3>${a.title}</h3>
+            <p class="deck-brass" style="margin: 0;">${a.summary}</p>
+            <div id="body-${a.id}" class="article-body ${defaultOpen}">
+              <p style="margin: 0; color: var(--on-surface);">${a.body}</p>
+            </div>
+            <div style="padding-top: var(--space-xs);">
+              <button type="button" id="btn-${a.id}" class="btn btn-secondary btn-sm" onclick="toggleArticleBody('${a.id}')">
+                ${defaultOpen ? `Chiudi approfondimento` : `Leggi guida completa`}
+              </button>
+            </div>
+          </article>
+        `;
+      }).join(``);
+    }
+
+    function selectHistoryEra(idx) {
+      appState.selectedEraIdx = idx;
+      persistState();
+      renderHistoryTimeline();
+    }
+
+    function renderHistoryTimeline() {
+      const timelineEl = document.getElementById(`history-timeline`);
+      const detailEl = document.getElementById(`history-detail-box`);
+      if (!timelineEl || !detailEl) return;
+
+      const activeIdx = Math.max(0, Math.min(HISTORY_ERAS.length - 1, appState.selectedEraIdx));
+
+      timelineEl.innerHTML = HISTORY_ERAS.map(function(era, idx) {
+        return `
+          <button type="button" class="era-step ${idx === activeIdx ? `active` : ``}" onclick="selectHistoryEra(${idx})">
+            <span class="coord-label" style="color: var(--primary);">${era.year}</span>
+            <strong style="font-family: var(--font-headline); font-size: 1.15rem; font-weight: 500;">${era.title}</strong>
+            <span style="font-size: 0.8rem; color: var(--on-surface-variant);">${era.tag}</span>
+          </button>
+        `;
+      }).join(``);
+
+      const activeEra = HISTORY_ERAS[activeIdx];
+      detailEl.innerHTML = `
+        <span class="coord-label">${activeEra.year} · ${activeEra.tag}</span>
+        <h4 style="font-family: var(--font-headline); font-size: 1.35rem; font-weight: 500; margin: var(--space-xs) 0;">${activeEra.title}</h4>
+        <p style="margin: 0; color: var(--on-surface-variant); max-width: 72ch;">${activeEra.detail}</p>
+      `;
+    }
+
+    // Interactive 64-square Chessboard
+    function filterGear(filterKey, btnEl) {
+      activeGearFilter = filterKey;
+      if (btnEl) setActiveChip(btnEl);
+      renderGear();
+    }
+
+    function renderGear() {
+      const container = document.getElementById(`gear-grid`);
+      if (!container) return;
+
+      const filtered = GEAR_DATA.filter(function(g) {
+        return activeGearFilter === `all` || g.category === activeGearFilter;
+      });
+
+      container.innerHTML = filtered.map(function(g, idx) {
+        return `
+          <article class="gear-card">
+            <div style="display: flex; flex-direction: column; gap: var(--space-sm);">
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); flex-wrap: wrap;">
+                <span class="badge badge-sky">${g.vendor}</span>
+                <span class="coord-label" style="color: var(--positive);">${g.rating}</span>
+              </div>
+              <h3 style="font-family: var(--font-headline); font-size: 1.3rem; font-weight: 500; margin: 0;">${g.name}</h3>
+              <span class="gear-price">${g.price}</span>
+              <p class="deck-brass" style="margin: 0; font-size: 0.9rem;">${g.desc}</p>
+            </div>
+            <div style="padding-top: var(--space-sm); border-top: var(--hairline);">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="openGearModal(${idx}, '${g.name.replace(/'/g, ``)}')">
+                <i data-lucide="cpu" width="14" height="14"></i>
+                Scheda &amp; Riferimento
+              </button>
+            </div>
+          </article>
+        `;
+      }).join(``);
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    function openGearModal(idx, name) {
+      const g = GEAR_DATA.find(function(item) { return item.name.replace(/'/g, ``) === name; }) || GEAR_DATA[idx];
+      if (!g) return;
+      let domain = `scacco.it`;
+      if (g.name.indexOf(`Chessify`) !== -1) domain = `chessify.me`;
+      if (g.name.indexOf(`Lichess`) !== -1) domain = `lichess.org`;
+      if (g.name.indexOf(`Chess.com`) !== -1) domain = `chess.com / 365chess.com`;
+
+      openActionModal(
+        `Equipaggiamento & Tech · ${g.vendor}`,
+        g.name,
+        g.desc,
+        domain,
+        `Valutazione redazione: ${g.rating} · Prezzo indicativo: ${g.price}`
+      );
+    }
+
+    // =========================================================================
+    // 9. BREAKING NEWS RENDERING (Bottom before Footer)
+    // =========================================================================
+
+    function filterNews(filterKey, btnEl) {
+      activeNewsFilter = filterKey;
+      if (btnEl) setActiveChip(btnEl);
+      renderNews();
+    }
+
+    function toggleNewsDetail(newsId) {
+      const el = document.getElementById(`news-detail-${newsId}`);
+      const btn = document.getElementById(`news-btn-${newsId}`);
+      if (!el || !btn) return;
+      const open = el.classList.toggle(`open`);
+      btn.textContent = open ? `Riduci articolo` : `Leggi report completo`;
+    }
+
+    function escHtml(t) {
+      return String(t == null ? `` : t).replace(/[&<>"']/g, function(c) {
+        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+      });
+    }
+
+    function renderNews() {
+      const container = document.getElementById(`news-grid`);
+      if (!container) return;
+
+      if (!NEWS_LIVE.loaded) {
+        container.innerHTML = `<p class="deck-brass">Caricamento delle notizie…</p>`;
+        return;
+      }
+      const filtered = NEWS_LIVE.items.filter(function(n) {
+        return activeNewsFilter === `all` || n.category === activeNewsFilter;
+      });
+      if (!filtered.length) {
+        container.innerHTML = `<p class="deck-brass">Nessuna notizia disponibile al momento. Riprova tra qualche minuto.</p>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(function(n) {
+        const badgeClass = n.category === `it` ? `badge-positive` : `badge-brass`;
+        const catLabel = n.category === `it` ? `Italia` : `Internazionale`;
+        const when = n.date ? new Date(n.date).toLocaleDateString(`it-IT`, { day: `numeric`, month: `long`, year: `numeric` }) : ``;
+        const safeLink = /^https:\/\//.test(n.link || ``) ? escHtml(n.link) : ``;
+        return `
+          <article class="article-card" style="justify-content: space-between;">
+            <div style="display: flex; flex-direction: column; gap: var(--space-sm);">
+              <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); flex-wrap: wrap;">
+                <span class="badge ${badgeClass}">${catLabel}</span>
+                <span class="coord-label">${escHtml(when)}</span>
+              </div>
+              <h3>${escHtml(n.title)}</h3>
+              <span style="font-family: var(--font-label); font-size: 0.72rem; color: var(--on-surface-variant);">Fonte: ${escHtml(n.source)}</span>
+              <p class="deck-brass" style="margin: 0; font-size: 0.9rem;">${escHtml(n.summary)}</p>
+            </div>
+            ${safeLink ? `<div style="padding-top: var(--space-sm); border-top: var(--hairline);">
+              <a class="btn btn-secondary btn-sm" href="${safeLink}" target="_blank" rel="noopener noreferrer">Leggi l'articolo sul sito originale</a>
+            </div>` : ``}
+          </article>
+        `;
+      }).join(``);
+    }
+
+var RANKINGS = null;
+    var rankCadence = 'standard';
+    function setRankCadence(c, btn) { rankCadence = c; if (btn) setActiveChip(btn); renderRankings(); }
+    async function loadRankings() {
+      try {
+        var res = await fetch('/.netlify/functions/rankings');
+        if (!res.ok) throw new Error('http ' + res.status);
+        RANKINGS = await res.json();
+      } catch (e) { RANKINGS = { error: true }; }
+      renderRankings();
+    }
+    function renderRankings() {
+      var labelsCc = { standard: 'Daily', rapid: 'Rapid', blitz: 'Blitz' };
+      var labelsLi = { standard: 'Classical', rapid: 'Rapid', blitz: 'Blitz' };
+      var labelsFide = { standard: 'Standard', rapid: 'Rapid', blitz: 'Blitz' };
+      function fill(bodyId, list, fallbackHref) {
+        var body = document.getElementById(bodyId);
+        if (!body) return;
+        if (!list || !list.length) {
+          body.innerHTML = '<tr><td colspan="4">Dati non disponibili al momento. <a href="' + fallbackHref + '" target="_blank" rel="noopener noreferrer">Apri la classifica ufficiale</a>.</td></tr>';
+          return;
+        }
+        body.innerHTML = list.slice(0, 10).map(function (r, i) {
+          return '<tr><td>' + (i + 1) + '</td><td>' + escHtml(r.name) + '</td><td>' + escHtml(r.fed || '') + '</td><td class="num-col">' + escHtml(r.rating) + '</td></tr>';
+        }).join('');
+      }
+      var d = RANKINGS && !RANKINGS.error ? RANKINGS : {};
+      document.getElementById('fide-cadence-label').textContent = labelsFide[rankCadence];
+      document.getElementById('cc-cadence-label').textContent = labelsCc[rankCadence];
+      document.getElementById('li-cadence-label').textContent = labelsLi[rankCadence];
+      fill('fide-top10-body', d.fide && d.fide[rankCadence], 'https://ratings.fide.com/');
+      fill('cc-top10-body', d.chesscom && d.chesscom[rankCadence], 'https://www.chess.com/leaderboard');
+      fill('li-top10-body', d.lichess && d.lichess[rankCadence], 'https://lichess.org/player');
+      var note = document.getElementById('rank-note');
+      if (note) {
+        var parts = [];
+        if (d.fide && d.fide.month) parts.push('Lista FIDE di ' + String(d.fide.month).replace(/January|February|March|April|May|June|July|August|September|October|November|December/, function(m){ return {January:'gennaio',February:'febbraio',March:'marzo',April:'aprile',May:'maggio',June:'giugno',July:'luglio',August:'agosto',September:'settembre',October:'ottobre',November:'novembre',December:'dicembre'}[m]; }) + ' (aggiornata dalla FIDE una volta al mese)');
+        if (d.updatedAt) parts.push('classifiche online lette il ' + new Date(d.updatedAt).toLocaleString('it-IT', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }));
+        note.textContent = parts.join(' · ');
+      }
+    }
+
+    // =========================================================================
+    // INIT
+    // =========================================================================
+
+    async function initPortal() {
+      await loadPersistedState();
+
+      renderStreams();
+      renderTournaments();
+      loadRankings();
+      renderCreators();
+      renderArticles();
+      renderHistoryTimeline();
+      if (window.initGameViewer) window.initGameViewer();
+      renderGear();
+      renderNews();
+      updateSavedCounter();
+
+      if (window.lucide) window.lucide.createIcons();
+    }
+
+    document.addEventListener(`DOMContentLoaded`, initPortal);
+  </script>
+
+  <script>
+    async function updateLiveStatusFromAPI() {
+      let liveData = null;
+      try {
+        const res = await fetch('/.netlify/functions/check-live');
+        if (res.ok) liveData = await res.json();
+      } catch (err) {
+        console.log('Controllo live non riuscito:', err);
+      }
+
+      STREAMS_DATA.forEach(function(s) {
+        const info = liveData ? liveData[s.id] : null;
+        s.livePlatform = null;
+        s.liveUrl = null;
+        if (!info || info.known === false) {
+          s.isLive = false;
+          s.streamTitle = 'Stato della diretta non disponibile';
+          s.scheduleOrViewers = '—';
+        } else if (info.isLive) {
+          s.isLive = true;
+          s.livePlatform = info.platform;
+          s.liveUrl = info.url || null;
+          s.streamTitle = info.title || 'In diretta';
+          const name = info.platform === 'youtube' ? 'YouTube' : 'Twitch';
+          s.scheduleOrViewers = info.viewerCount > 0
+            ? info.viewerCount.toLocaleString('it-IT') + ' spettatori · in onda su ' + name
+            : 'In onda su ' + name;
+        } else {
+          s.isLive = false;
+          s.streamTitle = 'Al momento non in diretta';
+          s.scheduleOrViewers = 'Offline';
+        }
+      });
+      renderStreams();
+    }
+
+    async function loadBroadcasts() {
+      const box = document.getElementById('broadcasts-list');
+      if (!box) return;
+      try {
+        const res = await fetch('/.netlify/functions/broadcasts');
+        if (!res.ok) throw new Error('http ' + res.status);
+        const data = await res.json();
+        const items = data.items || [];
+        if (!items.length) {
+          box.innerHTML = '<p class="deck-brass">Nessun torneo in diretta su Lichess in questo momento.</p>';
+          return;
+        }
+        box.innerHTML = items.map(function(b) {
+          const link = /^https:\/\/lichess\.org\//.test(b.url || '') ? escHtml(b.url) : '';
+          const when = b.startsAt ? new Date(b.startsAt).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
+          const state = b.ongoing ? '🔴 In corso' : (b.finished ? 'Concluso' : (when ? 'Inizia: ' + when : 'In programma'));
+          return '<div class="bc-item"><span class="coord-label">' + escHtml(state) + '</span><h4>' + escHtml(b.name) + '</h4>' +
+            (b.round ? '<span class="stream-handle">' + escHtml(b.round) + '</span>' : '') +
+            (link ? '<a class="btn btn-secondary btn-sm" href="' + link + '" target="_blank" rel="noopener noreferrer">Segui su Lichess</a>' : '') +
+            '</div>';
+        }).join('');
+      } catch (err) {
+        box.innerHTML = '<p class="deck-brass">Elenco delle dirette non disponibile al momento.</p>';
+      }
+    }
+
+    async function loadNews() {
+      try {
+        const res = await fetch('/.netlify/functions/news');
+        if (!res.ok) throw new Error('http ' + res.status);
+        const data = await res.json();
+        NEWS_LIVE = { loaded: true, items: data.items || [] };
+      } catch (err) {
+        NEWS_LIVE = { loaded: true, items: [] };
+      }
+      renderNews();
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      updateLiveStatusFromAPI();
+      loadBroadcasts();
+      loadNews();
+      setInterval(updateLiveStatusFromAPI, 180000);
+      setInterval(loadBroadcasts, 300000);
+      setInterval(loadNews, 900000);
+    });
+  </script>
+
+</body>
+</html>
