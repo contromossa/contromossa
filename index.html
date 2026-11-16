@@ -765,6 +765,19 @@
     tr:last-child td { border-bottom: none; }
     tbody tr:hover { background: var(--surface-container-high); }
 
+    /* Classifiche: su telefono tutte le colonne devono stare nella larghezza dello schermo */
+    .leaderboard-layout .table-wrap th { white-space: normal; }
+    .leaderboard-layout .table-wrap td:nth-child(2) { overflow-wrap: anywhere; }
+    @media (max-width: 600px) {
+      .leaderboard-layout .table-wrap th, .leaderboard-layout .table-wrap td { padding: 10px 8px; }
+      .leaderboard-layout .table-wrap th { font-size: 0.62rem; letter-spacing: 0.04em; }
+      .leaderboard-layout .table-wrap td:first-child, .leaderboard-layout .table-wrap th:first-child { padding-left: 12px; width: 1%; }
+      .leaderboard-layout .table-wrap td:last-child, .leaderboard-layout .table-wrap th:last-child { padding-right: 12px; }
+    }
+    .lichess-frame { margin-top: 16px; max-width: 420px; }
+    .lichess-frame iframe { display: block; width: 100%; aspect-ratio: 10 / 11; border: 0; border-radius: 6px; background: #161512; }
+    .lichess-frame p { margin: 8px 0 0; font-size: 0.85rem; color: var(--on-surface-variant); }
+
     .num-col {
       text-align: right;
       font-family: var(--font-label);
@@ -1463,6 +1476,10 @@
           <h3 style="font-family: var(--font-headline); font-size: 1.35rem; margin: var(--space-xs) 0 0; font-weight: 500;">Allena la tattica</h3>
           <p class="deck-brass" style="margin:0;">Esercizi gratuiti, senza registrazione, direttamente sul sito di Lichess.</p>
           <a class="btn btn-primary" href="https://lichess.org/training" target="_blank" rel="noopener noreferrer">Apri gli esercizi su Lichess</a>
+          <div class="lichess-frame">
+            <iframe src="https://lichess.org/training/frame?theme=brown&bg=dark" title="Problema del giorno di Lichess" loading="lazy" allowtransparency="true"></iframe>
+            <p>Problema del giorno di Lichess. Clicca sulla scacchiera per risolverlo su Lichess.</p>
+          </div>
         </aside>
       </div>
 
