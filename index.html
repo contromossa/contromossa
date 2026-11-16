@@ -1267,14 +1267,6 @@
             leggi il titolo della trasmissione e accedi direttamente al canale Twitch o YouTube.
           </p>
         </div>
-        <div class="filter-group" role="group" aria-label="Filtra streamer">
-          <button type="button" class="chip-btn active" onclick="filterStreams('all', this)">Tutti</button>
-          <button type="button" class="chip-btn" onclick="filterStreams('live', this)">🔴 Solo In Onda</button>
-          <button type="button" class="chip-btn" onclick="filterStreams('it', this)">Italia</button>
-          <button type="button" class="chip-btn" onclick="filterStreams('intl', this)">Internazionali</button>
-          <button type="button" class="chip-btn" onclick="filterStreams('twitch', this)">Twitch</button>
-          <button type="button" class="chip-btn" onclick="filterStreams('youtube', this)">YouTube</button>
-        </div>
       </div>
 
       <div id="live-hub-grid" class="card-grid"></div>
@@ -1348,7 +1340,7 @@
         </div>
       </div>
 
-      <div class="leaderboard-layout" style="grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));">
+      <div class="leaderboard-layout">
         <div class="table-wrap"><table>
           <thead><tr><th>#</th><th>FIDE mondiale (<span id="fide-cadence-label">Standard</span>)</th><th>Fed</th><th class="num-col">Elo</th></tr></thead>
           <tbody id="fide-top10-body"><tr><td colspan="4">Caricamento…</td></tr></tbody>
@@ -2637,7 +2629,8 @@ chess.js/dist/esm/chess.js:
       selectedEraIdx: 0
     };
 
-    let activeStreamFilter = `all`;
+    let activeStreamFilter = 'live';
+    let liveState = 'loading';
     let activeTournamentFilter = `all`;
     let activeCreatorFilter = `all`;
     let activeArticleFilter = `all`;
@@ -2785,14 +2778,7 @@ chess.js/dist/esm/chess.js:
       const container = document.getElementById(`live-hub-grid`);
       if (!container) return;
 
-      const filtered = STREAMS_DATA.filter(function(s) {
-        if (activeStreamFilter === `live`) return s.isLive;
-        if (activeStreamFilter === `it`) return s.region === `it`;
-        if (activeStreamFilter === `intl`) return s.region === `intl`;
-        if (activeStreamFilter === `twitch`) return s.platform === `twitch` || s.secondaryPlatform === `twitch`;
-        if (activeStreamFilter === `youtube`) return s.platform === `youtube` || s.secondaryPlatform === `youtube`;
-        return true;
-      });
+      const filtered = STREAMS_DATA.filter(function(s) { return s.isLive; });
 
       const liveTotal = STREAMS_DATA.filter(function(s) { return s.isLive; }).length;
       const topLiveCount = document.getElementById(`topbar-live-count`);
@@ -2801,7 +2787,8 @@ chess.js/dist/esm/chess.js:
       if (heroLiveKpi) heroLiveKpi.textContent = `${liveTotal} / ${STREAMS_DATA.length}`;
 
       if (!filtered.length) {
-        container.innerHTML = `<div class="panel"><p class="deck-brass">Nessuno streamer corrisponde al filtro selezionato. Prova a visualizzare tutti i creator.</p></div>`;
+        const msg = liveState === 'loading' ? 'Controllo chi è in onda…' : (liveState === 'fail' ? 'Non riesco a controllare le dirette in questo momento.' : 'Nessuno streamer è in onda in questo momento. Trovi tutti i creator nella sezione qui sotto.');
+        container.innerHTML = '<div class="panel"><p class="deck-brass">' + msg + '</p></div>';
         return;
       }
 
@@ -3341,6 +3328,7 @@ var RANKINGS = null;
           s.scheduleOrViewers = 'Offline';
         }
       });
+      liveState = liveData ? 'ok' : 'fail';
       renderStreams();
     }
 
