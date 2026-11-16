@@ -43,27 +43,49 @@ function parseFide(html) {
   return rows.slice(0, 10);
 }
 
+const MESI = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+const TIPI = ['standard', 'rapid', 'blitz'];
+
+// Fonte principale: fideratings.com (stessi dati FIDE, risponde anche ai server di Netlify).
+async function fromMirror(k, fed) {
+  const url = 'https://fideratings.com/api/top/open?limit=10&type=' + k + (fed ? '&fed=' + fed : '');
+  const d = await (await get(url, { Accept: 'application/json' })).json();
+  const rows = (d.players || []).slice(0, 10).map((p) => {
+    let name = String(p.name || '');
+    if (name.includes(',')) { const [x, y] = name.split(',').map((t) => t.trim()); name = (y + ' ' + x).trim(); }
+    return { name, fed: p.country || '', rating: Number(p.rating) };
+  }).filter((r) => r.rating >= 1500);
+  if (rows.length < 5) throw new Error('lista non riconosciuta');
+  const m = String(d.date || '').match(/^(\d{4})-(\d{2})$/);
+  return { rows, month: m ? MESI[+m[2] - 1] + ' ' + m[1] : '' };
+}
+
+// Riserva: sito ufficiale FIDE (spesso lento o bloccato dai server di Netlify).
+async function fromFide(k, fed) {
+  const url = fed ? FIDE_ITA(k) : FIDE_URLS[k];
+  const headers = fed ? { 'X-Requested-With': 'XMLHttpRequest', Referer: 'https://ratings.fide.com/rankings.phtml' } : undefined;
+  const html = await (await get(url, headers)).text();
+  const rows = parseFide(html);
+  if (rows.length < 5) throw new Error('tabella non riconosciuta');
+  const m = html.match(/\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(20\d\d)\b/);
+  return { rows, month: m ? m[1] + ' ' + m[2] : '' };
+}
+
 async function loadFide() {
   const out = { month: '', standard: null, rapid: null, blitz: null, ita: { standard: null, rapid: null, blitz: null } };
   const errors = [];
-  await Promise.all(Object.keys(FIDE_URLS).map(async (k) => {
-    try {
-      const html = await (await get(FIDE_URLS[k])).text();
-      const rows = parseFide(html);
-      if (rows.length >= 5) out[k] = rows; else throw new Error('tabella FIDE ' + k + ' non riconosciuta');
-      if (!out.month) {
-        const m = html.match(/\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(20\d\d)\b/);
-        if (m) out.month = m[1] + ' ' + m[2];
-      }
-    } catch (e) { errors.push('FIDE ' + k + ': ' + e.message); }
-  }));
-  await Promise.all(['standard', 'rapid', 'blitz'].map(async (k) => {
-    try {
-      const html = await (await get(FIDE_ITA(k), { 'X-Requested-With': 'XMLHttpRequest', Referer: 'https://ratings.fide.com/rankings.phtml' })).text();
-      const rows = parseFide(html);
-      if (rows.length >= 5) out.ita[k] = rows; else throw new Error('tabella italiana ' + k + ' non riconosciuta');
-    } catch (e) { errors.push('FIDE Italia ' + k + ': ' + e.message); }
-  }));
+  const jobs = [];
+  for (const k of TIPI) for (const fed of [null, 'ITA']) jobs.push((async () => {
+    let r;
+    try { r = await fromMirror(k, fed); }
+    catch (e1) {
+      try { r = await fromFide(k, fed); }
+      catch (e2) { errors.push('FIDE ' + (fed ? 'Italia ' : '') + k + ': ' + e1.message + ' / ' + e2.message); return; }
+    }
+    if (fed) out.ita[k] = r.rows; else out[k] = r.rows;
+    if (!out.month && r.month) out.month = r.month;
+  })());
+  await Promise.all(jobs);
   return { data: out, errors };
 }
 
