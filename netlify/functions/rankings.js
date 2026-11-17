@@ -57,7 +57,7 @@ async function fromMirror(k, fed) {
   }).filter((r) => r.rating >= 1500);
   if (rows.length < 5) throw new Error('lista non riconosciuta');
   const m = String(d.date || '').match(/^(\d{4})-(\d{2})$/);
-  return { rows, month: m ? MESI[+m[2] - 1] + ' ' + m[1] : '' };
+  return { rows, month: m ? MESI[+m[2] - 1] + ' ' + m[1] : '', source: 'fideratings.com' };
 }
 
 // Riserva: sito ufficiale FIDE (spesso lento o bloccato dai server di Netlify).
@@ -68,11 +68,11 @@ async function fromFide(k, fed) {
   const rows = parseFide(html);
   if (rows.length < 5) throw new Error('tabella non riconosciuta');
   const m = html.match(/\b(January|February|March|April|May|June|July|August|September|October|November|December)\s+(20\d\d)\b/);
-  return { rows, month: m ? m[1] + ' ' + m[2] : '' };
+  return { rows, month: m ? m[1] + ' ' + m[2] : '', source: 'ratings.fide.com' };
 }
 
 async function loadFide() {
-  const out = { month: '', standard: null, rapid: null, blitz: null, ita: { standard: null, rapid: null, blitz: null } };
+  const out = { month: '', sources: [], standard: null, rapid: null, blitz: null, ita: { standard: null, rapid: null, blitz: null } };
   const errors = [];
   const jobs = [];
   for (const k of TIPI) for (const fed of [null, 'ITA']) jobs.push((async () => {
@@ -84,6 +84,7 @@ async function loadFide() {
     }
     if (fed) out.ita[k] = r.rows; else out[k] = r.rows;
     if (!out.month && r.month) out.month = r.month;
+    if (r.source && out.sources.indexOf(r.source) === -1) out.sources.push(r.source);
   })());
   await Promise.all(jobs);
   return { data: out, errors };

@@ -1212,7 +1212,7 @@
           Il portale dove gli scacchi italiani entrano in <em>contromossa</em>
         </h1>
         <p class="hero-lede">
-          Dirette Twitch e YouTube in tempo reale, il calendario completo tra Titled Tuesday ed eventi FSI,
+          Dirette Twitch e YouTube in tempo reale, i tornei in diretta su Lichess e il Titled Tuesday,
           le classifiche FIDE aggiornate, i migliori creator nazionali e internazionali, didattica interattiva
           e le ultime notizie dal mondo delle 64 caselle.
         </p>
@@ -1240,8 +1240,8 @@
         </div>
         <div class="kpi-tile">
           <span class="coord-label">Tornei Monitorati</span>
-          <span class="kpi-value">8 Eventi</span>
-          <span class="kpi-note">3 Titled Tuesday + FSI &amp; FIDE</span>
+          <span class="kpi-value" id="hero-tournaments-kpi">…</span>
+          <span class="kpi-note">Su Lichess, più il Titled Tuesday</span>
         </div>
         <div class="kpi-tile">
           <span class="coord-label">Archivio 365Chess</span>
@@ -1279,46 +1279,22 @@
           <span class="coord-label">04 · Agenda Agonistica &amp; Online</span>
           <h2 class="section-title" id="tornei-title">Calendario <em>Tornei</em> &amp; Titled Tuesday</h2>
           <p class="deck-brass">
-            Tutti gli appuntamenti nazionali FSI, i circuiti internazionali e i 3 Titled Tuesday settimanali, con
-            indicazioni esplicite su dove seguire la diretta e su quale piattaforma iscriversi o giocare.
+            I tornei trasmessi in diretta su Lichess, con quelli italiani in evidenza, e il Titled Tuesday di Chess.com.
+            Gli elenchi si aggiornano da soli.
           </p>
         </div>
       </div>
 
-      <div id="broadcasts-block" style="margin-bottom: var(--space-lg);">
+      <div id="tournament-cards-grid" class="tournament-highlight-grid" style="margin-bottom: var(--space-lg);"></div>
+
+      <div id="broadcasts-italy-block" style="margin-bottom: var(--space-lg);">
+        <span class="coord-label">Tornei italiani · Lichess Broadcast</span>
+        <div id="broadcasts-italy-list" class="bc-grid"><p class="deck-brass">Caricamento dei tornei italiani…</p></div>
+      </div>
+
+      <div id="broadcasts-block">
         <span class="coord-label">In diretta dal mondo · Lichess Broadcast</span>
         <div id="broadcasts-list" class="bc-grid"><p class="deck-brass">Caricamento delle dirette…</p></div>
-      </div>
-
-      <div class="controls-row">
-        <div class="filter-group" role="group" aria-label="Filtra tornei">
-          <button type="button" class="chip-btn active" onclick="filterTournaments('all', this)">Tutti gli Eventi</button>
-          <button type="button" class="chip-btn" onclick="filterTournaments('titled', this)">3 Titled Tuesday</button>
-          <button type="button" class="chip-btn" onclick="filterTournaments('nazionale', this)">Nazionali FSI</button>
-          <button type="button" class="chip-btn" onclick="filterTournaments('internazionale', this)">Internazionali FIDE</button>
-        </div>
-
-        <div class="field-group">
-          <label for="tournament-search" class="field-label">Cerca torneo, città o piattaforma</label>
-          <input type="search" id="tournament-search" class="field-input" placeholder="Es. Spilimbergo, Titled Tuesday, Lichess..." oninput="renderTournaments()">
-        </div>
-      </div>
-
-      <div id="tournament-cards-grid" class="tournament-highlight-grid"></div>
-
-      <div class="table-wrap" aria-label="Tabella riepilogativa calendario tornei">
-        <table>
-          <thead>
-            <tr>
-              <th>Evento &amp; Data</th>
-              <th>Cadenza / Formula</th>
-              <th>Dove Seguirlo in Diretta</th>
-              <th>Dove Giocarlo Online / Iscrizione</th>
-              <th>Azioni Rapide</th>
-            </tr>
-          </thead>
-          <tbody id="tournament-table-body"></tbody>
-        </table>
       </div>
     </section>
 
@@ -1632,7 +1608,7 @@
         <h3 class="footer-title">Contatti &amp; Crediti Fonti</h3>
         <ul class="footer-list" style="font-size: 0.85rem; color: var(--on-surface-variant);">
           <li>Redazione &amp; Partnership: <strong style="color: var(--on-surface);">contromossa.it@gmail.com</strong></li>
-          <li>Fonti dati tornei &amp; regolamenti: Federazione Scacchistica Italiana (federscacchi.it), Scacchierando.it, UnoScacchista.</li>
+          <li>Fonti dati tornei: Lichess (tornei in diretta) e Chess.com (Titled Tuesday). Notizie: Chess.com, Lichess, The Week in Chess, Scacchierando.it, UnoScacchista.</li>
           <li>Database &amp; piattaforme citate: 365Chess.com, World Chess (FIDE Online Arena), Chess.com, Lichess.org, Chessify.</li>
           <li>Catalogo materiale tecnico: Le Due Torri Bologna (scacco.it).</li>
         </ul>
@@ -2126,16 +2102,16 @@ chess.js/dist/esm/chess.js:
       },
       {
         id: `mattoscacco`,
-        name: `Affari Square (mattoscacco)`,
+        name: `Mattoscacco`,
         titleBadge: `Canale YouTube`,
-        handle: `@mattoscacco`,
+        handle: `@Themattoscacco`,
         region: `it`,
         platform: `youtube`,
         secondaryPlatform: ``,
         isLive: false,
         streamTitle: `Stato della diretta non ancora verificato`,
         scheduleOrViewers: `Controllo in corso…`,
-        channelDomain: `youtube.com/@mattoscacco`,
+        channelDomain: `youtube.com/@Themattoscacco`,
         ytDomain: ``,
         notes: `Canale YouTube di scacchi.`
       },
@@ -2246,110 +2222,22 @@ chess.js/dist/esm/chess.js:
       }
     ];
 
+    // Il Titled Tuesday di Chess.com: un torneo ogni martedì alle 17:00, ora italiana.
+    // La data del prossimo e la scritta "in corso" si calcolano da sole (vedi titledTuesdayStatus).
     const TOURNAMENTS_DATA = [
       {
         id: `tt-early`,
         liveLinks: [{label:`Twitch Chess.com Italia`,url:`https://www.twitch.tv/chesscomit`},{label:`YouTube (cerca Chess.com Italia)`,url:`https://www.youtube.com/results?search_query=chess.com+italia+live`}],
-        name: `Titled Tuesday — Sessione Early`,
+        name: `Titled Tuesday`,
         category: `titled`,
-        dateLabel: `Ogni Martedì · 17:00 CET`,
-        format: `11 Turni Svizzero · Blitz 3+1`,
-        liveWhere: `Diretta Ufficiale in Italiano su Chess.com Italia (Twitch / YouTube)`,
-        playWhere: `Chess.com (Tornei Titolati FIDE / Arena Open paralleli)`,
+        weekly: { weekday: 2, hour: 17, minute: 0, durationMin: 135 },
+        dateLabel: `Ogni martedì · 17:00`,
+        format: `11 turni, sistema svizzero · Blitz 3+1`,
+        liveWhere: `Diretta in italiano su Chess.com Italia (Twitch / YouTube)`,
+        playWhere: `Chess.com (riservato ai giocatori titolati)`,
         liveDomain: `https://www.twitch.tv/chesscomit`,
         playDomain: `chess.com/play/tournaments`,
-        status: `Settimanale · Prossimo 17 Nov`
-      },
-      {
-        id: `tt-late`,
-        liveLinks: [{label:`Twitch Chess.com Italia`,url:`https://www.twitch.tv/chesscomit`},{label:`YouTube (cerca Chess.com Italia)`,url:`https://www.youtube.com/results?search_query=chess.com+italia+live`}],
-        name: `Titled Tuesday — Sessione Late`,
-        category: `titled`,
-        dateLabel: `Ogni Martedì · 23:00 CET`,
-        format: `11 Turni Svizzero · Blitz 3+1`,
-        liveWhere: `Diretta Ufficiale in Italiano su Chess.com Italia (Twitch / YouTube)`,
-        playWhere: `Chess.com (Sezione Eventi Live · Iscrizione 1 ora prima)`,
-        liveDomain: `https://www.twitch.tv/chesscomit`,
-        playDomain: `chess.com/events`,
-        status: `Settimanale · Prossimo 17 Nov`
-      },
-      {
-        id: `tt-freestyle`,
-        liveLinks: [{label:`Lichess TV`,url:`https://lichess.org/tv`},{label:`Twitch Moroni`,url:`https://www.twitch.tv/gm_moro`},{label:`YouTube Moroni`,url:`https://www.youtube.com/@gm_moro`},{label:`Twitch chessburger`,url:`https://www.twitch.tv/chessburger_tv`},{label:`YouTube chessburger`,url:`https://www.youtube.com/@chessburgerTV`}],
-        name: `Titled Tuesday — Freestyle & Lichess Titled Arena`,
-        category: `titled`,
-        dateLabel: `Martedì & Weekend · 19:00 CET`,
-        format: `Arena / 960 Freestyle · 3+0 & 3+1`,
-        liveWhere: `Lichess TV (lichess.org/tv) · Diretta Freestyle GM Luca Moroni · chessburger TV`,
-        playWhere: `Chess.com (Freestyle Friday/Tuesday) & Lichess.org (Lichess Arena)`,
-        liveDomain: `lichess.org/tv`,
-        playDomain: `lichess.org/tournament`,
-        status: `Settimanale · Attivo`
-      },
-      {
-        id: `total-chess-budapest`,
-        liveLinks: [{label:`Twitch Chess.com Italia`,url:`https://www.twitch.tv/chesscomit`},{label:`YouTube (cerca Chess.com Italia)`,url:`https://www.youtube.com/results?search_query=chess.com+italia+live`}],
-        name: `Total Chess World Championship Tour Pilot (Budapest)`,
-        category: `internazionale`,
-        dateLabel: `12 – 15 Novembre 2026 · LIVE`,
-        format: `Gironi Classic, Rapid & Blitz Tie-breaker`,
-        liveWhere: `Diretta Ufficiale in Italiano su Chess.com Italia (Twitch / YouTube)`,
-        playWhere: `Evento su invito FIDE · Tornei satellite su World Chess (worldchess.com)`,
-        liveDomain: `https://www.twitch.tv/chesscomit`,
-        playDomain: `worldchess.com/lobby`,
-        status: `IN CORSO ORA (Giorno 2 h. 15:00 & 18:30)`
-      },
-      {
-        id: `spilimbergo-rapido`,
-        liveLinks: [{label:`YouTube (cerca FSI)`,url:`https://www.youtube.com/results?search_query=federscacchi+spilimbergo`},{label:`Scacchierando`,url:`https://www.scacchierando.it/`}],
-        name: `Campionati Italiani Gioco Rapido (Blitz, 960, Rapid)`,
-        category: `nazionale`,
-        dateLabel: `27 – 29 Novembre 2026 · Spilimbergo`,
-        format: `27 Nov Blitz (11t) · 28 Nov 960 (7t) · 29 Nov Rapid (9t)`,
-        liveWhere: `Canale YouTube FSI · Scacchierando.it Live · Copertura Circoli Italiani`,
-        playWhere: `In presenza (Centro Sportivo La Favorita) — Iscrizione su Vesus (€35/€65/€90)`,
-        liveDomain: `federscacchi.it`,
-        playDomain: `vesus.org/event/L7HQWeVS`,
-        status: `Iscrizioni Aperte`
-      },
-      {
-        id: `piacenza-rapid`,
-        liveLinks: [{label:`Scacchierando`,url:`https://www.scacchierando.it/`}],
-        name: `Rapid a Squadre di Piacenza (1ª Edizione)`,
-        category: `nazionale`,
-        dateLabel: `29 Novembre 2026 · Piacenza`,
-        format: `Torneo Rapid a Squadre · Cadenza FIDE`,
-        liveWhere: `Aggiornamenti Scacchierando.it & Canale WhatsApp Scacchierando`,
-        playWhere: `In presenza FSI · Tornei preparatori online su Chess.com Club Italia`,
-        liveDomain: `scacchierando.it`,
-        playDomain: `federscacchi.it/fsi/index.php/calendario`,
-        status: `In Arrivo`
-      },
-      {
-        id: `europeo-giovanile`,
-        liveLinks: [{label:`Lichess Broadcast`,url:`https://lichess.org/broadcast`}],
-        name: `Campionato Europeo Giovanile 2026`,
-        category: `internazionale`,
-        dateLabel: `Novembre 2026 · Ultimo Turno h. 13:00`,
-        format: `9 Turni Standard FIDE (Open & Femminile)`,
-        liveWhere: `Lichess Broadcast · ECU Live · Aggiornamenti Azzurrini su Scacchierando.it`,
-        playWhere: `Qualificati FSI (Ferrante, Fava, Ginebri, Arun, Viti, Alessi in gara)`,
-        liveDomain: `lichess.org/broadcast`,
-        playDomain: `europechess.org`,
-        status: `Ultimo Turno LIVE`
-      },
-      {
-        id: `spilimbergo-gm`,
-        liveLinks: [{label:`YouTube (cerca FSI)`,url:`https://www.youtube.com/results?search_query=federscacchi+spilimbergo`}],
-        name: `Spilimbergo Grandmaster (IX Categoria · Media Elo 2465)`,
-        category: `nazionale`,
-        dateLabel: `7 – 15 Ottobre 2026 (Concluso)`,
-        format: `Round Robin 9 Turni · 90'+30'+30''`,
-        liveWhere: `Interviste ai protagonisti (Martinovici 1°, Godena, Lumachi) su YouTube FSI`,
-        playWhere: `Partite complete analizzabili su 365Chess.com & Lichess`,
-        liveDomain: `youtube.com/@federscacchi`,
-        playDomain: `365chess.com/tournaments.php`,
-        status: `Concluso · Vince Martinovici (7/9)`
+        status: ``
       }
     ];
 
@@ -2421,7 +2309,7 @@ chess.js/dist/esm/chess.js:
         stats: `Sponsor: Chess.com IT & Lotus`,
         bio: `Punto di riferimento serale (h. 21:30 Twitch) per i recap di Olimpiadi 2026, grandi tornei internazionali e partite della Nazionale Italiana.`,
         channels: [
-          { label: `Twitch`, domain: `twitch.tv/chessburgertv` },
+          { label: `Twitch`, domain: `twitch.tv/chessburger_tv` },
           { label: `YouTube`, domain: `youtube.com/@chessburgerTV` }
         ]
       },
@@ -2874,76 +2762,55 @@ chess.js/dist/esm/chess.js:
       renderTournaments();
     }
 
+    // Ora attuale in Italia: giorno della settimana (0 = domenica) e minuti dalla mezzanotte.
+    function romeClock(date) {
+      const parts = {};
+      new Intl.DateTimeFormat(`en-GB`, { timeZone: `Europe/Rome`, weekday: `short`, hour: `2-digit`, minute: `2-digit`, hourCycle: `h23` })
+        .formatToParts(date).forEach(function(p) { parts[p.type] = p.value; });
+      const days = { Sun: 0, Mon: 1, Tue: 2, Wed: 3, Thu: 4, Fri: 5, Sat: 6 };
+      return { weekday: days[parts.weekday], minutes: Number(parts.hour) * 60 + Number(parts.minute) };
+    }
+
+    // Per un torneo settimanale: "IN CORSO ORA", "Oggi alle 17:00" oppure "Prossimo: martedì 24 novembre, 17:00".
+    function titledTuesdayStatus(w) {
+      const now = new Date();
+      const c = romeClock(now);
+      const startMin = w.hour * 60 + w.minute;
+      const hhmm = String(w.hour).padStart(2, `0`) + `:` + String(w.minute).padStart(2, `0`);
+      if (c.weekday === w.weekday && c.minutes >= startMin && c.minutes < startMin + w.durationMin) return { text: `IN CORSO ORA`, live: true };
+      if (c.weekday === w.weekday && c.minutes < startMin) return { text: `Oggi alle ` + hhmm, live: false };
+      let days = (w.weekday - c.weekday + 7) % 7;
+      if (days === 0) days = 7;
+      const next = new Date(now.getTime() + days * 86400000);
+      const label = next.toLocaleDateString(`it-IT`, { timeZone: `Europe/Rome`, weekday: `long`, day: `numeric`, month: `long` });
+      return { text: `Prossimo: ` + label + `, ` + hhmm, live: false };
+    }
+
     function renderTournaments() {
       const cardsGrid = document.getElementById(`tournament-cards-grid`);
-      const tableBody = document.getElementById(`tournament-table-body`);
-      const searchInput = document.getElementById(`tournament-search`);
-      if (!cardsGrid || !tableBody) return;
+      if (!cardsGrid) return;
 
-      const query = searchInput ? searchInput.value.trim().toLowerCase() : ``;
-
-      const filtered = TOURNAMENTS_DATA.filter(function(t) {
-        const matchCat = activeTournamentFilter === `all` || t.category === activeTournamentFilter;
-        const haystack = `${t.name} ${t.dateLabel} ${t.liveWhere} ${t.playWhere}`.toLowerCase();
-        const matchQuery = !query || haystack.indexOf(query) !== -1;
-        return matchCat && matchQuery;
-      });
-
-      if (!filtered.length) {
-        cardsGrid.innerHTML = `<div class="panel"><p class="deck-brass">Nessun torneo trovato con i criteri inseriti. Prova a ripulire la ricerca.</p></div>`;
-        tableBody.innerHTML = `<tr><td colspan="5">Nessun evento corrispondente.</td></tr>`;
-        return;
-      }
-
-      // Highlight top 3 matching cards (e.g. the 3 Titled Tuesdays or current main events)
-      cardsGrid.innerHTML = filtered.slice(0, 4).map(function(t) {
+      cardsGrid.innerHTML = TOURNAMENTS_DATA.map(function(t) {
         const isSaved = appState.savedTournaments.indexOf(t.id) !== -1;
+        const st = t.weekly ? titledTuesdayStatus(t.weekly) : { text: t.status, live: false };
         return `
           <article class="tournament-card">
             <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); flex-wrap: wrap;">
-              <span class="badge ${t.status.indexOf(`CORSO`) !== -1 || t.status.indexOf(`LIVE`) !== -1 ? `badge-live` : `badge-brass`}">${t.status}</span>
+              <span class="badge ${st.live ? `badge-live` : `badge-brass`}">${st.text}</span>
               <span class="coord-label">${t.dateLabel}</span>
             </div>
             <h3>${t.name}</h3>
             <p class="spec-line"><strong>Formula:</strong> ${t.format}</p>
             <p class="spec-line"><strong>Dove seguirlo in diretta:</strong> ${t.liveWhere}</p>
-            <p class="spec-line"><strong>Dove giocarlo online:</strong> ${t.playWhere}</p>
+            <p class="spec-line"><strong>Dove si gioca:</strong> ${t.playWhere}</p>
             <div style="display: flex; flex-wrap: wrap; gap: var(--space-sm); margin-top: auto; padding-top: var(--space-sm); border-top: var(--hairline);">
               ${liveButtons(t)}
-              <button type="button" class="btn btn-secondary btn-sm" onclick="openTournamentAction('${t.id}', 'play')">
-                <i data-lucide="arrow-up-right" width="14" height="14"></i>
-                Iscriviti / Gioca
-              </button>
               <button type="button" class="btn ${isSaved ? `btn-sky` : `btn-secondary`} btn-sm" onclick="toggleTournamentReminder('${t.id}')" aria-pressed="${isSaved ? `true` : `false`}">
                 <i data-lucide="${isSaved ? `bell-ring` : `bell`}" width="14" height="14"></i>
                 ${isSaved ? `Salvato` : `Ricordami`}
               </button>
             </div>
           </article>
-        `;
-      }).join(``);
-
-      tableBody.innerHTML = filtered.map(function(t) {
-        const isSaved = appState.savedTournaments.indexOf(t.id) !== -1;
-        return `
-          <tr>
-            <td>
-              <strong style="color: var(--on-surface); display: block;">${t.name}</strong>
-              <span class="coord-label" style="color: var(--primary);">${t.dateLabel}</span>
-            </td>
-            <td style="font-size: 0.875rem; color: var(--on-surface-variant);">${t.format}</td>
-            <td style="font-size: 0.875rem;">${t.liveWhere}</td>
-            <td style="font-size: 0.875rem;">${t.playWhere}</td>
-            <td>
-              <div style="display: flex; flex-wrap: wrap; gap: var(--space-xs);">
-                ${liveButtons(t)}
-                <button type="button" class="btn btn-secondary btn-sm" onclick="openTournamentAction('${t.id}', 'play')">Iscriviti/Gioca</button>
-                <button type="button" class="btn ${isSaved ? `btn-sky` : `btn-secondary`} btn-sm" onclick="toggleTournamentReminder('${t.id}')" title="Salva promemoria">
-                  ${isSaved ? `★` : `☆`}
-                </button>
-              </div>
-            </td>
-          </tr>
         `;
       }).join(``);
 
@@ -3264,6 +3131,8 @@ var RANKINGS = null;
       if (note) {
         var parts = [];
         if (d.fide && d.fide.month) parts.push('Lista FIDE di ' + String(d.fide.month).replace(/January|February|March|April|May|June|July|August|September|October|November|December/, function(m){ return {January:'gennaio',February:'febbraio',March:'marzo',April:'aprile',May:'maggio',June:'giugno',July:'luglio',August:'agosto',September:'settembre',October:'ottobre',November:'novembre',December:'dicembre'}[m]; }) + ' (aggiornata dalla FIDE una volta al mese)');
+        if (d.fide && Array.isArray(d.fide.sources) && d.fide.sources.length) parts.push('dati FIDE da ' + d.fide.sources.join(' e '));
+        else if (d.fide && d.fide.month) parts.push('dati FIDE da fideratings.com');
         if (d.updatedAt) parts.push('classifiche online lette il ' + new Date(d.updatedAt).toLocaleString('it-IT', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' }));
         note.textContent = parts.join(' · ');
       }
@@ -3332,29 +3201,65 @@ var RANKINGS = null;
       renderStreams();
     }
 
+    function bcCard(b, state) {
+      const link = /^https:\/\/lichess\.org\//.test(b.url || '') ? escHtml(b.url) : '';
+      return '<div class="bc-item"><span class="coord-label">' + escHtml(state) + '</span><h4>' + escHtml(b.name) + '</h4>' +
+        (b.location ? '<span class="stream-handle">' + escHtml(b.location) + '</span>' : '') +
+        (b.round ? '<span class="stream-handle">' + escHtml(b.round) + '</span>' : '') +
+        (link ? '<a class="btn btn-secondary btn-sm" href="' + link + '" target="_blank" rel="noopener noreferrer">Segui su Lichess</a>' : '') +
+        '</div>';
+    }
+
+    function bcDate(ms, withTime) {
+      if (!ms) return '';
+      const o = { timeZone: 'Europe/Rome', day: 'numeric', month: 'short' };
+      if (withTime) { o.hour = '2-digit'; o.minute = '2-digit'; }
+      return new Date(ms).toLocaleString('it-IT', o);
+    }
+
     async function loadBroadcasts() {
       const box = document.getElementById('broadcasts-list');
+      const boxIt = document.getElementById('broadcasts-italy-list');
+      const kpi = document.getElementById('hero-tournaments-kpi');
       if (!box) return;
       try {
         const res = await fetch('/.netlify/functions/broadcasts');
         if (!res.ok) throw new Error('http ' + res.status);
         const data = await res.json();
-        const items = data.items || [];
-        if (!items.length) {
-          box.innerHTML = '<p class="deck-brass">Nessun torneo in diretta su Lichess in questo momento.</p>';
-          return;
+        const italy = data.italy || [];
+        // un torneo italiano già mostrato sopra non si ripete nell'elenco del mondo
+        const itNames = italy.map(function(b) { return b.name; });
+        const items = (data.items || []).filter(function(b) { return itNames.indexOf(b.name) === -1; });
+
+        box.innerHTML = items.length
+          ? items.map(function(b) {
+              const when = bcDate(b.startsAt, true);
+              return bcCard(b, b.ongoing ? '🔴 In corso' : (b.finished ? 'Concluso' : (when ? 'Inizia: ' + when : 'In programma')));
+            }).join('')
+          : '<p class="deck-brass">Nessun torneo in diretta su Lichess in questo momento.</p>';
+
+        if (boxIt) {
+          boxIt.innerHTML = italy.length
+            ? italy.map(function(b) {
+                let state;
+                if (b.ongoing) state = '🔴 In corso';
+                else if (b.finished) state = 'Concluso il ' + bcDate(b.finishedAt || b.end, false);
+                else if (b.startsAt) state = 'Prossimo turno: ' + bcDate(b.startsAt, true);
+                else state = 'In programma dal ' + bcDate(b.start, false);
+                return bcCard(b, state);
+              }).join('')
+            : '<p class="deck-brass">Nessun torneo italiano su Lichess in questi giorni.</p>';
         }
-        box.innerHTML = items.map(function(b) {
-          const link = /^https:\/\/lichess\.org\//.test(b.url || '') ? escHtml(b.url) : '';
-          const when = b.startsAt ? new Date(b.startsAt).toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : '';
-          const state = b.ongoing ? '🔴 In corso' : (b.finished ? 'Concluso' : (when ? 'Inizia: ' + when : 'In programma'));
-          return '<div class="bc-item"><span class="coord-label">' + escHtml(state) + '</span><h4>' + escHtml(b.name) + '</h4>' +
-            (b.round ? '<span class="stream-handle">' + escHtml(b.round) + '</span>' : '') +
-            (link ? '<a class="btn btn-secondary btn-sm" href="' + link + '" target="_blank" rel="noopener noreferrer">Segui su Lichess</a>' : '') +
-            '</div>';
-        }).join('');
+
+        if (kpi) {
+          const active = items.filter(function(b) { return !b.finished; }).length +
+            italy.filter(function(b) { return !b.finished; }).length;
+          kpi.textContent = (active + TOURNAMENTS_DATA.length) + ' Eventi';
+        }
       } catch (err) {
         box.innerHTML = '<p class="deck-brass">Elenco delle dirette non disponibile al momento.</p>';
+        if (boxIt) boxIt.innerHTML = '<p class="deck-brass">Elenco dei tornei italiani non disponibile al momento.</p>';
+        if (kpi) kpi.textContent = '—';
       }
     }
 
@@ -3376,6 +3281,7 @@ var RANKINGS = null;
       loadNews();
       setInterval(updateLiveStatusFromAPI, 180000);
       setInterval(loadBroadcasts, 300000);
+      setInterval(renderTournaments, 300000);
       setInterval(loadNews, 900000);
     });
   </script>

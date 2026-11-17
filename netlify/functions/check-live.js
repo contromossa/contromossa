@@ -23,7 +23,14 @@ const CHANNELS = {
   chesssociety:{ twitch: 'chesssociety' },
   chesscomit:  { twitch: 'chesscomit' },
   agadmator:   { youtube: 'agadmator' },
-  mattoscacco: { youtube: 'mattoscacco' },
+  mattoscacco: { youtube: 'Themattoscacco' },
+  rosen:       { twitch: 'imrosen', youtube: 'imrosen' },
+  cramling:    { twitch: 'annacramling', youtube: 'AnnaCramling' },
+  chesscom:    { twitch: 'chess' },
+  chess24:     { twitch: 'chess24' },
+  fide:        { twitch: 'fide_chess' },
+  federscacchi:{ twitch: 'federscacchi' },
+  reyenigma:   { youtube: 'ReyEnigma' },
 };
 
 const CACHE_MS = 240 * 1000; // risultato riutilizzato per 4 minuti (risparmia il limite di YouTube)
