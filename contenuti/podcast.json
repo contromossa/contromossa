@@ -1,5 +1,12 @@
 [
   {
+    "file": "contenuti/audio/la-follia-come-arma-sulla-scacchiera.m4a",
+    "titolo": "La follia come arma sulla scacchiera",
+    "descrizione": "Podcast di Contromossa realizzato con NotebookLM.",
+    "durata": "22 min",
+    "data": "2026-11-17"
+  },
+  {
     "file": "contenuti/audio/dalle-scacchiere-storiche-ai-rave-su-twitch.m4a",
     "titolo": "Dalle scacchiere storiche ai rave su Twitch",
     "descrizione": "Podcast di Contromossa realizzato con NotebookLM.",

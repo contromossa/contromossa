@@ -1201,6 +1201,12 @@
     .pz-msg.ko { color: #e57373; }
     .pz-actions { display: flex; gap: 6px; flex-wrap: wrap; justify-content: center; }
     .pz-credit { font-size: .75rem; opacity: .7; margin: 6px 0 0; text-align: center; }
+    .art-h { font-family: var(--font-headline); font-size: 1.15rem; font-weight: 500; margin: var(--space-md) 0 var(--space-xs); }
+    .art-list { margin: 0 0 var(--space-sm); padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; }
+    .art-quote { margin: 0 0 var(--space-sm); padding: 8px 14px; border-left: 3px solid var(--primary); font-style: italic; opacity: .9; }
+    .art-table { overflow-x: auto; margin: 0 0 var(--space-sm); }
+    .art-table table { border-collapse: collapse; width: 100%; font-size: .88rem; }
+    .art-table th, .art-table td { border: var(--hairline); padding: 6px 8px; text-align: left; vertical-align: top; }
 </style>
 </head>
 <body>
@@ -3107,6 +3113,32 @@ chess.js/dist/esm/chess.js:
       btn.textContent = isOpen ? `Chiudi approfondimento` : `Leggi guida completa`;
     }
 
+    // Corpo dell'articolo: paragrafi normali, più alcuni segni semplici
+    // "## " titoletto · "- " elenco · "> " citazione · righe che iniziano con "|" tabella
+    function articleBodyHtml(blocks) {
+      const P = `margin: 0 0 var(--space-sm); color: var(--on-surface);`;
+      let html = ``, list = [];
+      const flush = function() { if (list.length) { html += `<ul class="art-list">` + list.join(``) + `</ul>`; list = []; } };
+      blocks.forEach(function(b) {
+        if (b.indexOf(`- `) === 0) {
+          const t = b.slice(2), k = t.indexOf(`: `);
+          list.push(`<li>` + (k > 0 && k < 80 ? `<strong>${escHtml(t.slice(0, k))}</strong>: ${escHtml(t.slice(k + 2))}` : escHtml(t)) + `</li>`);
+          return;
+        }
+        flush();
+        if (b.indexOf(`## `) === 0) html += `<h4 class="art-h">${escHtml(b.slice(3))}</h4>`;
+        else if (b.indexOf(`> `) === 0) html += `<blockquote class="art-quote">${escHtml(b.slice(2))}</blockquote>`;
+        else if (b.charAt(0) === `|`) {
+          const rows = b.split(`\n`).map(function(r) { return r.replace(/^\||\|$/g, ``).split(`|`).map(function(c) { return escHtml(c.trim()); }); });
+          html += `<div class="art-table"><table><thead><tr>` + rows[0].map(function(c) { return `<th>${c}</th>`; }).join(``) + `</tr></thead><tbody>` +
+            rows.slice(1).map(function(r) { return `<tr>` + r.map(function(c) { return `<td>${c}</td>`; }).join(``) + `</tr>`; }).join(``) + `</tbody></table></div>`;
+        }
+        else html += `<p style="${P}">${escHtml(b)}</p>`;
+      });
+      flush();
+      return html;
+    }
+
     function renderArticles() {
       const container = document.getElementById(`articles-list`);
       if (!container) return;
@@ -3121,7 +3153,7 @@ chess.js/dist/esm/chess.js:
 
       container.innerHTML = filtered.map(function(a, i) {
         const defaultOpen = i === 0 ? `open` : ``;
-        const paragraphs = a.body.map(function(t) { return `<p style="margin: 0 0 var(--space-sm); color: var(--on-surface);">${escHtml(t)}</p>`; }).join(``);
+        const paragraphs = articleBodyHtml(a.body);
         return `
           <article class="article-card">
             <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); flex-wrap: wrap;">
