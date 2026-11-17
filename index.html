@@ -979,26 +979,6 @@
       border-color: var(--primary);
     }
 
-    /* 8. Gear & Tech */
-    .gear-card {
-      background: var(--surface-container);
-      border: var(--hairline);
-      box-shadow: var(--panel-highlight);
-      border-radius: var(--rounded-lg);
-      padding: var(--space-lg);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      gap: var(--space-sm);
-    }
-    .gear-price {
-      font-family: var(--font-headline);
-      font-size: 1.45rem;
-      font-weight: 500;
-      color: var(--primary);
-      font-variant-numeric: tabular-nums;
-    }
-
     /* 9. Breaking News */
     .news-featured-grid {
       display: grid;
@@ -1219,7 +1199,6 @@
         <a href="#classifiche" class="nav-link">Classifiche</a>
         <a href="#creator-hub" class="nav-link">Creator</a>
         <a href="#didattica" class="nav-link">Didattica</a>
-        <a href="#tech" class="nav-link">Tech &amp; Shop</a>
         <a href="#breaking-news" class="nav-link">Breaking News</a>
         <a href="#partite" class="nav-link">Partite</a>
         <a href="#risorse" class="nav-link">Risorse</a>
@@ -1243,7 +1222,6 @@
       <a href="#classifiche" class="nav-link" onclick="closeMobileMenu()">Classifiche &amp; Leaderboard</a>
       <a href="#creator-hub" class="nav-link" onclick="closeMobileMenu()">Creator Hub</a>
       <a href="#didattica" class="nav-link" onclick="closeMobileMenu()">Blog &amp; Didattica</a>
-      <a href="#tech" class="nav-link" onclick="closeMobileMenu()">Equipaggiamento &amp; Tech</a>
       <a href="#breaking-news" class="nav-link" onclick="closeMobileMenu()">Notizie in Evidenza</a>
       <a href="#partite" class="nav-link" onclick="closeMobileMenu()">Partite</a>
       <a href="#risorse" class="nav-link" onclick="closeMobileMenu()">Risorse</a>
@@ -1530,33 +1508,11 @@
       </div>
     </section>
 
-    <!-- 8. EQUIPAGGIAMENTO & TECH -->
-    <section id="tech" class="portal-section" aria-labelledby="tech-title">
-      <div class="section-header">
-        <div class="section-title-group">
-          <span class="coord-label"><span class="sec-num">07</span>Equipaggiamento &amp; Tech</span>
-          <h2 class="section-title" id="tech-title">Equipaggiamento &amp; <em>Tech</em></h2>
-          <p class="deck-brass">
-            Selezione e recensioni degli essenziali per il giocatore moderno: scacchiere in legno e set da torneo
-            Le Due Torri (dal 1986), orologi, manuali consigliati e software chiave come Chessify, Lichess, Chess.com e 365Chess.
-          </p>
-        </div>
-        <div class="filter-group" role="group" aria-label="Filtra equipaggiamento e software">
-          <button type="button" class="chip-btn active" onclick="filterGear('all', this)">Tutto</button>
-          <button type="button" class="chip-btn" onclick="filterGear('scacchiere', this)">Scacchiere &amp; Set</button>
-          <button type="button" class="chip-btn" onclick="filterGear('libri', this)">Orologi &amp; Libri</button>
-          <button type="button" class="chip-btn" onclick="filterGear('software', this)">Software &amp; Tech</button>
-        </div>
-      </div>
-
-      <div id="gear-grid" class="card-grid"></div>
-    </section>
-
     <!-- 9. NOTIZIE IN EVIDENZA (BREAKING NEWS) — TASSATIVAMENTE IN FONDO PRIMA DEL FOOTER -->
     <section id="breaking-news" class="portal-section" aria-labelledby="news-title">
       <div class="section-header">
         <div class="section-title-group">
-          <span class="coord-label"><span class="sec-num">08</span>Notizie · Aggiornate automaticamente</span>
+          <span class="coord-label"><span class="sec-num">07</span>Notizie · Aggiornate automaticamente</span>
           <h2 class="section-title" id="news-title">Notizie in <em>Evidenza</em> (Breaking News)</h2>
           <p class="deck-brass">
             Titoli e anteprime dalle principali fonti di scacchi, italiane e internazionali. Ogni notizia rimanda
@@ -1576,7 +1532,7 @@
     <section id="risorse" class="portal-section" aria-labelledby="risorse-title">
       <div class="section-header">
         <div class="section-title-group">
-          <span class="coord-label"><span class="sec-num">09</span>Risorse · Archivi, Strumenti &amp; Federazioni</span>
+          <span class="coord-label"><span class="sec-num">08</span>Risorse · Archivi, Strumenti &amp; Federazioni</span>
           <h2 class="section-title" id="risorse-title">Risorse <em>Utili</em></h2>
           <p class="deck-brass">Siti di riferimento per giocare, studiare e seguire il mondo degli scacchi. Sono semplici collegamenti: i contenuti restano sui siti originali.</p>
         </div>
@@ -1661,7 +1617,6 @@
           <li><a href="#classifiche" class="footer-link-btn">Classifiche FIDE &amp; Elo Creator</a></li>
           <li><a href="#creator-hub" class="footer-link-btn">Creator Hub</a></li>
           <li><a href="#didattica" class="footer-link-btn">Blog, Storia &amp; Tattica</a></li>
-          <li><a href="#tech" class="footer-link-btn">Equipaggiamento &amp; Tech</a></li>
           <li><a href="#breaking-news" class="footer-link-btn">Notizie in Evidenza</a></li>
         </ul>
       </div>
@@ -2685,72 +2640,6 @@ chess.js/dist/esm/chess.js:
       }
     ];
 
-    const GEAR_DATA = [
-      {
-        category: `scacchiere`,
-        vendor: `Le Due Torri · Dal 1986`,
-        name: `Set Ufficiale FIDE Home Edition (Noce)`,
-        price: `€ 449,00`,
-        rating: `9.8 / 10 · Da Collezione & Studio`,
-        desc: `Riedizione casalinga del set ufficiale dei tornei FIDE in noce lavorato, pensato per chi desidera il massimo comfort tattile nell'analisi quotidiana.`
-      },
-      {
-        category: `scacchiere`,
-        vendor: `Le Due Torri · Bologna`,
-        name: `Completo Cortez Scacchi + Scacchiera da Torneo`,
-        price: `€ 299,00`,
-        rating: `9.5 / 10 · Legno Piombato`,
-        desc: `Pezzi Staunton proporzionati con piombatura equilibrata e scacchiera da torneo FIDE in legno opaco antiriflesso. Ideale per studio serio e circoli.`
-      },
-      {
-        category: `scacchiere`,
-        vendor: `Le Due Torri · Best Value`,
-        name: `Completo Scacchi + Scacchiera da Torneo con Borsa`,
-        price: `€ 18,00`,
-        rating: `9.6 / 10 · Essenziale Circoli`,
-        desc: `Set portatile leggero e indistruttibile con borsa a tracolla (listino € 19,90). Lo standard pratico per tornei rapid, parchi e scuole scacchi.`
-      },
-      {
-        category: `libri`,
-        vendor: `Le Due Torri Editore · Orologi & Manuali`,
-        name: `Orologi Digitali FIDE + "Il Libro Completo delle Aperture"`,
-        price: `€ 31,05`,
-        rating: `9.4 / 10 · Claudio Pantaleoni`,
-        desc: `Accanto agli orologi digitali omologati con incremento Fischer (es. DGT), il bestseller italiano di Claudio Pantaleoni offre una mappa completa dei sistemi d'apertura.`
-      },
-      {
-        category: `libri`,
-        vendor: `Le Due Torri Editore · Didattica`,
-        name: `"1001 Esercizi per Principianti" & "Pattern Scacchistici 2"`,
-        price: `€ 15,75 – € 23,85`,
-        rating: `9.5 / 10 · Masetti / Oudeweetering`,
-        desc: `Due pilastri cartacei per allenare la visione tattica (Franco Masetti) e i ferri del mestiere nel mediogioco (Arthur Van de Oudeweetering).`
-      },
-      {
-        category: `software`,
-        vendor: `Cloud Engine & Scanner`,
-        name: `Chessify (Cloud Stockfish & OCR)`,
-        price: `Freemium / Pro`,
-        rating: `9.7 / 10 · Analisi Cloud`,
-        desc: `Permette di scansionare diagrammi da libri cartacei con la fotocamera e lanciare analisi su server dedicati fino a decine di milioni di nodi al secondo.`
-      },
-      {
-        category: `software`,
-        vendor: `Open-Source Ecosystem`,
-        name: `Lichess.org (Study, Lichess TV & Broadcast)`,
-        price: `100% Gratuito`,
-        rating: `9.9 / 10 · Indispensabile`,
-        desc: `Piattaforma open-source priva di pubblicità: server ultraveloce, Lichess Studies condivisi per preparare aperture, puzzle illimitati e dirette ufficiali FIDE.`
-      },
-      {
-        category: `software`,
-        vendor: `Tornei Titolati & Game Review`,
-        name: `Chess.com & 365Chess.com (4,4M Partite)`,
-        price: `Free / Supporter`,
-        rating: `9.6 / 10 · Database & Live`,
-        desc: `Chess.com ospita i Titled Tuesday e la community più grande al mondo; 365Chess.com affianca un Opening Explorer gratuito da oltre 4,4 milioni di partite.`
-      }
-    ];
 
     let NEWS_LIVE = { loaded: false, items: [] };
 
@@ -2771,7 +2660,6 @@ chess.js/dist/esm/chess.js:
     let activeTournamentFilter = `all`;
     let activeCreatorFilter = `all`;
     let activeArticleFilter = `all`;
-    let activeGearFilter = `all`;
     let activeNewsFilter = `all`;
 
 
@@ -3279,62 +3167,6 @@ chess.js/dist/esm/chess.js:
     }
 
     // Interactive 64-square Chessboard
-    function filterGear(filterKey, btnEl) {
-      activeGearFilter = filterKey;
-      if (btnEl) setActiveChip(btnEl);
-      renderGear();
-    }
-
-    function renderGear() {
-      const container = document.getElementById(`gear-grid`);
-      if (!container) return;
-
-      const filtered = GEAR_DATA.filter(function(g) {
-        return activeGearFilter === `all` || g.category === activeGearFilter;
-      });
-
-      container.innerHTML = filtered.map(function(g, idx) {
-        return `
-          <article class="gear-card">
-            <div style="display: flex; flex-direction: column; gap: var(--space-sm);">
-              <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); flex-wrap: wrap;">
-                <span class="badge badge-sky">${g.vendor}</span>
-                <span class="coord-label" style="color: var(--positive);">${g.rating}</span>
-              </div>
-              <h3 style="font-family: var(--font-headline); font-size: 1.3rem; font-weight: 500; margin: 0;">${g.name}</h3>
-              <span class="gear-price">${g.price}</span>
-              <p class="deck-brass" style="margin: 0; font-size: 0.9rem;">${g.desc}</p>
-            </div>
-            <div style="padding-top: var(--space-sm); border-top: var(--hairline);">
-              <button type="button" class="btn btn-secondary btn-sm" onclick="openGearModal(${idx}, '${g.name.replace(/'/g, ``)}')">
-                <i data-lucide="cpu" width="14" height="14"></i>
-                Scheda &amp; Riferimento
-              </button>
-            </div>
-          </article>
-        `;
-      }).join(``);
-
-      if (window.lucide) window.lucide.createIcons();
-    }
-
-    function openGearModal(idx, name) {
-      const g = GEAR_DATA.find(function(item) { return item.name.replace(/'/g, ``) === name; }) || GEAR_DATA[idx];
-      if (!g) return;
-      let domain = `scacco.it`;
-      if (g.name.indexOf(`Chessify`) !== -1) domain = `chessify.me`;
-      if (g.name.indexOf(`Lichess`) !== -1) domain = `lichess.org`;
-      if (g.name.indexOf(`Chess.com`) !== -1) domain = `chess.com / 365chess.com`;
-
-      openActionModal(
-        `Equipaggiamento & Tech · ${g.vendor}`,
-        g.name,
-        g.desc,
-        domain,
-        `Valutazione redazione: ${g.rating} · Prezzo indicativo: ${g.price}`
-      );
-    }
-
     // =========================================================================
     // 9. BREAKING NEWS RENDERING (Bottom before Footer)
     // =========================================================================
@@ -3461,7 +3293,6 @@ var RANKINGS = null;
       loadArticles();
       renderHistoryTimeline();
       if (window.initGameViewer) window.initGameViewer();
-      renderGear();
       renderNews();
       updateSavedCounter();
 
