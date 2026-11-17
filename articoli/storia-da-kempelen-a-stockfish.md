@@ -26,7 +26,7 @@ Con l'avvento dei primi calcolatori elettronici a metà del Novecento, il proble
 
 - Alan Turing (1951): Il celebre matematico britannico ideò il primo programma teorico di scacchi, chiamato Turochamp. Non disponendo di un computer abbastanza potente per eseguirlo, Turing calcolò manualmente le mosse del programma agendo egli stesso come "processore", impiegando circa mezz'ora per ogni mossa.
 
-- Il primo problema risolto da un computer (1951): Negli archivi della storiografia scacchistica si ricorda come un problema di matto in due mosse composto nel 1849 da un giovane Paul Morphy all'età di 12 anni fu utilizzato tra le primissime posizioni test risolte da un moderno calcolatore elettronico.
+- Il primo programma funzionante (1951): nel novembre 1951 Dietrich Prinz fece girare sul Ferranti Mark 1 di Manchester il primo programma di scacchi della storia. Il computer non poteva giocare una partita intera, ma risolveva problemi di matto in due mosse.
 
 Durante gli anni '60 e '70, i programmi scacchistici si svilupparono sui grandi mainframe universitari. Tornei come l'ACM North American Computer Chess Championship permisero ai ricercatori di affinare l'algoritmo Minimax con potatura Alpha-Beta, ponendo le basi per la futura potenza di calcolo.
 
