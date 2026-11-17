@@ -1,7 +1,7 @@
 // Classifiche: FIDE (lista mensile ufficiale) e classifiche online di Chess.com e Lichess.
 // Non servono chiavi. Se una fonte non risponde, quella parte resta vuota e il sito lo segnala.
 
-const UA = 'contromossa.it (sito di scacchi)';
+const UA = 'contromossascacchi.it (sito di scacchi)';
 const FIDE_URLS = {
   standard: 'https://ratings.fide.com/a_top.php?list=open',
   rapid: 'https://ratings.fide.com/a_top.php?list=men_rapid',

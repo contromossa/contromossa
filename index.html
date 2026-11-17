@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="artifact-type" content="dashboard">
   <meta name="design-style" content="nocturne">
-  <title>Contromossa.it — Portale & Community Scacchistica Italiana</title>
+  <title>Contromossascacchi.it — Portale & Community Scacchistica Italiana</title>
   <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400..700;1,400..600&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.5.1/dist/chart.umd.min.js"></script>
   <script src="https://unpkg.com/lucide@1.43.0/dist/umd/lucide.min.js"></script>
@@ -1169,18 +1169,38 @@
     .gv-num { opacity: .6; font-size: .8rem; margin-left: 6px; }
     .gv-mv { background: transparent; border: 0; color: inherit; font: inherit; cursor: pointer; padding: 1px 4px; border-radius: 4px; }
     .gv-mv:hover { background: rgba(255,255,255,.1); } .gv-mv.gv-cur { background: var(--primary, #e0b84d); color: #111; }
+    .gv-arch { display: flex; flex-direction: column; gap: 8px; padding: 10px; border: 1px solid rgba(255,255,255,.12); border-radius: 6px; }
+    .gv-arch[hidden] { display: none; }
+    .gv-arch-head { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .gv-filters { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 8px; }
+    .gv-filters label { display: flex; flex-direction: column; gap: 2px; font-size: .75rem; opacity: .85; }
+    .gv-filters .field-input { padding: 6px 8px; min-height: 0; font-size: .9rem; }
+    .gv-f-wide { grid-column: 1 / -1; }
+    .gv-group { font-size: .72rem; letter-spacing: .06em; text-transform: uppercase; opacity: .65; margin: 6px 2px 2px; }
+    .gv-more { margin-top: 4px; }
     .gv-pgn-box { border: 1px solid rgba(255,255,255,.12); border-radius: 6px; padding: 8px 10px; }
     .gv-pgn-box summary { cursor: pointer; }
     .gv-pgn-box textarea { width: 100%; margin: 6px 0; }
     @media (max-width: 760px) { .gv-layout { grid-template-columns: 1fr; } }
-  </style>
+      @media (max-width: 480px) {
+      .brand-name { font-size: 1.05rem; }
+      .brand-tag { display: none; }
+      .brand-mark { gap: 6px; }
+      .topbar-actions { gap: 6px; }
+      .live-pill { padding: 4px 8px; }
+    }
+    @media (max-width: 360px) {
+      .site-topbar .brand-mark > svg { display: none; }
+      .brand-name { font-size: 0.95rem; }
+    }
+</style>
 </head>
 <body>
 
   <!-- 1. HEADER & MENU DI NAVIGAZIONE (fisso in alto) -->
   <header class="site-topbar" id="top">
     <div class="topbar-inner">
-      <a href="#hero" class="brand-mark" aria-label="Contromossa.it — Torna all'inizio">
+      <a href="#hero" class="brand-mark" aria-label="Contromossascacchi.it — Torna all'inizio">
         <svg width="34" height="34" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
           <rect x="2" y="2" width="32" height="32" rx="4" fill="#111b2e" stroke="#dfaa5b" stroke-width="1.5"/>
           <rect x="6" y="6" width="12" height="12" fill="#17243c"/>
@@ -1188,7 +1208,7 @@
           <path d="M12 27H24V24.5H12V27ZM13.5 23H22.5L21 15.5L23.5 13.5L21.5 9.5L18 11.5L15 9.5L12.5 13.5L15.5 15.5L13.5 23Z" fill="#dfaa5b"/>
         </svg>
         <div class="brand-wordmark">
-          <span class="brand-name">Contromossa<em>.it</em></span>
+          <span class="brand-name">Contromossascacchi<em>.it</em></span>
           <span class="brand-tag">Osservatorio Scacchi Italia</span>
         </div>
       </a>
@@ -1241,7 +1261,7 @@
           <span id="today-label"></span> · Community Scacchistica Italiana
         </span>
         <h1 class="hero-title" id="hero-heading">
-          Il portale dove gli scacchi italiani entrano in <em>contromossa</em>
+          Ogni mossa degli scacchi italiani, seguita in <em>tempo reale</em>
         </h1>
         <p class="hero-lede">
           Contromossa raccoglie in un unico posto ciò che gli scacchi pubblicano ogni giorno: dirette, tornei,
@@ -1276,9 +1296,9 @@
           <span class="kpi-note">Su Lichess, più i 3 settimanali di Chess.com</span>
         </div>
         <div class="kpi-tile">
-          <span class="coord-label">Archivio 365Chess</span>
-          <span class="kpi-value">4,4M+</span>
-          <span class="kpi-note">Partite analizzabili</span>
+          <span class="coord-label">Archivio Storico</span>
+          <span class="kpi-value" id="hero-archive-kpi">…</span>
+          <span class="kpi-note">Partite da rivedere mossa per mossa</span>
         </div>
         <div class="kpi-tile">
           <span class="coord-label">Promemoria Salvati</span>
@@ -1406,15 +1426,28 @@
           <span class="coord-label"><span class="sec-num">05</span>Partite storiche · Archivio</span>
           <h2 class="section-title" id="partite-title">Partite <em>storiche</em></h2>
           <p class="deck-brass">
-            Rivedi le partite mossa per mossa su una scacchiera standard. Cerca scrivendo i nomi dei due giocatori
-            (anche solo i cognomi) oppure l'anno. Puoi usare le frecce della tastiera.
+            Un archivio di partite storiche da rivedere mossa per mossa, senza uscire dal sito. Scrivi il cognome di un
+            giocatore, sceglilo dall'elenco e filtra per avversario, anno o apertura. Puoi usare le frecce della tastiera.
           </p>
         </div>
       </div>
       <div class="gv-layout">
         <div class="gv-side">
-          <label for="gv-search" class="field-label">Cerca giocatori, torneo o anno</label>
-          <input type="search" id="gv-search" class="field-input" placeholder="Es. Fischer Spassky" autocomplete="off">
+          <label for="gv-search" class="field-label">Cerca un giocatore</label>
+          <input type="search" id="gv-search" class="field-input" placeholder="Es. Capablanca, oppure Fischer Spassky" autocomplete="off">
+          <div id="gv-arch" class="gv-arch" hidden>
+            <div class="gv-arch-head">
+              <button type="button" class="btn btn-secondary btn-sm" id="gv-back">← Indietro</button>
+              <strong id="gv-player"></strong>
+            </div>
+            <div class="gv-filters">
+              <label>Avversario<input type="search" id="gv-f-opp" class="field-input" placeholder="Cognome" autocomplete="off"></label>
+              <label>Colore<select id="gv-f-col" class="field-input"><option value="">Tutti</option><option value="w">Con il Bianco</option><option value="b">Con il Nero</option></select></label>
+              <label>Dal<input type="number" id="gv-f-from" class="field-input" inputmode="numeric" placeholder="anno"></label>
+              <label>Al<input type="number" id="gv-f-to" class="field-input" inputmode="numeric" placeholder="anno"></label>
+              <label class="gv-f-wide">Apertura<select id="gv-f-eco" class="field-input"><option value="">Tutte</option></select></label>
+            </div>
+          </div>
           <span class="coord-label" id="gv-count"></span>
           <div id="gv-list" class="gv-list"></div>
           <details class="gv-pgn-box">
@@ -1442,8 +1475,8 @@
         </div>
       </div>
       <p class="deck-brass" style="font-size:0.8rem; margin-top: var(--space-sm);">
-        Archivio di partenza: 12 classici, con mosse controllate dal programma (tutte legali) ma trascritte a memoria: se trovi un errore, segnalalo.
-        Per milioni di partite usa il database di <a href="https://www.365chess.com/" target="_blank" rel="noopener noreferrer">365Chess</a>.
+        <span id="gv-credit">Partite dall'archivio <a href="https://doi.org/10.6084/m9.figshare.4276523" target="_blank" rel="noopener noreferrer">Chess Database</a> di Ana Schaigorodsky (Figshare, 2016), licenza <a href="https://creativecommons.org/licenses/by/4.0/deed.it" target="_blank" rel="noopener noreferrer">CC BY 4.0</a>: selezionate, ripulite dai doppioni e con le mosse controllate.</span>
+        I classici in evidenza sono trascritti da noi: se trovi un errore, segnalalo.
         Pezzi «cburnett» di Colin M. L. Burnett (licenza GPL/BSD/GFDL). Motore delle regole: chess.js (BSD-2).
       </p>
     </section>
@@ -1576,7 +1609,7 @@
             <path d="M12 27H24V24.5H12V27ZM13.5 23H22.5L21 15.5L23.5 13.5L21.5 9.5L18 11.5L15 9.5L12.5 13.5L15.5 15.5L13.5 23Z" fill="#dfaa5b"/>
           </svg>
           <div class="brand-wordmark">
-            <span class="brand-name">Contromossa<em>.it</em></span>
+            <span class="brand-name">Contromossascacchi<em>.it</em></span>
             <span class="brand-tag">Community Scacchistica Italiana</span>
           </div>
         </div>
@@ -1594,13 +1627,13 @@
         <h3 class="footer-title">Canali Social Ufficiali</h3>
         <ul class="footer-list">
           <li>
-            <button type="button" class="footer-link-btn" onclick="openActionModal('Instagram Ufficiale', 'Contromossa.it su Instagram', 'Segui reel tattici, recap dei tornei italiani e dietro le quinte della community.', 'instagram.com/contromossa.it', '@contromossa.it')">
+            <button type="button" class="footer-link-btn" onclick="openActionModal('Instagram Ufficiale', 'Contromossascacchi.it su Instagram', 'Segui reel tattici, recap dei tornei italiani e dietro le quinte della community.', 'instagram.com/contromossa.it', '@contromossa.it')">
               <i data-lucide="instagram" width="16" height="16"></i>
               <span>Instagram: <strong>@contromossa.it</strong></span>
             </button>
           </li>
           <li>
-            <button type="button" class="footer-link-btn" onclick="openActionModal('YouTube Ufficiale', 'Contromossa.it su YouTube', 'Analisi partite, interviste ai maestri e approfondimenti storici da Kempelen ad AlphaZero.', 'youtube.com/@contromossa.it', '@contromossa.it')">
+            <button type="button" class="footer-link-btn" onclick="openActionModal('YouTube Ufficiale', 'Contromossascacchi.it su YouTube', 'Analisi partite, interviste ai maestri e approfondimenti storici da Kempelen ad AlphaZero.', 'youtube.com/@contromossa.it', '@contromossa.it')">
               <i data-lucide="youtube" width="16" height="16"></i>
               <span>YouTube: <strong>@contromossa.it</strong></span>
             </button>
@@ -1612,7 +1645,7 @@
             </button>
           </li>
           <li>
-            <button type="button" class="footer-link-btn" onclick="openActionModal('Twitch Ufficiale', 'Contromossa.it su Twitch', 'Dirette tornei della community, watch party Titled Tuesday e sfide abbonati.', 'twitch.tv/contromossait', 'contromossait')">
+            <button type="button" class="footer-link-btn" onclick="openActionModal('Twitch Ufficiale', 'Contromossascacchi.it su Twitch', 'Dirette tornei della community, watch party Titled Tuesday e sfide abbonati.', 'twitch.tv/contromossait', 'contromossait')">
               <i data-lucide="tv" width="16" height="16"></i>
               <span>Twitch: <strong>contromossait</strong></span>
             </button>
@@ -1645,7 +1678,7 @@
     </div>
 
     <div class="footer-bottom">
-      <span>© 2026 Contromossa.it — Portale Indipendente della Community Scacchistica Italiana.</span>
+      <span>© 2026 Contromossascacchi.it — Portale Indipendente della Community Scacchistica Italiana.</span>
       <span>Dati aggiornati in tempo reale · Tutti i diritti riservati.</span>
     </div>
   </footer>
@@ -1818,38 +1851,198 @@ chess.js/dist/esm/chess.js:
     }, 1000);
   }
 
-  function selectGame(id) {
-    var g = GAMES.filter(function (x) { return x.id === id; })[0];
-    if (!g) return;
+  // ------------------------------------------------------------ archivio storico
+  var ECO = [['A00','A00','Aperture irregolari'],['A01','A01','Apertura Larsen'],['A02','A03','Apertura Bird'],['A04','A09','Apertura Réti'],
+    ['A10','A39','Partita Inglese'],['A40','A44','Gioco di Donna, altre difese'],['A45','A49','Difese indiane, altre'],['A50','A79','Benoni e Benko'],
+    ['A80','A99','Difesa Olandese'],['B00','B00','Difese irregolari contro 1.e4'],['B01','B01','Difesa Scandinava'],['B02','B05','Difesa Alekhine'],
+    ['B06','B06','Difesa Moderna'],['B07','B09','Difesa Pirc'],['B10','B19','Difesa Caro-Kann'],['B20','B99','Difesa Siciliana'],
+    ['C00','C19','Difesa Francese'],['C20','C20','Partita di Re, altre'],['C21','C22','Gambetto del Centro'],['C23','C24','Partita d\'Alfiere'],
+    ['C25','C29','Partita Viennese'],['C30','C39','Gambetto di Re'],['C40','C40','Partita di Re, altre'],['C41','C41','Difesa Philidor'],
+    ['C42','C43','Difesa Russa (Petrov)'],['C44','C45','Partita Scozzese'],['C46','C46','Tre Cavalli'],['C47','C49','Quattro Cavalli'],
+    ['C50','C54','Partita Italiana'],['C55','C59','Difesa dei Due Cavalli'],['C60','C99','Partita Spagnola'],['D00','D05','Gioco di Donna, sistemi'],
+    ['D06','D09','Gambetto di Donna, altre'],['D10','D19','Difesa Slava'],['D20','D29','Gambetto di Donna Accettato'],['D30','D69','Gambetto di Donna Rifiutato'],
+    ['D70','D99','Difesa Grünfeld'],['E00','E09','Apertura Catalana'],['E10','E10','Difese indiane, altre'],['E11','E11','Difesa Bogo-Indiana'],
+    ['E12','E19','Difesa Ovest-Indiana'],['E20','E59','Difesa Nimzo-Indiana'],['E60','E99','Difesa Est-Indiana']];
+  function ecoName(code) {
+    if (!/^[A-E]\d\d$/.test(code || '')) return '';
+    for (var i = 0; i < ECO.length; i++) if (code >= ECO[i][0] && code <= ECO[i][1]) return ECO[i][2];
+    return '';
+  }
+  function fmtNum(n) { return Number(n).toLocaleString('it-IT'); }
+  function getJson(url) { return fetch(url).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); }); }
+
+  var AR = { info: null, players: null, loading: null, groups: {}, blocks: {}, player: null, games: [], limit: 100, suggest: [] };
+
+  function loadInfo() {
+    getJson('archivio/info.json').then(function (i) {
+      AR.info = i;
+      var k = document.getElementById('hero-archive-kpi');
+      if (k) k.textContent = fmtNum(i.partite);
+      renderList();
+    }).catch(function () {
+      var k = document.getElementById('hero-archive-kpi');
+      if (k) k.textContent = String(GAMES.length);
+      var c = $('gv-credit'); if (c) c.hidden = true;
+    });
+  }
+  function loadPlayers() {
+    if (AR.loading) return AR.loading;
+    AR.loading = getJson('archivio/giocatori.json').then(function (list) {
+      AR.players = list.map(function (x) { return { name: x[0], n: x[1], g: x[2], y0: x[3], y1: x[4], key: norm(x[0]) }; });
+      renderList();
+    }).catch(function () { AR.players = null; });
+    return AR.loading;
+  }
+
+  function queryTokens(q) {
+    return norm(q).replace(/\bvs\b|\bcontro\b|\bv\b/g, ' ').split(/[\s,;\-–—:.]+/).filter(function (t) { return t && t !== 'e'; });
+  }
+  function findPlayers(toks) {
+    if (!AR.players || !toks.length) return [];
+    var all = AR.players.filter(function (p) { return toks.every(function (t) { return p.key.indexOf(t) !== -1; }); });
+    if (all.length) return all.slice(0, 8);
+    // "Fischer Spassky": cerca il primo nome, l'altro diventa l'avversario
+    return AR.players.filter(function (p) { return p.key.indexOf(toks[0]) !== -1; }).slice(0, 8);
+  }
+
+  function openPlayer(p, oppToks) {
+    stop();
+    AR.player = p; AR.games = []; AR.limit = 100;
+    $('gv-arch').hidden = false;
+    $('gv-player').textContent = p.name;
+    $('gv-f-opp').value = (oppToks || []).join(' ');
+    $('gv-f-col').value = ''; $('gv-f-from').value = ''; $('gv-f-to').value = '';
+    $('gv-f-eco').innerHTML = '<option value="">Tutte</option>';
+    $('gv-list').innerHTML = '<p class="deck-brass">Carico le partite…</p>';
+    $('gv-count').textContent = '';
+    var cached = AR.groups[p.g];
+    (cached ? Promise.resolve(cached) : getJson('archivio/g/' + p.g + '.json')).then(function (grp) {
+      AR.groups[p.g] = grp;
+      if (AR.player !== p) return;
+      AR.games = grp[p.name] || [];
+      var seen = {}, names = [];
+      AR.games.forEach(function (r) { var n = ecoName(r[5]); if (n && !seen[n]) { seen[n] = 1; names.push(n); } });
+      names.sort();
+      $('gv-f-eco').innerHTML = '<option value="">Tutte</option>' + names.map(function (n) { return '<option>' + escHtml(n) + '</option>'; }).join('');
+      renderList();
+    }).catch(function () {
+      $('gv-list').innerHTML = '<p class="deck-brass">Non riesco a caricare le partite. Riprova tra poco.</p>';
+    });
+  }
+  function closePlayer() {
+    AR.player = null; AR.games = [];
+    $('gv-arch').hidden = true;
+    renderList();
+  }
+
+  function filteredGames() {
+    var p = AR.player;
+    var opp = queryTokens($('gv-f-opp').value);
+    var col = $('gv-f-col').value;
+    var from = parseInt($('gv-f-from').value, 10), to = parseInt($('gv-f-to').value, 10);
+    var eco = $('gv-f-eco').value;
+    return AR.games.filter(function (r) {
+      var white = r[1] === p.name;
+      if (col === 'w' && !white) return false;
+      if (col === 'b' && white) return false;
+      if (from && (!r[3] || r[3] < from)) return false;
+      if (to && (!r[3] || r[3] > to)) return false;
+      if (eco && ecoName(r[5]) !== eco) return false;
+      if (opp.length) {
+        var o = norm(white ? r[2] : r[1]);
+        if (!opp.every(function (t) { return o.indexOf(t) !== -1; })) return false;
+      }
+      return true;
+    });
+  }
+
+  function archiveItem(r) {
+    var id = 'a' + r[0];
+    var bits = [r[3] || 'anno ?', r[6], r[4], ecoName(r[5]) || r[5]].filter(Boolean).map(escHtml).join(' · ');
+    return '<button type="button" class="gv-item' + (state.game && state.game.id === id ? ' gv-active' : '') + '" data-id="' + id + '">' +
+      '<strong>' + escHtml(r[1]) + ' – ' + escHtml(r[2]) + '</strong><span>' + bits + '</span></button>';
+  }
+
+  // ------------------------------------------------------------ elenco e scelta
+
+  function showGame(g) {
     stop();
     state.game = g;
     try { state.positions = buildPositions(g); }
     catch (e) { $('gv-status').textContent = 'Partita non leggibile.'; return; }
     state.ply = 0;
     $('gv-title').textContent = g.white + ' – ' + g.black;
-    $('gv-sub').textContent = g.event + (g.place ? ' · ' + g.place : '') + (g.year ? ' · ' + g.year : '') + ' · ' + g.result;
+    $('gv-sub').textContent = [g.event, g.place, g.year, g.result, g.opening].filter(Boolean).join(' · ');
     renderMoves();
     renderBoard();
     renderList();
   }
 
+  function selectGame(id) {
+    if (String(id).charAt(0) === 'a' && AR.info) {
+      var gid = parseInt(String(id).slice(1), 10);
+      var r = AR.games.filter(function (x) { return x[0] === gid; })[0];
+      if (!r) return;
+      var size = AR.info.blocco || 1000, b = Math.floor(gid / size);
+      $('gv-status').textContent = 'Carico la partita…';
+      (AR.blocks[b] ? Promise.resolve(AR.blocks[b]) : getJson('archivio/m/' + b + '.json')).then(function (arr) {
+        AR.blocks[b] = arr;
+        showGame({ id: id, white: r[1], black: r[2], event: r[6], place: '', year: r[3] || '', result: r[4], opening: ecoName(r[5]), moves: arr[gid % size] });
+      }).catch(function () { $('gv-status').textContent = 'Non riesco a caricare la partita. Riprova tra poco.'; });
+      return;
+    }
+    var g = GAMES.filter(function (x) { return x.id === id; })[0];
+    if (g) showGame(g);
+  }
+
   function matches(g) {
-    var raw = norm(state.query).replace(/\bvs\b|\bcontro\b|\bv\b/g, ' ');
-    var toks = raw.split(/[\s,;\-–—:]+/).filter(function (t) { return t && t !== 'e'; });
+    var toks = queryTokens(state.query);
     if (!toks.length) return true;
     var hay = norm(g.white + ' ' + g.black + ' ' + g.event + ' ' + g.place + ' ' + g.year);
     return toks.every(function (t) { return hay.indexOf(t) !== -1; });
   }
 
+  function classicItem(g) {
+    return '<button type="button" class="gv-item' + (state.game && state.game.id === g.id ? ' gv-active' : '') + '" data-id="' + escHtml(g.id) + '">' +
+      '<strong>' + escHtml(g.white) + ' – ' + escHtml(g.black) + '</strong>' +
+      '<span>' + escHtml(g.event) + ' · ' + escHtml(g.year) + ' · ' + escHtml(g.result) + '</span></button>';
+  }
+
   function renderList() {
-    var shown = GAMES.filter(matches);
-    var html = shown.map(function (g) {
-      return '<button type="button" class="gv-item' + (state.game && state.game.id === g.id ? ' gv-active' : '') + '" data-id="' + escHtml(g.id) + '">' +
-        '<strong>' + escHtml(g.white) + ' – ' + escHtml(g.black) + '</strong>' +
-        '<span>' + escHtml(g.event) + ' · ' + escHtml(g.year) + ' · ' + escHtml(g.result) + '</span></button>';
-    }).join('');
-    $('gv-list').innerHTML = html || '<p class="deck-brass">Nessuna partita trovata. Prova con un solo cognome, oppure incolla tu le mosse qui sotto.</p>';
-    $('gv-count').textContent = shown.length + (shown.length === 1 ? ' partita' : ' partite') + (state.query ? ' trovate' : ' nell\'archivio');
+    var list = $('gv-list');
+    if (!list) return;
+    if (AR.player) {
+      var games = filteredGames();
+      var shown = games.slice(0, AR.limit);
+      list.innerHTML = shown.map(archiveItem).join('') +
+        (games.length > shown.length ? '<button type="button" class="btn btn-secondary btn-sm gv-more" id="gv-more">Mostra altre ' + fmtNum(Math.min(100, games.length - shown.length)) + '</button>' : '') ||
+        '<p class="deck-brass">Nessuna partita con questi filtri.</p>';
+      $('gv-count').textContent = fmtNum(games.length) + ' di ' + fmtNum(AR.games.length) + ' partite';
+      return;
+    }
+    var toks = queryTokens(state.query);
+    var html = '';
+    AR.suggest = [];
+    if (toks.length && AR.players) {
+      AR.suggest = findPlayers(toks);
+      if (AR.suggest.length) {
+        html += '<p class="gv-group">Giocatori nell\'archivio</p>' + AR.suggest.map(function (p, i) {
+          var years = p.y0 ? (p.y0 === p.y1 ? p.y0 : p.y0 + '–' + p.y1) : '';
+          return '<button type="button" class="gv-item gv-pl" data-pl="' + i + '"><strong>' + escHtml(p.name) + '</strong><span>' +
+            fmtNum(p.n) + (p.n === 1 ? ' partita' : ' partite') + (years ? ' · ' + years : '') + '</span></button>';
+        }).join('');
+      }
+    }
+    var classics = GAMES.filter(matches);
+    if (classics.length) html += '<p class="gv-group">Classici in evidenza</p>' + classics.map(classicItem).join('');
+    if (!html) {
+      html = toks.length && AR.loading && !AR.players && AR.info ? '<p class="deck-brass">Carico l\'elenco dei giocatori…</p>' :
+        '<p class="deck-brass">Nessun risultato. Prova con un solo cognome, oppure incolla tu le mosse qui sotto.</p>';
+    }
+    list.innerHTML = html;
+    $('gv-count').textContent = AR.info ?
+      fmtNum(AR.info.partite) + ' partite nell\'archivio, dal ' + AR.info.anni[0] + ' al ' + AR.info.anni[1] :
+      classics.length + (classics.length === 1 ? ' partita' : ' partite') + (state.query ? ' trovate' : ' nell\'archivio');
   }
 
   function header(pgn, tag) {
@@ -1878,6 +2071,7 @@ chess.js/dist/esm/chess.js:
         moves: san.map(function (s, i) { return (i % 2 === 0 ? (i / 2 + 1) + '.' : '') + s; }).join(' ')
       };
       GAMES.unshift(g);
+      if (AR.player) closePlayer();
       state.query = ''; $('gv-search').value = '';
       msg.textContent = 'Partita aggiunta (resta finché non ricarichi la pagina).';
       $('gv-pgn').value = '';
@@ -1889,8 +2083,31 @@ chess.js/dist/esm/chess.js:
 
   window.initGameViewer = function () {
     if (!$('gv-board') || !window.Chess) return;
-    $('gv-search').addEventListener('input', function (e) { state.query = e.target.value; renderList(); });
-    $('gv-list').addEventListener('click', function (e) { var b = e.target.closest('.gv-item'); if (b) selectGame(b.getAttribute('data-id')); });
+    $('gv-search').addEventListener('input', function (e) {
+      state.query = e.target.value;
+      if (AR.player) closePlayer(); else renderList();
+      if (AR.info && state.query.trim()) loadPlayers();
+    });
+    $('gv-search').addEventListener('focus', function () { if (AR.info) loadPlayers(); });
+    $('gv-list').addEventListener('click', function (e) {
+      if (e.target.id === 'gv-more') { AR.limit += 100; renderList(); return; }
+      var pl = e.target.closest('.gv-pl');
+      if (pl) {
+        var p = AR.suggest[parseInt(pl.getAttribute('data-pl'), 10)];
+        var rest = queryTokens(state.query).filter(function (t) { return p.key.indexOf(t) === -1; });
+        openPlayer(p, rest);
+        return;
+      }
+      var b = e.target.closest('.gv-item');
+      if (b) {
+        selectGame(b.getAttribute('data-id'));
+        // sul telefono la scacchiera sta sotto l'elenco: ci porto lo sguardo
+        if (window.innerWidth <= 760) setTimeout(function () { $('gv-title').scrollIntoView({ behavior: 'smooth', block: 'start' }); }, 150);
+      }
+    });
+    $('gv-back').addEventListener('click', closePlayer);
+    ['gv-f-opp', 'gv-f-from', 'gv-f-to'].forEach(function (id) { $(id).addEventListener('input', function () { AR.limit = 100; renderList(); }); });
+    ['gv-f-col', 'gv-f-eco'].forEach(function (id) { $(id).addEventListener('change', function () { AR.limit = 100; renderList(); }); });
     $('gv-moves').addEventListener('click', function (e) { var b = e.target.closest('.gv-mv'); if (b) { stop(); goto_(parseInt(b.getAttribute('data-ply'), 10)); } });
     $('gv-first').addEventListener('click', function () { stop(); goto_(0); });
     $('gv-prev').addEventListener('click', function () { stop(); goto_(state.ply - 1); });
@@ -1909,6 +2126,7 @@ chess.js/dist/esm/chess.js:
     });
     renderList();
     selectGame(GAMES[0].id);
+    loadInfo();
   };
 })();
 

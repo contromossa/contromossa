@@ -5,7 +5,7 @@
 
 const CACHE_MS = 5 * 60 * 1000;
 const RECENT_MS = 7 * 24 * 60 * 60 * 1000;
-const UA = { 'User-Agent': 'contromossa.it (sito di scacchi)' };
+const UA = { 'User-Agent': 'contromossascacchi.it (sito di scacchi)' };
 let cached = null;
 let cachedAt = 0;
 

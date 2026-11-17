@@ -62,7 +62,7 @@ exports.handler = async function () {
   }
   const results = await Promise.allSettled(FEEDS.map(async (feed) => {
     const res = await fetch(feed.url, {
-      headers: { 'User-Agent': 'contromossa.it (sito di scacchi)', Accept: 'application/rss+xml, application/atom+xml, application/xml, text/xml' },
+      headers: { 'User-Agent': 'contromossascacchi.it (sito di scacchi)', Accept: 'application/rss+xml, application/atom+xml, application/xml, text/xml' },
       signal: AbortSignal.timeout(7000),
     });
     if (!res.ok) throw new Error(feed.name + ': HTTP ' + res.status);
