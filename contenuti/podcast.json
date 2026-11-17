@@ -1,0 +1,16 @@
+[
+  {
+    "file": "contenuti/audio/dalle-scacchiere-storiche-ai-rave-su-twitch.m4a",
+    "titolo": "Dalle scacchiere storiche ai rave su Twitch",
+    "descrizione": "Podcast di Contromossa realizzato con NotebookLM.",
+    "durata": "19 min",
+    "data": "2026-11-17"
+  },
+  {
+    "file": "contenuti/audio/come-ia-insegna-a-pensare.m4a",
+    "titolo": "Come l'IA insegna agli scacchisti a pensare",
+    "descrizione": "Podcast di Contromossa realizzato con NotebookLM.",
+    "durata": "11 min",
+    "data": "2026-11-17"
+  }
+]

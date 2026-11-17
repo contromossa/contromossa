@@ -1,0 +1,18 @@
+COME AGGIUNGERE UN PODCAST AL SITO
+
+1. Metti il file audio (meglio .m4a o .mp3) nella cartella contenuti/audio,
+   con un nome senza spazi né accenti, per esempio: la-partita-del-secolo.m4a
+
+2. Apri contenuti/podcast.json e aggiungi in cima all'elenco un blocco come questo
+   (attenzione alle virgole tra un blocco e l'altro):
+
+  {
+    "file": "contenuti/audio/la-partita-del-secolo.m4a",
+    "titolo": "La partita del secolo",
+    "descrizione": "Una frase che spiega di cosa parla.",
+    "durata": "15 min",
+    "data": "2026-12-01"
+  },
+
+I VIDEO non vanno messi qui: basta caricarli sul canale YouTube @contromossa.it.
+Il sito li prende da solo, entro un'ora circa.
