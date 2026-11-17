@@ -21,6 +21,9 @@ import argparse, collections, io, json, os, re, shutil, sys, time, unicodedata, 
 import chess
 
 GRUPPI = 1024          # numero di file di intestazioni
+# quante partite tenere per ogni epoca (su 200.000; si scalano con --max).
+# None = tutte. Le quote non usate passano all'epoca successiva.
+EPOCHE = [(0, 1900, None), (1900, 1950, 45000), (1950, 1970, 50000), (1970, 1990, 52000), (1990, 9999, 45000)]
 BLOCCO = 1000          # partite per file di mosse
 
 TAG_RE = re.compile(r'^\[(\w+)\s+"(.*)"\]\s*$')
@@ -28,6 +31,8 @@ COMMENT_RE = re.compile(r'\{[^}]*\}|;[^\n]*')
 NAG_RE = re.compile(r'\$\d+')
 NUM_RE = re.compile(r'\d+\.(\.\.)?')
 RESULT_TOKENS = {'1-0', '0-1', '1/2-1/2', '*'}
+# eventi da non includere: simultanee, partite lampo e online
+ESCLUSI = re.compile(r'\bsimul|\bsim\b|\bsimultan|blitz|bullet|lightning|\bicc\b|\bfics\b|internet|online|playchess|\bkgs\b', re.I)
 
 
 # ---------------------------------------------------------------- lettura PGN
@@ -100,6 +105,8 @@ def chiave_nome(nome):
     n = re.sub(r'\s+', ' ', n)
     if not n or n in ('?', 'nn', 'n.n.', 'unknown'):
         return ''
+    if re.search(r'[/+&]| and | e | und | team|allies|amateur|consult|computer|program', n):
+        return ''   # partite in consultazione, a squadre o contro programmi
     if ',' in n:
         cognome, _, nomi = n.partition(',')
     else:
@@ -124,7 +131,8 @@ def nome_leggibile(nome):
 
 def anno(tags):
     m = re.match(r'(\d{4})', tags.get('Date', '') or tags.get('UTCDate', ''))
-    return int(m.group(1)) if m else 0
+    a = int(m.group(1)) if m else 0
+    return a if 1475 <= a <= 2030 else 0
 
 
 def elo(tags, chiave):
@@ -162,18 +170,21 @@ def costruisci(sorgente, uscita, massimo, min_mosse, elo_minimo, anno_storico, m
         # giocatore forte (Elo alto) oppure giocatore dell'epoca senza Elo con molte partite
         return elo_max[k] >= elo_minimo or conteggi[k] >= min_partite_storico
 
-    # 2° passaggio: scelta, doppioni, controllo delle mosse
-    print('2/3  Scelgo le partite, tolgo i doppioni e controllo le mosse…')
-    candidati = []
+    # 2° passaggio: scelta e doppioni (tiene in memoria solo numeri, non le mosse)
+    print('2/3  Scelgo le partite e tolgo i doppioni…')
+    candidati = []          # (forza, numero della partita nel file)
     visti = set()
     scartate = collections.Counter()
-    for tags, testo in leggi_partite(sorgente):
+    for numero, (tags, testo) in enumerate(leggi_partite(sorgente)):
         kb, kn = chiave_nome(tags.get('White', '')), chiave_nome(tags.get('Black', ''))
-        if not kb or not kn:
+        if not kb or not kn or kb == kn:
             scartate['nomi mancanti'] += 1
             continue
         if tags.get('SetUp') == '1' or tags.get('FEN'):
             scartate['posizione iniziale diversa'] += 1
+            continue
+        if ESCLUSI.search(tags.get('Event', '') or ''):
+            scartate['simultanee, blitz o partite online'] += 1
             continue
         a = anno(tags)
         storico = a and a < anno_storico
@@ -191,25 +202,54 @@ def costruisci(sorgente, uscita, massimo, min_mosse, elo_minimo, anno_storico, m
         visti.add(impronta)
         # priorità: prima tutte le partite storiche, poi le moderne in cui
         # anche il giocatore più debole dei due è forte
-        forza = (1 if storico else 0, min(elo_max[kb], elo_max[kn]), min(conteggi[kb], conteggi[kn]))
-        candidati.append((forza, tags, mosse, kb, kn, a))
+        # dentro ogni epoca: prima le partite in cui anche il più debole dei due è forte
+        epoca = next((i for i, (da, a_, _) in enumerate(EPOCHE) if da <= (a or 9998) < a_), len(EPOCHE) - 1)
+        forza = (min(elo_max[kb], elo_max[kn]), min(conteggi[kb], conteggi[kn]))
+        candidati.append((epoca, forza, numero))
+    del visti
+    print(f'     {len(candidati):,} partite candidate')
+    candidati.sort(reverse=True)
+    per_epoca = collections.defaultdict(list)
+    for e, f, n in candidati:
+        per_epoca[e].append(n)
+    del candidati
+    scala = massimo / 200000
+    margine = 1.05
+    scelte_ordinate, riporto = [], 0
+    for e, (da, a_, quota) in enumerate(EPOCHE):
+        lista = per_epoca.get(e, [])
+        q = len(lista) if quota is None else int(quota * scala) + riporto
+        q = min(q, int(massimo * margine) - len(scelte_ordinate))
+        presi = lista[:int(q * margine) if quota is not None else q]
+        riporto = max(0, q - len(presi)) if quota is not None else 0
+        scelte_ordinate.extend(presi)
+        print(f'     epoca {da or "inizio"}–{a_ - 1 if a_ < 9999 else "oggi"}: {len(lista):,} candidate, {len(presi):,} scelte')
+    # le partite con mosse illegali vengono sostituite dalle successive
+    scelti = set(scelte_ordinate)
+    ordine = {n: i for i, n in enumerate(scelte_ordinate)}
+    del per_epoca, scelte_ordinate
 
-    candidati.sort(key=lambda x: x[0], reverse=True)
-    tenute = []
-    for forza, tags, mosse, kb, kn, a in candidati:
-        if len(tenute) >= massimo:
-            break
+    print('     controllo le mosse delle partite scelte…')
+    prese = []
+    for numero, (tags, testo) in enumerate(leggi_partite(sorgente)):
+        if numero not in scelti:
+            continue
         board = chess.Board()
         san = []
         try:
-            for m in mosse:
+            for m in pulisci_mosse(testo):
                 mv = board.parse_san(m)
                 san.append(board.san(mv))
                 board.push(mv)
         except Exception:
             scartate['mosse illegali'] += 1
             continue
-        tenute.append((tags, san, kb, kn, a))
+        kb, kn = chiave_nome(tags['White']), chiave_nome(tags['Black'])
+        piccoli = {k: tags.get(k, '') for k in ('Event', 'Site', 'Result', 'ECO')}
+        prese.append((ordine[numero], piccoli, san, kb, kn, anno(tags)))
+    prese.sort(key=lambda x: x[0])
+    tenute = [x[1:] for x in prese[:massimo]]
+    del prese
     print(f'     tenute {len(tenute):,} partite')
     for motivo, n in scartate.most_common():
         print(f'     scartate per {motivo}: {n:,}')
@@ -233,7 +273,8 @@ def costruisci(sorgente, uscita, massimo, min_mosse, elo_minimo, anno_storico, m
             def punteggio(voce):
                 forma, n = voce
                 nomi = forma.partition(',')[2] if ',' in forma else ' '.join(forma.split()[:-1])
-                return (min(len(re.sub(r'[^A-Za-zÀ-ÿ]', '', nomi)), 6), n)
+                pulita = not re.search(r'[/+&()]', forma)
+                return (pulita, min(len(re.sub(r'[^A-Za-zÀ-ÿ]', '', nomi)), 6), n)
             forma = max(forme[k].items(), key=punteggio)[0] if forme[k] else k
             cache_nomi[k] = nome_leggibile(forma)
         return cache_nomi[k]

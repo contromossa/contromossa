@@ -1,0 +1,12 @@
+{
+ "partite": 200000,
+ "giocatori": 5636,
+ "anni": [
+  1515,
+  2007
+ ],
+ "blocco": 1000,
+ "fonte": "Chess Database di Ana Schaigorodsky (Figshare, 2016), licenza CC BY 4.0",
+ "fonte_url": "https://doi.org/10.6084/m9.figshare.4276523",
+ "costruito": "2026-11-17"
+}
