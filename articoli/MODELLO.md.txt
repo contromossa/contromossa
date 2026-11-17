@@ -1,0 +1,11 @@
+---
+categoria: aperture
+etichetta: Aperture · Titolo breve dell'argomento
+titolo: Titolo completo dell'articolo
+riassunto: Una o due frasi che spiegano di cosa parla l'articolo.
+fonte: Da dove viene il testo (per esempio: sintesi con NotebookLM da ...)
+---
+
+Primo paragrafo dell'articolo.
+
+Secondo paragrafo dell'articolo.

@@ -1,0 +1,11 @@
+COME AGGIUNGERE O CAMBIARE UN ARTICOLO
+
+1. Ogni articolo è un file con estensione .md in questa cartella.
+2. Per aggiungerne uno: crea un nuovo file copiando la struttura di "MODELLO.md.txt"
+   e salvalo con estensione .md (esempio: apertura-siciliana.md).
+3. Poi scrivi il nome del file in "indice.json". L'ordine dell'elenco è l'ordine sul sito.
+4. Per togliere un articolo basta cancellare la riga dall'elenco.
+5. Per cambiare un testo si modifica il file dell'articolo. Il sito si aggiorna da solo.
+
+Il testo vero va dopo la riga con i tre trattini. Una riga vuota separa un paragrafo dall'altro.
+Il sito mostra il testo così com'è: niente grassetti o link, solo paragrafi.

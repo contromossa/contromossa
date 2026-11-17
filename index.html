@@ -282,6 +282,38 @@
     }
     .portal-shell * { min-width: 0; }
 
+    /* Sezioni: ogni blocco è un pannello a sé, con numero grande e barra colorata a sinistra */
+    .portal-shell { gap: var(--space-xl); }
+    .portal-section {
+      background: var(--surface-container-low);
+      border: var(--hairline);
+      border-left: 5px solid var(--primary);
+      border-radius: var(--rounded-lg);
+      box-shadow: var(--panel-highlight);
+      padding: var(--space-xl);
+    }
+    .portal-section:nth-of-type(even) {
+      background: var(--background);
+      border-left-color: var(--tertiary);
+    }
+    .portal-section:nth-of-type(even) .sec-num { color: var(--tertiary); border-color: var(--tertiary); }
+    .sec-num {
+      font-family: var(--font-headline);
+      font-size: 1.9rem;
+      font-weight: 500;
+      line-height: 1;
+      letter-spacing: 0;
+      color: var(--primary);
+      padding-right: var(--space-sm);
+      margin-right: var(--space-xs);
+      border-right: 2px solid var(--primary);
+    }
+    .nav-link.active { color: var(--primary); background-color: var(--surface-container-high); }
+    @media (max-width: 760px) {
+      .portal-section { padding: var(--space-md); border-left-width: 4px; }
+      .sec-num { font-size: 1.5rem; }
+    }
+
     /* Section Structure */
     .portal-section {
       display: flex;
@@ -1212,9 +1244,9 @@
           Il portale dove gli scacchi italiani entrano in <em>contromossa</em>
         </h1>
         <p class="hero-lede">
-          Dirette Twitch e YouTube in tempo reale, i tornei in diretta su Lichess e il Titled Tuesday,
-          le classifiche FIDE aggiornate, i migliori creator nazionali e internazionali, didattica interattiva
-          e le ultime notizie dal mondo delle 64 caselle.
+          Contromossa raccoglie in un unico posto ciò che gli scacchi pubblicano ogni giorno: dirette, tornei,
+          classifiche e notizie. Non scriviamo le notizie: le leggiamo dalle fonti originali e le teniamo aggiornate,
+          così chi gioca e chi segue gli scacchi non deve cercarle su dieci siti diversi.
         </p>
         <div class="hero-cta-row">
           <a href="#live-hub" class="btn btn-primary">
@@ -1223,7 +1255,7 @@
           </a>
           <a href="#tornei" class="btn btn-secondary">
             <i data-lucide="calendar" width="16" height="16"></i>
-            Calendario Tornei &amp; Titled Tuesday
+            Calendario Tornei
           </a>
           <a href="#didattica" class="btn btn-sky">
             <i data-lucide="sparkles" width="16" height="16"></i>
@@ -1241,7 +1273,7 @@
         <div class="kpi-tile">
           <span class="coord-label">Tornei Monitorati</span>
           <span class="kpi-value" id="hero-tournaments-kpi">…</span>
-          <span class="kpi-note">Su Lichess, più il Titled Tuesday</span>
+          <span class="kpi-note">Su Lichess, più i 3 settimanali di Chess.com</span>
         </div>
         <div class="kpi-tile">
           <span class="coord-label">Archivio 365Chess</span>
@@ -1260,7 +1292,7 @@
     <section id="live-hub" class="portal-section" aria-labelledby="live-hub-title">
       <div class="section-header">
         <div class="section-title-group">
-          <span class="coord-label">03 · Live Hub · Twitch &amp; YouTube</span>
+          <span class="coord-label"><span class="sec-num">01</span>Live Hub · Twitch &amp; YouTube</span>
           <h2 class="section-title" id="live-hub-title">Streamer in <em>Onda</em></h2>
           <p class="deck-brass">
             Monitoraggio immediato dei creator scacchistici italiani e internazionali. Controlla chi è live adesso,
@@ -1276,10 +1308,10 @@
     <section id="tornei" class="portal-section" aria-labelledby="tornei-title">
       <div class="section-header">
         <div class="section-title-group">
-          <span class="coord-label">04 · Agenda Agonistica &amp; Online</span>
-          <h2 class="section-title" id="tornei-title">Calendario <em>Tornei</em> &amp; Titled Tuesday</h2>
+          <span class="coord-label"><span class="sec-num">02</span>Tornei · Agenda</span>
+          <h2 class="section-title" id="tornei-title">Calendario <em>Tornei</em> &amp; Appuntamenti Settimanali</h2>
           <p class="deck-brass">
-            I tornei trasmessi in diretta su Lichess, con quelli italiani in evidenza, e il Titled Tuesday di Chess.com.
+            I tre appuntamenti settimanali di Chess.com e i tornei trasmessi in diretta su Lichess, con quelli italiani in evidenza.
             Gli elenchi si aggiornano da soli.
           </p>
         </div>
@@ -1302,7 +1334,7 @@
     <section id="classifiche" class="portal-section" aria-labelledby="classifiche-title">
       <div class="section-header">
         <div class="section-title-group">
-          <span class="coord-label">05 · Classifiche</span>
+          <span class="coord-label"><span class="sec-num">03</span>Classifiche</span>
           <h2 class="section-title" id="classifiche-title">Classifiche <em>aggiornate</em></h2>
           <p class="deck-brass">
             Classifica ufficiale FIDE (la FIDE la aggiorna una volta al mese) e classifiche online di Chess.com e Lichess,
@@ -1341,7 +1373,7 @@
     <section id="creator-hub" class="portal-section" aria-labelledby="creator-hub-title">
       <div class="section-header">
         <div class="section-title-group">
-          <span class="coord-label">06 · Directory Talenti &amp; Divulgatori</span>
+          <span class="coord-label"><span class="sec-num">04</span>Creator · Talenti &amp; Divulgatori</span>
           <h2 class="section-title" id="creator-hub-title">Creator <em>Hub</em></h2>
           <p class="deck-brass">
             Chi sono e dove trovarli: una riga per ciascuno, con i collegamenti ai canali.
@@ -1371,7 +1403,7 @@
     <section id="partite" class="portal-section" aria-labelledby="partite-title">
       <div class="section-header">
         <div class="section-title-group">
-          <span class="coord-label">Archivio · Partite storiche</span>
+          <span class="coord-label"><span class="sec-num">05</span>Partite storiche · Archivio</span>
           <h2 class="section-title" id="partite-title">Partite <em>storiche</em></h2>
           <p class="deck-brass">
             Rivedi le partite mossa per mossa su una scacchiera standard. Cerca scrivendo i nomi dei due giocatori
@@ -1420,7 +1452,7 @@
     <section id="didattica" class="portal-section" aria-labelledby="didattica-title">
       <div class="section-header">
         <div class="section-title-group">
-          <span class="coord-label">07 · Studio, Strategia &amp; Storia</span>
+          <span class="coord-label"><span class="sec-num">06</span>Blog &amp; Didattica · Studio e Storia</span>
           <h2 class="section-title" id="didattica-title">Blog &amp; <em>Didattica</em></h2>
           <p class="deck-brass">
             Guide pratiche su aperture e tattica ispirate alle lezioni dei creator e dei database magistrali,
@@ -1430,9 +1462,6 @@
         </div>
         <div class="filter-group" role="group" aria-label="Filtra articoli">
           <button type="button" class="chip-btn active" onclick="filterArticles('all', this)">Tutti</button>
-          <button type="button" class="chip-btn" onclick="filterArticles('aperture', this)">Aperture</button>
-          <button type="button" class="chip-btn" onclick="filterArticles('tattica', this)">Tattica</button>
-          <button type="button" class="chip-btn" onclick="filterArticles('storia', this)">Storia &amp; IA</button>
         </div>
       </div>
 
@@ -1472,7 +1501,7 @@
     <section id="tech" class="portal-section" aria-labelledby="tech-title">
       <div class="section-header">
         <div class="section-title-group">
-          <span class="coord-label">08 · Materiale da Torneo &amp; Piattaforme Digitali</span>
+          <span class="coord-label"><span class="sec-num">07</span>Equipaggiamento &amp; Tech</span>
           <h2 class="section-title" id="tech-title">Equipaggiamento &amp; <em>Tech</em></h2>
           <p class="deck-brass">
             Selezione e recensioni degli essenziali per il giocatore moderno: scacchiere in legno e set da torneo
@@ -1494,7 +1523,7 @@
     <section id="breaking-news" class="portal-section" aria-labelledby="news-title">
       <div class="section-header">
         <div class="section-title-group">
-          <span class="coord-label">09 · Ultim'Ora · Aggiornate automaticamente</span>
+          <span class="coord-label"><span class="sec-num">08</span>Notizie · Aggiornate automaticamente</span>
           <h2 class="section-title" id="news-title">Notizie in <em>Evidenza</em> (Breaking News)</h2>
           <p class="deck-brass">
             Titoli e anteprime dalle principali fonti di scacchi, italiane e internazionali. Ogni notizia rimanda
@@ -1514,7 +1543,7 @@
     <section id="risorse" class="portal-section" aria-labelledby="risorse-title">
       <div class="section-header">
         <div class="section-title-group">
-          <span class="coord-label">10 · Archivi, Strumenti &amp; Federazioni</span>
+          <span class="coord-label"><span class="sec-num">09</span>Risorse · Archivi, Strumenti &amp; Federazioni</span>
           <h2 class="section-title" id="risorse-title">Risorse <em>Utili</em></h2>
           <p class="deck-brass">Siti di riferimento per giocare, studiare e seguire il mondo degli scacchi. Sono semplici collegamenti: i contenuti restano sui siti originali.</p>
         </div>
@@ -1595,7 +1624,7 @@
         <h3 class="footer-title">Navigazione Rapida</h3>
         <ul class="footer-list">
           <li><a href="#live-hub" class="footer-link-btn">Streamer in Onda (Live Hub)</a></li>
-          <li><a href="#tornei" class="footer-link-btn">Calendario Tornei &amp; Titled Tuesday</a></li>
+          <li><a href="#tornei" class="footer-link-btn">Calendario Tornei</a></li>
           <li><a href="#classifiche" class="footer-link-btn">Classifiche FIDE &amp; Elo Creator</a></li>
           <li><a href="#creator-hub" class="footer-link-btn">Creator Hub</a></li>
           <li><a href="#didattica" class="footer-link-btn">Blog, Storia &amp; Tattica</a></li>
@@ -1608,7 +1637,7 @@
         <h3 class="footer-title">Contatti &amp; Crediti Fonti</h3>
         <ul class="footer-list" style="font-size: 0.85rem; color: var(--on-surface-variant);">
           <li>Redazione &amp; Partnership: <strong style="color: var(--on-surface);">contromossa.it@gmail.com</strong></li>
-          <li>Fonti dati tornei: Lichess (tornei in diretta) e Chess.com (Titled Tuesday). Notizie: Chess.com, Lichess, The Week in Chess, Scacchierando.it, UnoScacchista.</li>
+          <li>Fonti dati tornei: Lichess (tornei in diretta) e Chess.com (appuntamenti settimanali). Notizie: Chess.com, Lichess, The Week in Chess, Scacchierando.it, UnoScacchista.</li>
           <li>Database &amp; piattaforme citate: 365Chess.com, World Chess (FIDE Online Arena), Chess.com, Lichess.org, Chessify.</li>
           <li>Catalogo materiale tecnico: Le Due Torri Bologna (scacco.it).</li>
         </ul>
@@ -2222,21 +2251,49 @@ chess.js/dist/esm/chess.js:
       }
     ];
 
-    // Il Titled Tuesday di Chess.com: un torneo ogni martedì alle 17:00, ora italiana.
-    // La data del prossimo e la scritta "in corso" si calcolano da sole (vedi titledTuesdayStatus).
+    // I tre appuntamenti settimanali di Chess.com (orari in ora italiana, dal regolamento ufficiale di Chess.com).
+    // La data del prossimo e la scritta "in corso" si calcolano da sole (vedi weeklyStatus).
     const TOURNAMENTS_DATA = [
       {
         id: `tt-early`,
         liveLinks: [{label:`Twitch Chess.com Italia`,url:`https://www.twitch.tv/chesscomit`},{label:`YouTube (cerca Chess.com Italia)`,url:`https://www.youtube.com/results?search_query=chess.com+italia+live`}],
         name: `Titled Tuesday`,
         category: `titled`,
-        weekly: { weekday: 2, hour: 17, minute: 0, durationMin: 135 },
+        weekly: { weekday: 2, hour: 17, minute: 0, durationMin: 120 },
         dateLabel: `Ogni martedì · 17:00`,
-        format: `11 turni, sistema svizzero · Blitz 3+1`,
+        format: `11 turni, sistema svizzero · Blitz 5+0`,
         liveWhere: `Diretta in italiano su Chess.com Italia (Twitch / YouTube)`,
         playWhere: `Chess.com (riservato ai giocatori titolati)`,
         liveDomain: `https://www.twitch.tv/chesscomit`,
-        playDomain: `chess.com/play/tournaments`,
+        playDomain: `chess.com/events`,
+        status: ``
+      },
+      {
+        id: `tt-thursday`,
+        liveLinks: [{label:`Chess.com Eventi`,url:`https://www.chess.com/events`},{label:`Chess.com TV`,url:`https://www.chess.com/tv`}],
+        name: `3|0 Thursday`,
+        category: `titled`,
+        weekly: { weekday: 4, hour: 17, minute: 0, durationMin: 90 },
+        dateLabel: `Ogni giovedì · 17:00 (altre due sessioni: 22:00 e 03:00)`,
+        format: `11 turni, sistema svizzero · Blitz 3+0`,
+        liveWhere: `Chess.com (pagina Eventi e Chess.com TV)`,
+        playWhere: `Chess.com`,
+        liveDomain: `https://www.chess.com/events`,
+        playDomain: `chess.com/events`,
+        status: ``
+      },
+      {
+        id: `freestyle-friday`,
+        liveLinks: [{label:`Chess.com Eventi`,url:`https://www.chess.com/events`},{label:`Chess.com TV`,url:`https://www.chess.com/tv`}],
+        name: `Freestyle Friday`,
+        category: `titled`,
+        weekly: { weekday: 5, hour: 17, minute: 0, durationMin: 100 },
+        dateLabel: `Ogni venerdì · 17:00`,
+        format: `11 turni, sistema svizzero · Scacchi960 (Freestyle) 3+2 · pausa estiva da luglio a settembre`,
+        liveWhere: `Chess.com e canale YouTube di Freestyle Chess`,
+        playWhere: `Chess.com (riservato ai giocatori titolati)`,
+        liveDomain: `https://www.chess.com/events`,
+        playDomain: `chess.com/events`,
         status: ``
       }
     ];
@@ -2373,35 +2430,9 @@ chess.js/dist/esm/chess.js:
       }
     ];
 
-    const ARTICLES_DATA = [
-      {
-        id: `art-aperture`,
-        category: `aperture`,
-        badge: `Aperture · Repertorio Pratico`,
-        title: `Difesa Slava, Giuoco Piano (d5) e setup solidi contro 1.d4 senza memorizzazione`,
-        summary: `Come costruire un repertorio coerente tra 1000 e 1800 Elo combinando idee posizionali (Af5/Ag4 nella Slava) e spinte centrali dinamiche.`,
-        sourceCredit: `Sintesi didattica da lezioni Scacchi con Gabriel, Alessia Santeramo & 365Chess Opening Explorer`,
-        body: `In apertura il problema più comune sotto i 1600 Elo non è dimenticare la diciottesima mossa di teoria, bensì non riconoscere i piani tipici del mediogioco. Nel Giuoco Piano (1.e4 e5 2.Cf3 Cc6 3.Ac4 Ac5), quando il Nero prepara la rottura centrale in d5, il controllo della casa e4 e la sicurezza del Re determinano l'iniziativa. Contro 1.d4, la Difesa Slava (1...d5 2.c4 c6) garantisce una catena pedonale compatta senza murare l'Alfiere camposcuro, permettendo lo sviluppo attivo in f5 o g4 prima di chiudere con e6. Per consolidare le linee, il metodo a 4 passi di 365Chess (visione della linea, esecuzione guidata, risposta a memoria e richiamo casuale) elimina gli errori nelle prime dieci mosse.`
-      },
-      {
-        id: `art-tattica`,
-        category: `tattica`,
-        badge: `Tattica · Metodo di Calcolo`,
-        title: `Il Metodo del Picchio e il "Real Chess Training": riconoscere quando NON c'è tattica`,
-        summary: `Perché risolvere solo puzzle "a colpo sicuro" non basta in torneo: allenare il processo decisionale tra difesa, profilassi e combinazione.`,
-        sourceCredit: `Ispirato a Nicolochess (Corso di Tattica 1) e Real Chess Training di Alessia Santeramo & GM Noël Studer`,
-        body: `Il Metodo del Picchio (Woodpecker Method), reso popolare anche nei corsi italiani di Nicolò Chess, si basa sulla ripetizione ciclica dello stesso set di problemi tattici dimezzando via via il tempo per sviluppare il riconoscimento automatico dei pattern (inchiodatura, deviazione, doppio attacco su casa indifesa, Re al centro). Tuttavia, come sottolineano Alessia Santeramo e il GM Noël Studer nel progetto Real Chess Training, in una partita reale nessuno ci avvisa che esiste una combinazione vincente: bisogna saper valutare prima le minacce avversarie, scartare i sacrifici che non funzionano e giocare una semplice mossa di sviluppo o consolidamento quando la posizione lo richiede.`
-      },
-      {
-        id: `art-storia-ia`,
-        category: `storia`,
-        badge: `Storia & IA · Saggio di Approfondimento`,
-        title: `Da Wolfgang von Kempelen a Stockfish e AlphaZero: due secoli e mezzo di intelligenza scacchistica`,
-        summary: `Dal celebre Turco Meccanico del 1770 alla sfida Deep Blue–Kasparov, fino alla rivoluzione neurale NNUE che oggi guida l'analisi moderna.`,
-        sourceCredit: `Dossier editoriale Contromossa.it · Cultura & Storia degli Scacchi`,
-        body: `Nel 1770 l'inventore austriaco Wolfgang von Kempelen presentò a Vienna "Il Turco", un automa capace di sconfiggere abili giocatori. Sebbene celasse un maestro umano all'interno del mobile, quell'illusione accese il sogno di una macchina pensante: da Leonardo Torres Quevedo (1912) con il primo automa elettrico per il finale Torre+Re contro Re, fino al saggio fondativo di Claude Shannon (1950) sulla programmazione degli scacchi. Nel 1997 Deep Blue sconfisse Garry Kasparov grazie alla forza bruta di calcolo (200 milioni di posizioni al secondo). Vent'anni dopo, nel 2017, AlphaZero di DeepMind imparò gli scacchi in poche ore giocando solo contro sé stesso tramite reti neurali e Monte Carlo Tree Search, introducendo sacrifici posizionali a lungo termine che hanno trasformato lo stile dei Grandi Maestri. Oggi motori open-source come Stockfish (con valutazione NNUE) e Leela Chess Zero uniscono precisione tattica assoluta e comprensione strategica.`
-      }
-    ];
+    // Gli articoli stanno nei file della cartella "articoli" (vedi articoli/LEGGIMI.txt).
+    let ARTICLES_DATA = [];
+    const ARTICLE_CATEGORIES = { aperture: `Aperture`, tattica: `Tattica`, storia: `Storia & IA` };
 
     const HISTORY_ERAS = [
       {
@@ -2771,8 +2802,8 @@ chess.js/dist/esm/chess.js:
       return { weekday: days[parts.weekday], minutes: Number(parts.hour) * 60 + Number(parts.minute) };
     }
 
-    // Per un torneo settimanale: "IN CORSO ORA", "Oggi alle 17:00" oppure "Prossimo: martedì 24 novembre, 17:00".
-    function titledTuesdayStatus(w) {
+    // Per un torneo settimanale: "IN CORSO ORA", "Oggi alle 17:00" oppure "Prossimo: giovedì 19 novembre, 17:00".
+    function weeklyStatus(w) {
       const now = new Date();
       const c = romeClock(now);
       const startMin = w.hour * 60 + w.minute;
@@ -2792,7 +2823,7 @@ chess.js/dist/esm/chess.js:
 
       cardsGrid.innerHTML = TOURNAMENTS_DATA.map(function(t) {
         const isSaved = appState.savedTournaments.indexOf(t.id) !== -1;
-        const st = t.weekly ? titledTuesdayStatus(t.weekly) : { text: t.status, live: false };
+        const st = t.weekly ? weeklyStatus(t.weekly) : { text: t.status, live: false };
         return `
           <article class="tournament-card">
             <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); flex-wrap: wrap;">
@@ -2913,22 +2944,27 @@ chess.js/dist/esm/chess.js:
       const container = document.getElementById(`articles-list`);
       if (!container) return;
 
+      if (!ARTICLES_DATA.length) {
+        container.innerHTML = `<p class="deck-brass">Nessun articolo disponibile al momento.</p>`;
+        return;
+      }
       const filtered = ARTICLES_DATA.filter(function(a) {
         return activeArticleFilter === `all` || a.category === activeArticleFilter;
       });
 
       container.innerHTML = filtered.map(function(a, i) {
         const defaultOpen = i === 0 ? `open` : ``;
+        const paragraphs = a.body.map(function(t) { return `<p style="margin: 0 0 var(--space-sm); color: var(--on-surface);">${escHtml(t)}</p>`; }).join(``);
         return `
           <article class="article-card">
             <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); flex-wrap: wrap;">
-              <span class="badge badge-sky">${a.badge}</span>
-              <span style="font-family: var(--font-label); font-size: 0.7rem; color: var(--on-surface-variant);">${a.sourceCredit}</span>
+              <span class="badge badge-sky">${escHtml(a.badge)}</span>
+              <span style="font-family: var(--font-label); font-size: 0.7rem; color: var(--on-surface-variant);">${escHtml(a.sourceCredit)}</span>
             </div>
-            <h3>${a.title}</h3>
-            <p class="deck-brass" style="margin: 0;">${a.summary}</p>
+            <h3>${escHtml(a.title)}</h3>
+            <p class="deck-brass" style="margin: 0;">${escHtml(a.summary)}</p>
             <div id="body-${a.id}" class="article-body ${defaultOpen}">
-              <p style="margin: 0; color: var(--on-surface);">${a.body}</p>
+              ${paragraphs}
             </div>
             <div style="padding-top: var(--space-xs);">
               <button type="button" id="btn-${a.id}" class="btn btn-secondary btn-sm" onclick="toggleArticleBody('${a.id}')">
@@ -2938,6 +2974,59 @@ chess.js/dist/esm/chess.js:
           </article>
         `;
       }).join(``);
+    }
+
+    // Legge un file articolo: righe "chiave: valore" tra due righe di tre trattini, poi il testo.
+    function parseArticle(file, text) {
+      const m = text.replace(/\r\n/g, `\n`).match(/^---\n([\s\S]*?)\n---\n?([\s\S]*)$/);
+      if (!m) return null;
+      const meta = {};
+      m[1].split(`\n`).forEach(function(line) {
+        const k = line.indexOf(`:`);
+        if (k > 0) meta[line.slice(0, k).trim()] = line.slice(k + 1).trim();
+      });
+      const body = m[2].split(/\n\s*\n/).map(function(t) { return t.trim(); }).filter(Boolean);
+      if (!meta.titolo || !body.length) return null;
+      return {
+        id: `art-` + file.replace(/\.md$/, ``).replace(/[^a-z0-9]+/gi, `-`),
+        category: (meta.categoria || `altro`).toLowerCase(),
+        badge: meta.etichetta || ``,
+        title: meta.titolo,
+        summary: meta.riassunto || ``,
+        sourceCredit: meta.fonte || ``,
+        body: body
+      };
+    }
+
+    async function loadArticles() {
+      try {
+        const res = await fetch(`articoli/indice.json`, { cache: `no-cache` });
+        if (!res.ok) throw new Error(`http ` + res.status);
+        const files = await res.json();
+        const loaded = await Promise.all(files.map(async function(f) {
+          try {
+            const r = await fetch(`articoli/` + encodeURIComponent(f), { cache: `no-cache` });
+            if (!r.ok) return null;
+            return parseArticle(f, await r.text());
+          } catch (e) { return null; }
+        }));
+        ARTICLES_DATA = loaded.filter(Boolean);
+      } catch (e) {
+        ARTICLES_DATA = [];
+      }
+      // i pulsanti dei filtri si creano dalle categorie che esistono davvero
+      const chips = document.querySelector(`#didattica .filter-group`);
+      if (chips) {
+        const cats = [];
+        ARTICLES_DATA.forEach(function(a) { if (cats.indexOf(a.category) === -1) cats.push(a.category); });
+        chips.innerHTML = `<button type="button" class="chip-btn active" onclick="filterArticles('all', this)">Tutti</button>` +
+          cats.map(function(c) {
+            const label = ARTICLE_CATEGORIES[c] || (c.charAt(0).toUpperCase() + c.slice(1));
+            return `<button type="button" class="chip-btn" onclick="filterArticles('` + escHtml(c) + `', this)">` + escHtml(label) + `</button>`;
+          }).join(``);
+      }
+      activeArticleFilter = `all`;
+      renderArticles();
     }
 
     function selectHistoryEra(idx) {
@@ -3151,7 +3240,7 @@ var RANKINGS = null;
       renderTournaments();
       loadRankings();
       renderCreators();
-      renderArticles();
+      loadArticles();
       renderHistoryTimeline();
       if (window.initGameViewer) window.initGameViewer();
       renderGear();
@@ -3274,6 +3363,22 @@ var RANKINGS = null;
       }
       renderNews();
     }
+
+    // Nel menu in alto si evidenzia la sezione che si sta leggendo.
+    document.addEventListener('DOMContentLoaded', function() {
+      if (!('IntersectionObserver' in window)) return;
+      var links = {};
+      document.querySelectorAll('.nav-links .nav-link').forEach(function(a) { links[a.getAttribute('href')] = a; });
+      var obs = new IntersectionObserver(function(entries) {
+        entries.forEach(function(en) {
+          if (!en.isIntersecting) return;
+          Object.keys(links).forEach(function(k) { links[k].classList.remove('active'); });
+          var a = links['#' + en.target.id];
+          if (a) a.classList.add('active');
+        });
+      }, { rootMargin: '-35% 0px -60% 0px' });
+      document.querySelectorAll('main section[id]').forEach(function(sec) { obs.observe(sec); });
+    });
 
     document.addEventListener('DOMContentLoaded', function() {
       updateLiveStatusFromAPI();
