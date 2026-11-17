@@ -13,7 +13,7 @@ const CANALI_LEZIONI = [
   'Alessia_Santeramo',
   'gm_moro',
 ];
-const CANALE_NOSTRO = 'contromossa.it';
+const CANALE_NOSTRO = 'contromossa.scacchi';
 
 const YT_KEY = process.env.YOUTUBE_API_KEY;
 const CACHE_MS = 60 * 60 * 1000; // un'ora: il problema cambia una volta al giorno, i video poche volte
