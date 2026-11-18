@@ -1502,7 +1502,7 @@
           <span class="coord-label"><span class="sec-num">06</span>Didattica · Si aggiorna da sola</span>
           <h2 class="section-title" id="didattica-title">Impara &amp; <em>Allenati</em></h2>
           <p class="deck-brass">
-            Ogni giorno un nuovo problema di tattica da risolvere qui, le ultime lezioni dei canali italiani
+            Ogni giorno un nuovo problema di tattica da risolvere qui, le ultime lezioni e i video dei canali italiani
             e i contenuti di Contromossa: podcast, video e approfondimenti.
           </p>
         </div>
@@ -1511,9 +1511,9 @@
       <div class="didattica-layout">
         <div class="dd-col">
           <div class="dd-head">
-            <span class="coord-label">Ultime lezioni dai canali italiani</span>
+            <span class="coord-label">Ultime lezioni e video dai canali italiani</span>
           </div>
-          <div id="dd-lessons" class="dd-videos"><p class="deck-brass">Carico le lezioni…</p></div>
+          <div id="dd-lessons" class="dd-videos"><p class="deck-brass">Carico le lezioni e i video…</p></div>
         </div>
 
         <aside class="puzzle-well" aria-label="Problema del giorno">
@@ -3765,10 +3765,10 @@ var RANKINGS = null;
           $('pz-info').innerHTML = 'Il problema di oggi non è disponibile. <a href="https://lichess.org/training/daily" target="_blank" rel="noopener noreferrer">Aprilo su Lichess</a>.';
           ['pz-hint', 'pz-solve', 'pz-reset'].forEach(function (id) { $(id).hidden = true; });
         }
-        $('dd-lessons').innerHTML = (d.lezioni && d.lezioni.length) ? videoCards(d.lezioni) : '<p class="deck-brass">Le lezioni non sono disponibili in questo momento.</p>';
+        $('dd-lessons').innerHTML = (d.lezioni && d.lezioni.length) ? videoCards(d.lezioni) : '<p class="deck-brass">Le lezioni e i video non sono disponibili in questo momento.</p>';
         if (d.nostri && d.nostri.length) $('dd-ours').innerHTML = videoCards(d.nostri);
       }).catch(function () {
-        $('dd-lessons').innerHTML = '<p class="deck-brass">Le lezioni non sono disponibili in questo momento.</p>';
+        $('dd-lessons').innerHTML = '<p class="deck-brass">Le lezioni e i video non sono disponibili in questo momento.</p>';
         $('pz-info').textContent = 'Il problema di oggi non è disponibile.';
       });
     }
