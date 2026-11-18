@@ -24,7 +24,7 @@ const CHANNELS = {
   chesscomit:  { twitch: 'chesscomit' },
   agadmator:   { youtube: 'agadmator' },
   mattoscacco: { youtube: 'Themattoscacco' },
-  rosen:       { twitch: 'imrosen', youtube: 'imrosen' },
+  rosen:       { twitch: 'imrosen', youtube: 'eric-rosen' },
   cramling:    { twitch: 'annacramling', youtube: 'AnnaCramling' },
   chesscom:    { twitch: 'chess' },
   chess24:     { twitch: 'chess24' },
