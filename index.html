@@ -660,6 +660,7 @@
     .bc-item { background: var(--surface-container); border: var(--hairline); border-radius: var(--rounded-lg); padding: var(--space-md); display: flex; flex-direction: column; gap: 6px; }
     .bc-item h4 { margin: 0; font-family: var(--font-headline); font-weight: 500; font-size: 1.05rem; color: var(--on-surface); }
     .bc-item a { align-self: flex-start; }
+    .bc-item[hidden] { display: none; }
     .stream-top {
       display: flex;
       flex-wrap: wrap;
@@ -1343,8 +1344,8 @@
           <span class="coord-label"><span class="sec-num">02</span>Tornei · Agenda</span>
           <h2 class="section-title" id="tornei-title">Calendario <em>Tornei</em> &amp; Appuntamenti Settimanali</h2>
           <p class="deck-brass">
-            I tre appuntamenti settimanali di Chess.com e i tornei trasmessi in diretta su Lichess, con quelli italiani in evidenza.
-            Gli elenchi si aggiornano da soli.
+            I tre appuntamenti settimanali di Chess.com, i tornei italiani della settimana presi dal Calendario della Federscacchi
+            e i tornei trasmessi in diretta su Lichess. Gli elenchi si aggiornano da soli.
           </p>
         </div>
       </div>
@@ -1352,8 +1353,9 @@
       <div id="tournament-cards-grid" class="tournament-highlight-grid" style="margin-bottom: var(--space-lg);"></div>
 
       <div id="broadcasts-italy-block" style="margin-bottom: var(--space-lg);">
-        <span class="coord-label">Tornei italiani · Lichess Broadcast</span>
+        <span class="coord-label">Tornei italiani della settimana · Calendario Federscacchi</span>
         <div id="broadcasts-italy-list" class="bc-grid"><p class="deck-brass">Caricamento dei tornei italiani…</p></div>
+        <div id="broadcasts-italy-more" style="margin-top: var(--space-sm);"></div>
       </div>
 
       <div id="broadcasts-block">
@@ -3448,50 +3450,113 @@ var RANKINGS = null;
       return new Date(ms).toLocaleString('it-IT', o);
     }
 
+    // Tornei italiani della settimana (Calendario della Federscacchi) e tornei del mondo (Lichess).
+    const FSI_CAL_URL = 'https://www.federscacchi.com/fsi/index.php/calendario/calendario';
+    const IT_PRIMI = 12;   // quanti tornei italiani mostrare prima del pulsante "Mostra tutti"
+    let bcWorldActive = null;
+    let bcItalyCount = null;
+
+    function updateTournamentsKpi() {
+      const kpi = document.getElementById('hero-tournaments-kpi');
+      if (!kpi) return;
+      if (bcWorldActive === null && bcItalyCount === null) { kpi.textContent = '—'; return; }
+      kpi.textContent = ((bcWorldActive || 0) + (bcItalyCount || 0) + TOURNAMENTS_DATA.length) + ' Eventi';
+    }
+
+    // "2026-11-20" in formato breve italiano: "20 nov"
+    function itDay(iso) {
+      if (!iso) return '';
+      return new Date(iso + 'T12:00:00Z').toLocaleDateString('it-IT', { timeZone: 'UTC', day: 'numeric', month: 'short' });
+    }
+
+    function itSafeUrl(u) {
+      return /^https?:\/\/[^\s"'<>]+$/i.test(u || '') ? escHtml(u) : '';
+    }
+
+    function itCard(t) {
+      let state;
+      if (t.ongoing) state = t.end && t.end !== t.start ? '🔴 In corso fino al ' + itDay(t.end) : '🔴 Oggi';
+      else state = t.end && t.end !== t.start ? itDay(t.start) + ' – ' + itDay(t.end) : itDay(t.start);
+      const place = [t.city, t.province && t.province !== t.city ? '(' + t.province + ')' : '', t.region ? '· ' + t.region : '']
+        .filter(Boolean).join(' ');
+      const kind = [t.type, t.time].filter(Boolean).join(' · ');
+      const bando = itSafeUrl(t.bando);
+      const site = itSafeUrl(t.site);
+      return '<div class="bc-item"><span class="coord-label">' + escHtml(state) + '</span><h4>' + escHtml(t.name) + '</h4>' +
+        (place ? '<span class="stream-handle">' + escHtml(place) + '</span>' : '') +
+        (kind ? '<span class="stream-handle">' + escHtml(kind) + '</span>' : '') +
+        '<div style="display:flex; gap:8px; flex-wrap:wrap;">' +
+        (bando ? '<a class="btn btn-secondary btn-sm" href="' + bando + '" target="_blank" rel="noopener noreferrer">Bando</a>' : '') +
+        (site ? '<a class="btn btn-secondary btn-sm" href="' + site + '" target="_blank" rel="noopener noreferrer">Sito del torneo</a>' : '') +
+        '</div></div>';
+    }
+
+    function itCalLink(text) {
+      return '<p class="deck-brass">' + text + ' <a href="' + FSI_CAL_URL + '" target="_blank" rel="noopener noreferrer">Apri il Calendario della Federscacchi</a>.</p>';
+    }
+
+    async function loadItalianTournaments() {
+      const box = document.getElementById('broadcasts-italy-list');
+      const more = document.getElementById('broadcasts-italy-more');
+      if (!box) return;
+      try {
+        const res = await fetch('/.netlify/functions/tornei-italia');
+        if (!res.ok) throw new Error('http ' + res.status);
+        const data = await res.json();
+        const items = data.items || [];
+        if (data.error) {
+          bcItalyCount = null;
+          box.innerHTML = itCalLink('In questo momento non riusciamo a leggere il calendario dei tornei italiani.');
+          if (more) more.innerHTML = '';
+        } else if (!items.length) {
+          bcItalyCount = 0;
+          box.innerHTML = itCalLink('Nessun torneo italiano in calendario questa settimana.');
+          if (more) more.innerHTML = '';
+        } else {
+          bcItalyCount = items.length;
+          box.innerHTML = items.map(function(t, i) {
+            const card = itCard(t);
+            return i < IT_PRIMI ? card : card.replace('<div class="bc-item">', '<div class="bc-item it-extra" hidden>');
+          }).join('');
+          if (more) {
+            more.innerHTML = items.length > IT_PRIMI
+              ? '<button type="button" class="btn btn-secondary btn-sm" id="it-show-all">Mostra tutti i ' + items.length + ' tornei</button>'
+              : '';
+            const btn = document.getElementById('it-show-all');
+            if (btn) btn.addEventListener('click', function() {
+              box.querySelectorAll('.it-extra').forEach(function(el) { el.hidden = false; });
+              more.innerHTML = '';
+            });
+          }
+        }
+      } catch (err) {
+        bcItalyCount = null;
+        box.innerHTML = itCalLink('In questo momento non riusciamo a leggere il calendario dei tornei italiani.');
+        if (more) more.innerHTML = '';
+      }
+      updateTournamentsKpi();
+    }
+
     async function loadBroadcasts() {
       const box = document.getElementById('broadcasts-list');
-      const boxIt = document.getElementById('broadcasts-italy-list');
-      const kpi = document.getElementById('hero-tournaments-kpi');
       if (!box) return;
       try {
         const res = await fetch('/.netlify/functions/broadcasts');
         if (!res.ok) throw new Error('http ' + res.status);
         const data = await res.json();
-        const italy = data.italy || [];
-        // un torneo italiano già mostrato sopra non si ripete nell'elenco del mondo
-        const itNames = italy.map(function(b) { return b.name; });
-        const items = (data.items || []).filter(function(b) { return itNames.indexOf(b.name) === -1; });
-
+        const items = data.items || [];
         box.innerHTML = items.length
           ? items.map(function(b) {
               const when = bcDate(b.startsAt, true);
               return bcCard(b, b.ongoing ? '🔴 In corso' : (b.finished ? 'Concluso' : (when ? 'Inizia: ' + when : 'In programma')));
             }).join('')
           : '<p class="deck-brass">Nessun torneo in diretta su Lichess in questo momento.</p>';
-
-        if (boxIt) {
-          boxIt.innerHTML = italy.length
-            ? italy.map(function(b) {
-                let state;
-                if (b.ongoing) state = '🔴 In corso';
-                else if (b.finished) state = 'Concluso il ' + bcDate(b.finishedAt || b.end, false);
-                else if (b.startsAt) state = 'Prossimo turno: ' + bcDate(b.startsAt, true);
-                else state = 'In programma dal ' + bcDate(b.start, false);
-                return bcCard(b, state);
-              }).join('')
-            : '<p class="deck-brass">Nessun torneo italiano su Lichess in questi giorni.</p>';
-        }
-
-        if (kpi) {
-          const active = items.filter(function(b) { return !b.finished; }).length +
-            italy.filter(function(b) { return !b.finished; }).length;
-          kpi.textContent = (active + TOURNAMENTS_DATA.length) + ' Eventi';
-        }
+        bcWorldActive = items.filter(function(b) { return !b.finished; }).length;
       } catch (err) {
         box.innerHTML = '<p class="deck-brass">Elenco delle dirette non disponibile al momento.</p>';
-        if (boxIt) boxIt.innerHTML = '<p class="deck-brass">Elenco dei tornei italiani non disponibile al momento.</p>';
-        if (kpi) kpi.textContent = '—';
+        bcWorldActive = null;
       }
+      updateTournamentsKpi();
     }
 
     async function loadNews() {
@@ -3525,9 +3590,11 @@ var RANKINGS = null;
     document.addEventListener('DOMContentLoaded', function() {
       updateLiveStatusFromAPI();
       loadBroadcasts();
+      loadItalianTournaments();
       loadNews();
       setInterval(updateLiveStatusFromAPI, 180000);
       setInterval(loadBroadcasts, 300000);
+      setInterval(loadItalianTournaments, 3600000);
       setInterval(renderTournaments, 300000);
       setInterval(loadNews, 900000);
     });
