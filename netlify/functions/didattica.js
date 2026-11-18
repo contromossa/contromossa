@@ -129,6 +129,79 @@ function sceglieVideo(video, max, maxGiorni) {
   return scelti.sort((a, b) => (a.data < b.data ? 1 : -1));
 }
 
+// LEZIONE DEL GIORNO. Ogni giorno cambia il corso (a rotazione) e ogni corso avanza di una lezione
+// quando torna il suo turno. Non si salva niente: giorno e lezione si calcolano dalla data, quindi
+// anche l'archivio dei giorni passati si ricostruisce da solo.
+//   numero del giorno = giorni passati dal PRIMO_GIORNO (ora italiana)
+//   corso   = numero % quanti corsi ci sono
+//   lezione = (numero diviso quanti corsi ci sono) % quante lezioni ha il corso
+const PRIMO_GIORNO = '2026-11-18';
+const GIORNI_ARCHIVIO = 30;
+const PL_CACHE_MS = 6 * 60 * 60 * 1000;
+const plCache = {};
+
+function oggiItalia() {
+  return new Date().toLocaleDateString('sv-SE', { timeZone: 'Europe/Rome' }); // AAAA-MM-GG
+}
+function numeroGiorno(isoData) {
+  const a = isoData.split('-').map(Number);
+  const b = PRIMO_GIORNO.split('-').map(Number);
+  return Math.round((Date.UTC(a[0], a[1] - 1, a[2]) - Date.UTC(b[0], b[1] - 1, b[2])) / 86400000);
+}
+function dataDelGiorno(n) {
+  const b = PRIMO_GIORNO.split('-').map(Number);
+  return new Date(Date.UTC(b[0], b[1] - 1, b[2] + n)).toISOString().slice(0, 10);
+}
+
+// Tutti i video di una playlist, nell'ordine in cui li ha messi l'autore (50 per pagina).
+async function videoDellaPlaylist(id) {
+  const c = plCache[id];
+  if (c && Date.now() - c.at < PL_CACHE_MS) return c.video;
+  const video = [];
+  let token = '';
+  for (let pagina = 0; pagina < 12; pagina++) {
+    const d = await getJson('https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&maxResults=50&playlistId=' + id +
+      (token ? '&pageToken=' + token : '') + '&key=' + YT_KEY);
+    (d.items || []).forEach((it) => {
+      const s = it.snippet || {};
+      const vid = s.resourceId && s.resourceId.videoId;
+      if (!vid || s.title === 'Private video' || s.title === 'Deleted video') return;
+      video.push({ id: vid, titolo: s.title, immagine: ((s.thumbnails && (s.thumbnails.medium || s.thumbnails.default)) || {}).url || '' });
+    });
+    token = d.nextPageToken;
+    if (!token) break;
+  }
+  if (video.length) plCache[id] = { at: Date.now(), video };
+  return video;
+}
+
+async function lezioneDelNumero(n, errori) {
+  const corso = PERCORSI[n % PERCORSI.length];
+  try {
+    const video = await videoDellaPlaylist(corso.id);
+    if (!video.length) return null;
+    const k = Math.floor(n / PERCORSI.length) % video.length;
+    const v = video[k];
+    return {
+      data: dataDelGiorno(n), id: v.id, titolo: v.titolo, immagine: v.immagine,
+      numero: k + 1, totale: video.length,
+      corso: { id: corso.id, titolo: corso.titolo, autore: corso.autore, lingua: corso.lingua },
+    };
+  } catch (e) {
+    errori.push('lezione del giorno (' + corso.autore + '): ' + e.message);
+    return null;
+  }
+}
+
+async function lezioneDelGiorno(errori) {
+  const oggi = numeroGiorno(oggiItalia());
+  if (oggi < 0) return { oggi: null, archivio: [] };
+  const numeri = [];
+  for (let n = oggi; n >= Math.max(0, oggi - GIORNI_ARCHIVIO); n--) numeri.push(n);
+  const tutte = await Promise.all(numeri.map((n) => lezioneDelNumero(n, errori)));
+  return { oggi: tutte[0], archivio: tutte.slice(1).filter(Boolean) };
+}
+
 // Per ogni percorso aggiunge numero di video e anteprima letti da YouTube (una sola chiamata
 // per tutti). Se YouTube non risponde i percorsi si mostrano lo stesso, senza numero né anteprima.
 async function percorsiConDettagli(errori) {
@@ -158,17 +231,18 @@ exports.handler = async function () {
     'Cache-Control': 'public, max-age=900',
     'Netlify-CDN-Cache-Control': 'public, max-age=3600, stale-while-revalidate=600',
   };
-  if (cache && Date.now() - cacheAt < CACHE_MS) {
+  if (cache && Date.now() - cacheAt < CACHE_MS && cache.giorno === oggiItalia()) {
     return { statusCode: 200, headers, body: JSON.stringify(cache) };
   }
   const errori = [];
-  const risultato = { aggiornato: new Date().toISOString(), problema: null, lezioni: [], percorsi: [], nostri: [], errori };
+  const risultato = { aggiornato: new Date().toISOString(), giorno: oggiItalia(), problema: null, lezioni: [], lezioneDelGiorno: null, archivio: [], percorsi: [], nostri: [], errori };
 
   const lavori = [
     problemaDelGiorno().then((p) => { risultato.problema = p; }).catch((e) => errori.push('Lichess: ' + e.message)),
   ];
   lavori.push(percorsiConDettagli(errori).then((p) => { risultato.percorsi = p; }));
   if (YT_KEY) {
+    lavori.push(lezioneDelGiorno(errori).then((l) => { risultato.lezioneDelGiorno = l.oggi; risultato.archivio = l.archivio; }));
     lavori.push(ultimiVideo(CANALI_LEZIONI, 3, errori).then((v) => { risultato.lezioni = sceglieVideo(v, 9, 60); }));
     lavori.push(ultimiVideo([CANALE_NOSTRO], 12, errori).then((v) => { risultato.nostri = v; }));
   } else {
