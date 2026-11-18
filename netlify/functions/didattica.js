@@ -15,6 +15,19 @@ const CANALI_LEZIONI = [
 ];
 const CANALE_NOSTRO = 'contromossa.scacchi';
 
+// Percorsi di studio: playlist YouTube scelte a mano, una per una (non cercate in automatico,
+// così dentro ci sono solo corsi veri). Per aggiungerne una basta una riga nuova qui sotto:
+// id = quello che compare dopo "list=" nell'indirizzo della playlist.
+// Titolo, autore e lingua li scriviamo noi; numero di video e anteprima li legge YouTube.
+const PERCORSI = [
+  { id: 'PL8iaAgXaStUdzAuxSL0sWJ6tLz4PQWRZk', titolo: 'Imparo il gioco degli scacchi', autore: 'Daviddol', lingua: 'IT', livello: 'Principianti' },
+  { id: 'PLzM1LjUh6yi82aO7jgQDP-Uz1c1pgrNuE', titolo: 'A lezione dal Gran Maestro', autore: 'Mattoscacco', lingua: 'IT', livello: '' },
+  { id: 'PLIEiOyvhVKp6-N6nQscRDwyWZNAtm7bsc', titolo: 'Allenamento per giocatori da torneo', autore: 'Nicolochess', lingua: 'IT', livello: 'Giocatori da torneo' },
+  { id: 'PLQsLDm9Rq9bHKEBnElquF8GuWkI1EJ8Zp', titolo: 'Beginner to Chess Master', autore: 'ChessNetwork', lingua: 'EN', livello: 'Dal principiante in su' },
+  { id: 'PLp7SLTJhX1u4WqNPieH6vyAf2oVA2aUF4', titolo: 'Beginner Chess Course', autore: 'Chess Vibes', lingua: 'EN', livello: 'Principianti' },
+  { id: 'PLQKBpQZcRycrvUUxLdVmlfMChJS0S5Zw0', titolo: 'Chess course from beginner to master level', autore: 'NM Robert Ramirez', lingua: 'EN', livello: 'Dal principiante in su' },
+];
+
 const YT_KEY = process.env.YOUTUBE_API_KEY;
 const CACHE_MS = 60 * 60 * 1000; // un'ora: il problema cambia una volta al giorno, i video poche volte
 let cache = null;
@@ -113,6 +126,29 @@ function sceglieVideo(video, max, maxGiorni) {
   return scelti.sort((a, b) => (a.data < b.data ? 1 : -1));
 }
 
+// Per ogni percorso aggiunge numero di video e anteprima letti da YouTube (una sola chiamata
+// per tutti). Se YouTube non risponde i percorsi si mostrano lo stesso, senza numero né anteprima.
+async function percorsiConDettagli(errori) {
+  const base = PERCORSI.map((p) => Object.assign({}, p, { video: 0, immagine: '' }));
+  if (!YT_KEY) return base;
+  try {
+    const d = await getJson('https://www.googleapis.com/youtube/v3/playlists?part=snippet,contentDetails&maxResults=50&id=' +
+      PERCORSI.map((p) => p.id).join(',') + '&key=' + YT_KEY);
+    const per = {};
+    (d.items || []).forEach((it) => { per[it.id] = it; });
+    base.forEach((p) => {
+      const it = per[p.id];
+      if (!it) { errori.push('percorso non trovato: ' + p.id); return; }
+      p.video = (it.contentDetails && it.contentDetails.itemCount) || 0;
+      const t = it.snippet && it.snippet.thumbnails;
+      p.immagine = ((t && (t.medium || t.default)) || {}).url || '';
+    });
+  } catch (e) {
+    errori.push('percorsi: ' + e.message);
+  }
+  return base;
+}
+
 exports.handler = async function () {
   const headers = {
     'Content-Type': 'application/json; charset=utf-8',
@@ -123,11 +159,12 @@ exports.handler = async function () {
     return { statusCode: 200, headers, body: JSON.stringify(cache) };
   }
   const errori = [];
-  const risultato = { aggiornato: new Date().toISOString(), problema: null, lezioni: [], nostri: [], errori };
+  const risultato = { aggiornato: new Date().toISOString(), problema: null, lezioni: [], percorsi: [], nostri: [], errori };
 
   const lavori = [
     problemaDelGiorno().then((p) => { risultato.problema = p; }).catch((e) => errori.push('Lichess: ' + e.message)),
   ];
+  lavori.push(percorsiConDettagli(errori).then((p) => { risultato.percorsi = p; }));
   if (YT_KEY) {
     lavori.push(ultimiVideo(CANALI_LEZIONI, 3, errori).then((v) => { risultato.lezioni = sceglieVideo(v, 9, 60); }));
     lavori.push(ultimiVideo([CANALE_NOSTRO], 12, errori).then((v) => { risultato.nostri = v; }));

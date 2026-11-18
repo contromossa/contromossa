@@ -1183,6 +1183,9 @@
     .dd-video img { width: 100%; aspect-ratio: 16 / 9; object-fit: cover; display: block; background: #000; }
     .dd-video strong { font-size: .92rem; line-height: 1.3; padding: 0 10px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
     .dd-video span { font-size: .75rem; opacity: .7; padding: 0 10px 10px; }
+    .dd-paths-block { margin-top: var(--space-lg); }
+    .dd-path .dd-noimg { width: 100%; aspect-ratio: 16 / 9; background: var(--surface-container-high, #222); display: block; }
+    .dd-path .dd-lang { display: inline-block; font-size: .7rem; font-weight: 700; letter-spacing: .06em; border: var(--hairline); border-radius: 4px; padding: 1px 6px; margin-right: 6px; opacity: 1; }
     .dd-ours { margin-top: var(--space-lg); }
     .dd-podcasts { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: var(--space-md); margin-bottom: var(--space-md); }
     .dd-podcast { border: var(--hairline); border-radius: var(--rounded-lg); padding: var(--space-md); background: var(--surface-container); display: flex; flex-direction: column; gap: 6px; }
@@ -1531,6 +1534,17 @@
         </aside>
       </div>
 
+      <div class="dd-paths-block">
+        <div class="dd-head">
+          <div>
+            <span class="coord-label">Percorsi di studio · Corsi a puntate scelti a mano</span>
+            <h3 style="font-family: var(--font-headline); font-size: 1.5rem; font-weight: 500; margin: var(--space-xs) 0 0;">Impara <em>passo dopo passo</em></h3>
+          </div>
+        </div>
+        <p class="deck-brass" style="margin: 0 0 var(--space-md);">Serie di video da guardare in ordine, dalle basi in su. Ogni percorso porta l'etichetta della lingua: IT in italiano, EN in inglese.</p>
+        <div id="dd-paths" class="dd-videos"></div>
+      </div>
+
       <div class="panel dd-ours">
         <div class="dd-head">
           <div>
@@ -1557,6 +1571,7 @@
             <button type="button" class="btn btn-secondary btn-sm" id="dd-modal-close">Chiudi ✕</button>
           </div>
           <div class="dd-player" id="dd-player"></div>
+          <p class="pz-credit" id="dd-modal-note" hidden>Se la playlist non parte, <a id="dd-modal-link" href="#" target="_blank" rel="noopener noreferrer">aprila su YouTube</a>.</p>
         </div>
       </div>
 
@@ -3725,7 +3740,26 @@ var RANKINGS = null;
           '<img loading="lazy" alt="" src="' + esc(v.immagine) + '"><strong>' + esc(v.titolo) + '</strong><span>' + esc(v.canale) + ' · ' + fmtData(v.data) + '</span></button>';
       }).join('');
     }
+    // Percorsi di studio: playlist scelte a mano (elenco in netlify/functions/didattica.js)
+    function pathCards(list) {
+      return list.map(function (p) {
+        var img = p.immagine ? '<img loading="lazy" alt="" src="' + esc(p.immagine) + '">' : '<span class="dd-noimg"></span>';
+        var info = (p.video ? p.video + ' video' : '') + (p.video && p.livello ? ' · ' : '') + (p.livello ? esc(p.livello) : '');
+        return '<button type="button" class="dd-video dd-path" data-p="' + esc(p.id) + '" data-t="' + esc(p.titolo + ' · ' + p.autore) + '">' + img +
+          '<strong>' + esc(p.titolo) + '</strong>' +
+          '<span><i class="dd-lang">' + esc(p.lingua) + '</i>' + esc(p.autore) + (info ? ' · ' + info : '') + '</span></button>';
+      }).join('');
+    }
+    function openPlaylist(id, title) {
+      $('dd-modal-title').textContent = title;
+      var pl = $('dd-player'); pl.className = 'dd-player';
+      pl.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/videoseries?list=' + encodeURIComponent(id) + '&autoplay=1&rel=0" title="' + esc(title) + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
+      $('dd-modal-link').href = 'https://www.youtube.com/playlist?list=' + encodeURIComponent(id);
+      $('dd-modal-note').hidden = false;
+      $('dd-modal').hidden = false; $('dd-modal-close').focus();
+    }
     function openVideo(id, title, vert) {
+      $('dd-modal-note').hidden = true;
       $('dd-modal-title').textContent = title;
       var pl = $('dd-player'); pl.className = 'dd-player' + (vert ? ' verticale' : '');
       pl.innerHTML = '<iframe src="https://www.youtube-nocookie.com/embed/' + encodeURIComponent(id) + '?autoplay=1&rel=0" title="' + esc(title) + '" allow="autoplay; encrypted-media; picture-in-picture; fullscreen" allowfullscreen></iframe>';
@@ -3753,7 +3787,8 @@ var RANKINGS = null;
         pz.hint = (pz.sol[pz.step] || '').slice(0, 2); drawPuzzle(); say('Il pezzo da muovere è evidenziato in verde.');
       });
       document.addEventListener('click', function (e) {
-        var v = e.target.closest('.dd-video'); if (v) { openVideo(v.getAttribute('data-v'), v.getAttribute('data-t'), v.getAttribute('data-vert') === '1'); return; }
+        var v = e.target.closest('.dd-video'); if (v && v.getAttribute('data-p')) { openPlaylist(v.getAttribute('data-p'), v.getAttribute('data-t')); return; }
+        if (v) { openVideo(v.getAttribute('data-v'), v.getAttribute('data-t'), v.getAttribute('data-vert') === '1'); return; }
         if (e.target.id === 'dd-modal') closeVideo();
       });
       $('dd-modal-close').addEventListener('click', closeVideo);
@@ -3766,9 +3801,11 @@ var RANKINGS = null;
           ['pz-hint', 'pz-solve', 'pz-reset'].forEach(function (id) { $(id).hidden = true; });
         }
         $('dd-lessons').innerHTML = (d.lezioni && d.lezioni.length) ? videoCards(d.lezioni) : '<p class="deck-brass">Le lezioni e i video non sono disponibili in questo momento.</p>';
+        if (d.percorsi && d.percorsi.length) $('dd-paths').innerHTML = pathCards(d.percorsi); else $('dd-paths').parentNode.hidden = true;
         if (d.nostri && d.nostri.length) $('dd-ours').innerHTML = videoCards(d.nostri);
       }).catch(function () {
         $('dd-lessons').innerHTML = '<p class="deck-brass">Le lezioni e i video non sono disponibili in questo momento.</p>';
+        $('dd-paths').parentNode.hidden = true;
         $('pz-info').textContent = 'Il problema di oggi non è disponibile.';
       });
     }
