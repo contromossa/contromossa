@@ -26,6 +26,9 @@ const PERCORSI = [
   { id: 'PLQsLDm9Rq9bHKEBnElquF8GuWkI1EJ8Zp', titolo: 'Beginner to Chess Master', autore: 'ChessNetwork', lingua: 'EN', livello: 'Dal principiante in su' },
   { id: 'PLp7SLTJhX1u4WqNPieH6vyAf2oVA2aUF4', titolo: 'Beginner Chess Course', autore: 'Chess Vibes', lingua: 'EN', livello: 'Principianti' },
   { id: 'PLQKBpQZcRycrvUUxLdVmlfMChJS0S5Zw0', titolo: 'Chess course from beginner to master level', autore: 'NM Robert Ramirez', lingua: 'EN', livello: 'Dal principiante in su' },
+  { id: 'PLQKBpQZcRycoUWCHk9EY8AFNn4j0CpPWQ', titolo: 'Chess tactics', autore: 'NM Robert Ramirez', lingua: 'EN', livello: 'Tattica' },
+  { id: 'PLQKBpQZcRycrItQHTvowBfgAt8Ea4z119', titolo: 'All the chess strategy I know', autore: 'NM Robert Ramirez', lingua: 'EN', livello: 'Strategia' },
+  { id: 'PLQKBpQZcRycoJ58pfYGcUR-vAbjgLQTR3', titolo: 'All the chess endgames I know', autore: 'NM Robert Ramirez', lingua: 'EN', livello: 'Finali' },
 ];
 
 const YT_KEY = process.env.YOUTUBE_API_KEY;
