@@ -96,6 +96,23 @@ async function ultimiVideo(handles, perCanale, errori) {
   }
 }
 
+// Sceglie i video da mostrare: prima l'ultimo di ogni canale (così ci sono tutti, anche
+// quelli che pubblicano poco), poi si riempiono i posti rimasti con i più recenti.
+// I video più vecchi di maxGiorni non si mostrano. Ordine finale: dal più recente.
+function sceglieVideo(video, max, maxGiorni) {
+  const limite = Date.now() - maxGiorni * 24 * 60 * 60 * 1000;
+  const recenti = video.filter((v) => Date.parse(v.data) >= limite); // già in ordine dal più recente
+  const scelti = [];
+  const canali = new Set();
+  recenti.forEach((v) => {
+    if (!canali.has(v.canale) && scelti.length < max) { canali.add(v.canale); scelti.push(v); }
+  });
+  recenti.forEach((v) => {
+    if (scelti.length < max && scelti.indexOf(v) === -1) scelti.push(v);
+  });
+  return scelti.sort((a, b) => (a.data < b.data ? 1 : -1));
+}
+
 exports.handler = async function () {
   const headers = {
     'Content-Type': 'application/json; charset=utf-8',
@@ -112,7 +129,7 @@ exports.handler = async function () {
     problemaDelGiorno().then((p) => { risultato.problema = p; }).catch((e) => errori.push('Lichess: ' + e.message)),
   ];
   if (YT_KEY) {
-    lavori.push(ultimiVideo(CANALI_LEZIONI, 3, errori).then((v) => { risultato.lezioni = v.slice(0, 9); }));
+    lavori.push(ultimiVideo(CANALI_LEZIONI, 3, errori).then((v) => { risultato.lezioni = sceglieVideo(v, 9, 60); }));
     lavori.push(ultimiVideo([CANALE_NOSTRO], 12, errori).then((v) => { risultato.nostri = v; }));
   } else {
     errori.push('YouTube: chiave non configurata');
