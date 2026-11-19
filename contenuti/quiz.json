@@ -1,0 +1,128 @@
+{
+ "titolo": "Quiz di cultura scacchistica",
+ "introduzione": "Dieci domande su storia, aneddoti e regole degli scacchi. Una sola risposta è giusta.",
+ "domande": [
+  {
+   "domanda": "Quale supercomputer di IBM ha sconfitto il campione del mondo Garry Kasparov nella storica sfida del 1997?",
+   "risposte": [
+    "Stockfish",
+    "AlphaZero",
+    "Deep Blue",
+    "Fritz"
+   ],
+   "corretta": 2
+  },
+  {
+   "domanda": "Come viene chiamato il celebre matto d'apertura che si realizza in sole 4 mosse attaccando la casa f7?",
+   "risposte": [
+    "Matto del Barbiere",
+    "Matto dell'Imbecille",
+    "Matto del Corridoio",
+    "Matto del Gambetto"
+   ],
+   "corretta": 0
+  },
+  {
+   "domanda": "Nel Mondiale del 1978 tra Karpov e Korchnoi, quale alimento scatenò le proteste per presunti messaggi in codice?",
+   "risposte": [
+    "Una mela",
+    "Uno yogurt",
+    "Una tazza di tè",
+    "Una barretta di cioccolato"
+   ],
+   "corretta": 1
+  },
+  {
+   "domanda": "Quale Campione del Mondo era soprannominato \"Il Mago di Riga\" per il suo stile di gioco tattico e i suoi spettacolari sacrifici di pezzi?",
+   "risposte": [
+    "Mikhail Tal",
+    "Boris Spassky",
+    "Anatoly Karpov",
+    "Tigran Petrosian"
+   ],
+   "corretta": 0
+  },
+  {
+   "domanda": "Con quale bizzarra mossa d'apertura (1... a6!) Tony Miles nel 1980 riuscì a sconfiggere il Campione del Mondo Anatoly Karpov?",
+   "risposte": [
+    "Difesa St. George",
+    "Difesa Siciliana",
+    "Difesa Francese",
+    "Gambetto di Re"
+   ],
+   "corretta": 0
+  },
+  {
+   "domanda": "Di quale nazionalità era Bobby Fischer, protagonista del celebre \"Match del Secolo\" del 1972 contro Spassky?",
+   "risposte": [
+    "Sovietica",
+    "Statunitense",
+    "Tedesca",
+    "Inglese"
+   ],
+   "corretta": 1
+  },
+  {
+   "domanda": "Come si chiama la mossa speciale che permette di mettere al sicuro il Re e attivare la Torre nello stesso turno?",
+   "risposte": [
+    "En passant",
+    "Promozione",
+    "Arrocco",
+    "Scacco scoperto"
+   ],
+   "corretta": 2
+  },
+  {
+   "domanda": "Qual è il motore di scacchi open-source oggi considerato tra i più forti e utilizzati al mondo per l'analisi?",
+   "risposte": [
+    "Stockfish",
+    "Deep Thought",
+    "Chessmaster",
+    "AlphaChess"
+   ],
+   "corretta": 0
+  },
+  {
+   "domanda": "Quale Grande Maestro inglese nel 1985 arrivò primo a pari merito al torneo di Tilburg giocando gran parte delle partite sdraiato a pancia in giù su un lettino?",
+   "risposte": [
+    "Tony Miles",
+    "Michael Basman",
+    "Nigel Short",
+    "Raymond Keene"
+   ],
+   "corretta": 0
+  },
+  {
+   "domanda": "Cosa indica l'acronimo FIDE nel mondo degli scacchi?",
+   "risposte": [
+    "Federazione Internazionale degli Scacchi",
+    "Forum Italiano Difesa Elettronica",
+    "Federation of International Dealer Executives",
+    "Fondo Internazionale Dati Scacchistici"
+   ],
+   "corretta": 0
+  }
+ ],
+ "fasce": [
+  {
+   "da": 0,
+   "titolo": "Pedone alle prime armi ♟️",
+   "testo": "Hai appena mosso i primi passi sulla scacchiera! Non preoccuparti: ogni Grande Maestro ha iniziato da qui. Continua a esplorare il mondo degli scacchi e riprova!"
+  },
+  {
+   "da": 4,
+   "titolo": "Alfiere in crescita ♝",
+   "testo": "Buon risultato! Conosci le basi e hai una discreta cultura scacchistica. Con un altro po' di pratica sarai pronto per le sfide più impegnative."
+  },
+  {
+   "da": 7,
+   "titolo": "Torre d'assalto ♜",
+   "testo": "Ottimo lavoro! La tua visione di gioco e la conoscenza delle curiosità scacchistiche sono davvero solide. Ti manca solo un passo per la perfezione!"
+  },
+  {
+   "da": 10,
+   "titolo": "Gran Maestro Supremo ♚",
+   "testo": "Punteggio perfetto! Conosci la storia, le regole e gli aneddoti come un vero Campione del Mondo. La scacchiera per te non ha segreti!"
+  }
+ ]
+}

@@ -960,6 +960,16 @@
     }
 
 
+
+    /* Quiz */
+    .quiz-q { font-size: 1.05rem; margin: var(--space-sm) 0 var(--space-md); }
+    .quiz-opts { display: flex; flex-direction: column; gap: var(--space-sm); }
+    .quiz-opt { text-align: left; }
+    .quiz-opt.ok { border-color: var(--primary); background: var(--surface-container-high); }
+    .quiz-opt.ko { opacity: .55; text-decoration: line-through; }
+    .quiz-progress { font-family: var(--font-label); font-size: .72rem; color: var(--on-surface-variant); }
+    .quiz-result h4 { font-family: var(--font-headline); font-size: 1.3rem; font-weight: 500; margin: var(--space-xs) 0; }
+
     /* Timeline Kempelen -> Stockfish/AlphaZero */
     .history-timeline {
       display: grid;
@@ -984,7 +994,15 @@
       border-color: var(--primary);
     }
 
-    /* 9. Breaking News */
+    /* 9. Breaking News: righe-link compatte */
+    .news-list { list-style: none; margin: 0; padding: 0; border-top: var(--hairline); }
+    .news-row { display: flex; gap: var(--space-md); align-items: baseline; padding: var(--space-sm) 0; border-bottom: var(--hairline); }
+    .news-meta { flex: 0 0 11.5rem; font-family: var(--font-label); font-size: 0.7rem; color: var(--on-surface-variant); }
+    .news-title { flex: 1; min-width: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    .news-title a { color: var(--on-surface); text-decoration: none; }
+    .news-title a:hover { color: var(--primary); text-decoration: underline; }
+    @media (max-width: 640px) { .news-row { flex-direction: column; gap: 2px; } .news-meta { flex-basis: auto; } }
+    .news-featured-grid {
     .news-featured-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(min(300px, 100%), 1fr));
@@ -1604,6 +1622,18 @@
         </div>
       </div>
 
+
+      <!-- Quiz di cultura scacchistica -->
+      <div class="panel" id="quiz-panel">
+        <div class="dd-head">
+          <div>
+            <span class="coord-label">Mettiti alla prova</span>
+            <h3 style="font-family: var(--font-headline); font-size: 1.5rem; font-weight: 500; margin: var(--space-xs) 0 0;">Quiz di <em>cultura scacchistica</em></h3>
+          </div>
+        </div>
+        <div id="quiz-box"><p class="deck-brass">Carico il quiz…</p></div>
+      </div>
+
       <!-- Approfondimento Storico Interattivo: Da Kempelen a Stockfish / AlphaZero -->
       <div class="panel">
         <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: var(--space-md); margin-bottom: var(--space-md);">
@@ -1639,7 +1669,7 @@
         </div>
       </div>
 
-      <div id="news-grid" class="news-featured-grid"></div>
+      <div id="news-grid"></div>
     </section>
 
     <section id="risorse" class="portal-section" aria-labelledby="risorse-title">
@@ -2755,6 +2785,7 @@ chess.js/dist/esm/chess.js:
 
 
     let NEWS_LIVE = { loaded: false, items: [] };
+    const NEWS_MAX = 10; // quante notizie mostrare (righe-link)
 
     // 3 Interactive Tactical Puzzles (64-square setup)
     // =========================================================================
@@ -3156,7 +3187,7 @@ chess.js/dist/esm/chess.js:
       const btn = document.getElementById(`btn-${articleId}`);
       if (!body || !btn) return;
       const isOpen = body.classList.toggle(`open`);
-      btn.textContent = isOpen ? `Chiudi approfondimento` : `Leggi guida completa`;
+      btn.textContent = isOpen ? `Chiudi l'articolo` : `Leggi l'articolo`;
     }
 
     // Corpo dell'articolo: paragrafi normali, più alcuni segni semplici
@@ -3198,7 +3229,7 @@ chess.js/dist/esm/chess.js:
       });
 
       container.innerHTML = filtered.map(function(a, i) {
-        const defaultOpen = i === 0 ? `open` : ``;
+        const defaultOpen = ``;
         const paragraphs = articleBodyHtml(a.body);
         return `
           <article class="article-card">
@@ -3213,7 +3244,7 @@ chess.js/dist/esm/chess.js:
             </div>
             <div style="padding-top: var(--space-xs);">
               <button type="button" id="btn-${a.id}" class="btn btn-secondary btn-sm" onclick="toggleArticleBody('${a.id}')">
-                ${defaultOpen ? `Chiudi approfondimento` : `Leggi guida completa`}
+                Leggi l'articolo
               </button>
             </div>
           </article>
@@ -3272,6 +3303,80 @@ chess.js/dist/esm/chess.js:
       }
       activeArticleFilter = `all`;
       renderArticles();
+    }
+
+
+    // =========================================================================
+    // QUIZ: domande in contenuti/quiz.json, risposte mescolate a ogni partita
+    // =========================================================================
+    var QUIZ = { data: null, order: [], i: 0, score: 0, answered: false };
+
+    function quizShuffle(a) {
+      a = a.slice();
+      for (var i = a.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var t = a[i]; a[i] = a[j]; a[j] = t;
+      }
+      return a;
+    }
+
+    function quizStart() {
+      QUIZ.order = quizShuffle(QUIZ.data.domande.map(function(_, k) { return k; }));
+      QUIZ.i = 0; QUIZ.score = 0; QUIZ.answered = false;
+      quizRender();
+    }
+
+    function quizRender() {
+      var box = document.getElementById(`quiz-box`);
+      if (!box || !QUIZ.data) return;
+      var n = QUIZ.order.length;
+      if (QUIZ.i >= n) {
+        var fasce = QUIZ.data.fasce, f = fasce[0];
+        fasce.forEach(function(x) { if (QUIZ.score >= x.da) f = x; });
+        box.innerHTML = `<div class="quiz-result"><span class="quiz-progress">Risultato</span>` +
+          `<h4>${QUIZ.score} su ${n} · ${escHtml(f.titolo)}</h4>` +
+          `<p class="deck-brass" style="margin:0 0 var(--space-md);">${escHtml(f.testo)}</p>` +
+          `<button type="button" class="btn btn-secondary btn-sm" onclick="quizStart()">Rigioca</button></div>`;
+        return;
+      }
+      var d = QUIZ.data.domande[QUIZ.order[QUIZ.i]];
+      var opts = quizShuffle(d.risposte.map(function(t, k) { return { t: t, k: k }; }));
+      QUIZ.opts = opts; QUIZ.answered = false;
+      box.innerHTML = `<span class="quiz-progress">Domanda ${QUIZ.i + 1} di ${n}</span>` +
+        `<p class="quiz-q">${escHtml(d.domanda)}</p><div class="quiz-opts">` +
+        opts.map(function(o, idx) {
+          return `<button type="button" class="btn btn-secondary quiz-opt" data-idx="${idx}" onclick="quizAnswer(${idx})">${escHtml(o.t)}</button>`;
+        }).join(``) + `</div><div id="quiz-next" style="margin-top:var(--space-md);"></div>`;
+    }
+
+    function quizAnswer(idx) {
+      if (QUIZ.answered) return;
+      QUIZ.answered = true;
+      var d = QUIZ.data.domande[QUIZ.order[QUIZ.i]];
+      var good = QUIZ.opts[idx].k === d.corretta;
+      if (good) QUIZ.score++;
+      document.querySelectorAll(`#quiz-box .quiz-opt`).forEach(function(b, k) {
+        b.disabled = true;
+        if (QUIZ.opts[k].k === d.corretta) b.classList.add(`ok`);
+        else if (k === idx) b.classList.add(`ko`);
+      });
+      var last = QUIZ.i + 1 >= QUIZ.order.length;
+      document.getElementById(`quiz-next`).innerHTML =
+        `<span class="deck-brass" style="margin-right:var(--space-md);">${good ? `Giusto!` : `Risposta sbagliata.`}</span>` +
+        `<button type="button" class="btn btn-primary btn-sm" onclick="QUIZ.i++; quizRender();">${last ? `Vedi il risultato` : `Avanti`}</button>`;
+    }
+
+    async function loadQuiz() {
+      var box = document.getElementById(`quiz-box`);
+      try {
+        var res = await fetch(`contenuti/quiz.json`, { cache: `no-cache` });
+        if (!res.ok) throw new Error(`http ` + res.status);
+        QUIZ.data = await res.json();
+        box.innerHTML = `<p class="deck-brass" style="margin:0 0 var(--space-md);">${escHtml(QUIZ.data.introduzione)}</p>` +
+          `<button type="button" class="btn btn-primary btn-sm" onclick="quizStart()">Inizia il quiz</button>`;
+      } catch (e) {
+        if (box) box.innerHTML = `<p class="deck-brass">Il quiz non è disponibile al momento.</p>`;
+      }
     }
 
     function selectHistoryEra(idx) {
@@ -3346,28 +3451,16 @@ chess.js/dist/esm/chess.js:
         return;
       }
 
-      container.innerHTML = filtered.map(function(n) {
-        const badgeClass = n.category === `it` ? `badge-positive` : `badge-brass`;
+      container.innerHTML = `<ul class="news-list">` + filtered.slice(0, NEWS_MAX).map(function(n) {
         const catLabel = n.category === `it` ? `Italia` : `Internazionale`;
-        const when = n.date ? new Date(n.date).toLocaleDateString(`it-IT`, { day: `numeric`, month: `long`, year: `numeric` }) : ``;
+        const when = n.date ? new Date(n.date).toLocaleDateString(`it-IT`, { day: `numeric`, month: `short` }) : ``;
         const safeLink = /^https:\/\//.test(n.link || ``) ? escHtml(n.link) : ``;
-        return `
-          <article class="article-card" style="justify-content: space-between;">
-            <div style="display: flex; flex-direction: column; gap: var(--space-sm);">
-              <div style="display: flex; justify-content: space-between; align-items: center; gap: var(--space-sm); flex-wrap: wrap;">
-                <span class="badge ${badgeClass}">${catLabel}</span>
-                <span class="coord-label">${escHtml(when)}</span>
-              </div>
-              <h3>${escHtml(n.title)}</h3>
-              <span style="font-family: var(--font-label); font-size: 0.72rem; color: var(--on-surface-variant);">Fonte: ${escHtml(n.source)}</span>
-              <p class="deck-brass" style="margin: 0; font-size: 0.9rem;">${escHtml(n.summary)}</p>
-            </div>
-            ${safeLink ? `<div style="padding-top: var(--space-sm); border-top: var(--hairline);">
-              <a class="btn btn-secondary btn-sm" href="${safeLink}" target="_blank" rel="noopener noreferrer">Leggi l'articolo sul sito originale</a>
-            </div>` : ``}
-          </article>
-        `;
-      }).join(``);
+        const meta = escHtml(n.source) + ` · ` + catLabel + (when ? ` · ` + escHtml(when) : ``);
+        const title = safeLink
+          ? `<a href="${safeLink}" target="_blank" rel="noopener noreferrer">${escHtml(n.title)}</a>`
+          : escHtml(n.title);
+        return `<li class="news-row"><span class="news-meta">${meta}</span><span class="news-title">${title}</span></li>`;
+      }).join(``) + `</ul>`;
     }
 
 var RANKINGS = null;
@@ -3430,6 +3523,7 @@ var RANKINGS = null;
       loadRankings();
       renderCreators();
       loadArticles();
+      loadQuiz();
       renderHistoryTimeline();
       if (window.initGameViewer) window.initGameViewer();
       renderNews();
