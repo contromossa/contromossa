@@ -962,6 +962,8 @@
 
 
     /* Quiz */
+    .quiz-pick { display: flex; flex-direction: column; gap: var(--space-xs); margin: var(--space-sm) 0 var(--space-md); font-family: var(--font-label); font-size: .72rem; color: var(--on-surface-variant); max-width: 100%; }
+    .quiz-pick select { max-width: 22rem; }
     .quiz-q { font-size: 1.05rem; margin: var(--space-sm) 0 var(--space-md); }
     .quiz-opts { display: flex; flex-direction: column; gap: var(--space-sm); }
     .quiz-opt { text-align: left; }
@@ -1573,8 +1575,9 @@
         <div class="dd-head">
           <div>
             <span class="coord-label">Mettiti alla prova</span>
-            <h3 style="font-family: var(--font-headline); font-size: 1.5rem; font-weight: 500; margin: var(--space-xs) 0 0;">Quiz di <em>cultura scacchistica</em></h3>
+            <h3 id="quiz-title" style="font-family: var(--font-headline); font-size: 1.5rem; font-weight: 500; margin: var(--space-xs) 0 0;">Quiz</h3>
           </div>
+          <label class="quiz-pick" id="quiz-pick" hidden>Tutti i quiz<select id="quiz-scelta" class="field-input" onchange="quizChoose(this.value)"></select></label>
         </div>
         <div id="quiz-box"><p class="deck-brass">Carico il quiz…</p></div>
       </div>
@@ -3307,7 +3310,7 @@ chess.js/dist/esm/chess.js:
 
 
     // =========================================================================
-    // QUIZ: domande in contenuti/quiz.json, risposte mescolate a ogni partita
+    // QUIZ: elenco in contenuti/quiz-elenco.json, risposte mescolate a ogni partita
     // =========================================================================
     var QUIZ = { data: null, order: [], i: 0, score: 0, answered: false };
 
@@ -3366,17 +3369,44 @@ chess.js/dist/esm/chess.js:
         `<button type="button" class="btn btn-primary btn-sm" onclick="QUIZ.i++; quizRender();">${last ? `Vedi il risultato` : `Avanti`}</button>`;
     }
 
-    async function loadQuiz() {
+    // Elenco dei quiz in contenuti/quiz-elenco.json, dal più nuovo al più vecchio:
+    // il sito apre l'ultimo, gli altri si scelgono dal menu «Quiz precedenti».
+    var QUIZ_MESI = [`gennaio`,`febbraio`,`marzo`,`aprile`,`maggio`,`giugno`,`luglio`,`agosto`,`settembre`,`ottobre`,`novembre`,`dicembre`];
+    function quizDate(iso) {
+      var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso || ``);
+      return m ? Number(m[3]) + ` ` + QUIZ_MESI[Number(m[2]) - 1] : ``;
+    }
+
+    async function quizChoose(file) {
       var box = document.getElementById(`quiz-box`);
       try {
-        var res = await fetch(`contenuti/quiz.json`, { cache: `no-cache` });
+        var res = await fetch(file, { cache: `no-cache` });
         if (!res.ok) throw new Error(`http ` + res.status);
         QUIZ.data = await res.json();
+        var t = document.getElementById(`quiz-title`);
+        if (t) t.textContent = QUIZ.data.titolo || `Quiz`;
         box.innerHTML = `<p class="deck-brass" style="margin:0 0 var(--space-md);">${escHtml(QUIZ.data.introduzione)}</p>` +
           `<button type="button" class="btn btn-primary btn-sm" onclick="quizStart()">Inizia il quiz</button>`;
       } catch (e) {
         if (box) box.innerHTML = `<p class="deck-brass">Il quiz non è disponibile al momento.</p>`;
       }
+    }
+
+    async function loadQuiz() {
+      var list = [{ file: `contenuti/quiz.json` }];
+      try {
+        var res = await fetch(`contenuti/quiz-elenco.json`, { cache: `no-cache` });
+        if (res.ok) { var l = await res.json(); if (Array.isArray(l) && l.length) list = l; }
+      } catch (e) {}
+      var sel = document.getElementById(`quiz-scelta`), pick = document.getElementById(`quiz-pick`);
+      if (sel && pick && list.length > 1) {
+        sel.innerHTML = list.map(function(q, k) {
+          var d = quizDate(q.data);
+          return `<option value="${escHtml(q.file)}">${escHtml((d ? d + ` · ` : ``) + (q.titolo || `Quiz`) + (k === 0 ? ` (ultimo)` : ``))}</option>`;
+        }).join(``);
+        pick.hidden = false;
+      }
+      quizChoose(list[0].file);
     }
 
     function selectHistoryEra(idx) {

@@ -16,3 +16,17 @@ COME AGGIUNGERE UN PODCAST AL SITO
 
 I VIDEO non vanno messi qui: basta caricarli sul canale YouTube @contromossa.it.
 Il sito li prende da solo, entro un'ora circa.
+
+
+COME AGGIUNGERE UN QUIZ AL SITO
+
+1. Crea un file nella cartella contenuti, per esempio quiz-strategia.json,
+   copiando la struttura di quiz-trappole.json (titolo, introduzione,
+   domande con risposte e indice della risposta giusta, fasce finali).
+
+2. Apri contenuti/quiz-elenco.json e aggiungi IN CIMA una riga come questa:
+
+  {"file":"contenuti/quiz-strategia.json","titolo":"Test di strategia e finale","data":"2026-11-25"},
+
+Il sito apre sempre il primo quiz dell'elenco; gli altri restano nel menu
+«Quiz precedenti».
