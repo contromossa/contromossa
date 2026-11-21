@@ -1,0 +1,83 @@
+{
+ "titolo": "Riconosci le trappole d'apertura e la tattica?",
+ "introduzione": "Dieci domande sulle trappole più famose delle prime mosse e sui temi tattici che le fanno scattare. Una sola risposta è giusta.",
+ "domande": [
+  {
+   "domanda": "Nella trappola di Légal il Bianco lascia che il Nero gli catturi un pezzo, e poi dà matto in due mosse. Quale pezzo sacrifica?",
+   "risposte": ["La Donna", "La Torre", "L'Alfiere", "Il Cavallo"],
+   "corretta": 0
+  },
+  {
+   "domanda": "Nella trappola di Légal il Cavallo bianco in f3 sembra bloccato dall'Alfiere nero in g4, eppure il Bianco lo muove lo stesso. Perché può farlo?",
+   "risposte": [
+    "Perché il Cavallo è inchiodato alla Donna, non al Re: muoverlo è legale",
+    "Perché il Cavallo può muoversi anche quando è inchiodato al Re",
+    "Perché l'Alfiere nero in g4 non è difeso da nessun pezzo",
+    "Perché il Nero ha già arroccato e il suo Re è al sicuro"
+   ],
+   "corretta": 0
+  },
+  {
+   "domanda": "La trappola di Légal prende il nome da un maestro francese del Settecento, il più forte del celebre caffè parigino dove si giocava a scacchi. Quale caffè?",
+   "risposte": ["Café de la Régence", "Café Procope", "Café de Flore", "Café de la Paix"],
+   "corretta": 0
+  },
+  {
+   "domanda": "Il Matto dell'Imbecille è il matto più rapido possibile. Dopo quante mosse del Nero arriva?",
+   "risposte": ["2", "3", "4", "5"],
+   "corretta": 0
+  },
+  {
+   "domanda": "In quale apertura nasce la trappola dell'Elefante, in cui il Bianco cattura un pedone in d5 e perde un pezzo?",
+   "risposte": ["Gambetto di Donna Rifiutato", "Partita Spagnola", "Difesa Siciliana", "Partita Italiana"],
+   "corretta": 0
+  },
+  {
+   "domanda": "Nella trappola dell'Arca di Noè, nella Partita Spagnola, quale pezzo bianco resta chiuso in b3 dai pedoni neri?",
+   "risposte": ["L'Alfiere", "Il Cavallo", "La Torre", "La Donna"],
+   "corretta": 0
+  },
+  {
+   "domanda": "Nella trappola di Lasker, nel Controgambetto Albin, il Nero promuove un pedone già alla settima mossa. In quale pezzo lo trasforma?",
+   "risposte": ["In Cavallo", "In Donna", "In Torre", "In Alfiere"],
+   "corretta": 0
+  },
+  {
+   "domanda": "Come si chiama in italiano l'attacco in cui, nella Difesa dei due cavalli, il Bianco sacrifica il Cavallo in f7?",
+   "risposte": ["Attacco Fegatello", "Gambetto Evans", "Attacco Max Lange", "Gambetto di Re"],
+   "corretta": 0
+  },
+  {
+   "domanda": "Come si chiama il matto dato da una Torre o dalla Donna sull'ultima traversa, quando il Re non può scappare perché è chiuso dai suoi stessi pedoni?",
+   "risposte": ["Matto del corridoio", "Matto soffocato", "Matto dell'Imbecille", "Matto di Légal"],
+   "corretta": 0
+  },
+  {
+   "domanda": "Nel matto soffocato il Re è circondato dai suoi stessi pezzi e non ha case libere. Quale pezzo gli dà matto?",
+   "risposte": ["Il Cavallo", "L'Alfiere", "La Torre", "Il pedone"],
+   "corretta": 0
+  }
+ ],
+ "fasce": [
+  {
+   "da": 0,
+   "titolo": "Pedone alle prime armi ♟️",
+   "testo": "Le trappole ti hanno colto di sorpresa, ma succede a tutti nelle prime partite. Adesso le hai viste: la prossima volta sarai tu a non cascarci."
+  },
+  {
+   "da": 4,
+   "titolo": "Alfiere in crescita ♝",
+   "testo": "Riconosci le trappole più note, ma qualcuna ti sfugge ancora. Ripassa le aperture in cui nascono e prova di nuovo."
+  },
+  {
+   "da": 7,
+   "titolo": "Torre d'assalto ♜",
+   "testo": "Ottimo risultato: difficilmente un avversario ti chiuderà la partita nelle prime mosse. Manca poco al punteggio pieno."
+  },
+  {
+   "da": 10,
+   "titolo": "Gran Maestro Supremo ♚",
+   "testo": "Punteggio perfetto. Conosci le trappole e i temi tattici che le fanno scattare: in apertura sei tu a tendere l'agguato."
+  }
+ ]
+}

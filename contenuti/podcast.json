@@ -1,5 +1,19 @@
 [
   {
+    "file": "contenuti/audio/un-viaggio-umoristico-nella-storia-degli-scacchi.m4a",
+    "titolo": "Un viaggio umoristico e curioso nella storia degli scacchi",
+    "descrizione": "Un viaggio nella storia degli scacchi, dalle origini tra India e Persia fino all'arrivo nell'Europa medievale. Poi i primi campioni del mondo, da Steinitz, primo campione ufficiale nel 1886, ai 27 anni di Lasker e a Capablanca, che si racconta imparò a giocare a quattro anni, tra rivalità e manie dei grandi.",
+    "durata": "14 min",
+    "data": "2026-11-21"
+  },
+  {
+    "file": "contenuti/audio/bobby-fischer-contro-la-macchina-sovietica.m4a",
+    "titolo": "Bobby Fischer contro la macchina sovietica",
+    "descrizione": "Nel 1972 a Reykjavík Bobby Fischer rischiò di far saltare il «Match del Secolo» con le proteste sul montepremi, e a convincerlo a giocare contribuirono l'offerta di 50.000 sterline di Jim Slater e la telefonata di Henry Kissinger. Tra i sospetti sovietici, che portarono a far controllare perfino la sedia da gioco, Fischer vinse il match e pose fine a oltre vent'anni di dominio sovietico.",
+    "durata": "22 min",
+    "data": "2026-11-21"
+  },
+  {
     "file": "contenuti/audio/la-follia-come-arma-sulla-scacchiera.m4a",
     "titolo": "La follia come arma sulla scacchiera",
     "descrizione": "Scaramanzie bizzarre e manie dei grandi campioni degli scacchi: gatti portafortuna, lettini da fisioterapia portati sul palco, perfino uno yogurt accusato di trasmettere messaggi segreti. Un viaggio tra le stranezze che, a volte, sono diventate un'arma per vincere.",
