@@ -3,9 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="artifact-type" content="dashboard">
-  <meta name="design-style" content="nocturne">
-  <title>Contromossascacchi.it — Portale & Community Scacchistica Italiana</title>
+  <title>Scacchi in Italia: tornei, dirette e 200.000 partite | Contromossa</title>
+  <meta name="description" content="Gli scacchi italiani in un posto solo: streamer in diretta, tornei della settimana, classifiche FIDE, 200.000 partite storiche, quiz e podcast.">
+  <link rel="canonical" href="https://contromossascacchi.it/">
+  <meta name="robots" content="index, follow, max-image-preview:large">
+  <meta name="theme-color" content="#0a101d">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Contromossascacchi.it">
+  <meta property="og:locale" content="it_IT">
+  <meta property="og:title" content="Scacchi in Italia: tornei, dirette e 200.000 partite | Contromossa">
+  <meta property="og:description" content="Gli scacchi italiani in un posto solo: streamer in diretta, tornei della settimana, classifiche FIDE, 200.000 partite storiche, quiz e podcast.">
+  <meta property="og:url" content="https://contromossascacchi.it/">
+  <meta property="og:image" content="https://contromossascacchi.it/icone/anteprima.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "WebSite", "@id": "https://contromossascacchi.it/#sito", "url": "https://contromossascacchi.it/", "name": "Contromossascacchi.it", "alternateName": "Contromossa", "inLanguage": "it", "publisher": {"@id": "https://contromossascacchi.it/#organizzazione"}}, {"@type": "Organization", "@id": "https://contromossascacchi.it/#organizzazione", "name": "Contromossascacchi.it", "url": "https://contromossascacchi.it/", "logo": "https://contromossascacchi.it/icone/icon-512.png", "email": "contromossa.it@gmail.com", "sameAs": ["https://www.youtube.com/@contromossa.scacchi", "https://www.instagram.com/contromossa.it", "https://www.tiktok.com/@contromossa", "https://open.spotify.com/show/7eFf4XlZLatG2R0FZTaPUG"]}]}</script>
   <link rel="icon" href="/favicon.ico" sizes="48x48">
   <link rel="icon" type="image/png" sizes="32x32" href="/icone/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/icone/favicon-16.png">
@@ -1021,9 +1034,11 @@
       margin: 0 auto;
       padding: var(--space-2xl) var(--space-lg) var(--space-xl);
       display: grid;
-      grid-template-columns: minmax(0, 1.3fr) repeat(3, minmax(0, 1fr));
+      grid-template-columns: minmax(0, 1.3fr) repeat(4, minmax(0, 1fr));
       gap: var(--space-xl);
     }
+    .footer-pages a { color: var(--on-surface-variant); }
+    .footer-pages a:hover { color: var(--primary); }
     .footer-title {
       font-family: var(--font-label);
       font-size: var(--label-size);
@@ -1724,6 +1739,16 @@
         </button>
       </div>
 
+      <nav aria-label="Contenuti di Contromossa">
+        <h3 class="footer-title">Contenuti di Contromossa</h3>
+        <ul class="footer-list footer-pages">
+          <li><a href="/giocatori/">Grandi giocatori: partite e statistiche</a></li>
+          <li><a href="/articoli/">Articoli</a></li>
+          <li><a href="/quiz/">Quiz di scacchi</a></li>
+          <li><a href="/podcast/">Podcast</a></li>
+        </ul>
+      </nav>
+
       <div>
         <h3 class="footer-title">Canali Social Ufficiali</h3>
         <ul class="footer-list">
@@ -2227,7 +2252,25 @@ chess.js/dist/esm/chess.js:
     renderList();
     selectGame(GAMES[0].id);
     loadInfo();
+    openFromAddress();
   };
+
+  // Le pagine dei giocatori (cartella giocatori/) portano qui con ?giocatore=Nome&avversario=Nome#partite
+  function openFromAddress() {
+    var q;
+    try { q = new URLSearchParams(window.location.search); } catch (e) { return; }
+    var name = q.get('giocatore');
+    if (!name) return;
+    var opp = q.get('avversario') || '';
+    loadPlayers().then(function () {
+      if (!AR.players) return;
+      var p = AR.players.filter(function (x) { return x.name === name; })[0];
+      if (!p) return;
+      openPlayer(p, opp ? queryTokens(opp) : []);
+      var sec = document.getElementById('partite');
+      if (sec) setTimeout(function () { sec.scrollIntoView({ block: 'start' }); }, 300);
+    });
+  }
 })();
 
   </script>
@@ -3239,7 +3282,7 @@ chess.js/dist/esm/chess.js:
               <span class="badge badge-sky">${escHtml(a.badge)}</span>
               <span style="font-family: var(--font-label); font-size: 0.7rem; color: var(--on-surface-variant);">${escHtml(a.sourceCredit)}</span>
             </div>
-            <h3>${escHtml(a.title)}</h3>
+            <h3><a href="/articoli/${encodeURIComponent(a.slug)}/" style="color: inherit;">${escHtml(a.title)}</a></h3>
             <p class="deck-brass" style="margin: 0;">${escHtml(a.summary)}</p>
             <div id="body-${a.id}" class="article-body ${defaultOpen}">
               ${paragraphs}
@@ -3267,6 +3310,7 @@ chess.js/dist/esm/chess.js:
       if (!meta.titolo || !body.length) return null;
       return {
         id: `art-` + file.replace(/\.md$/, ``).replace(/[^a-z0-9]+/gi, `-`),
+        slug: file.replace(/\.md$/, ``),
         category: (meta.categoria || `altro`).toLowerCase(),
         badge: meta.etichetta || ``,
         title: meta.titolo,
@@ -3898,7 +3942,7 @@ var RANKINGS = null;
         var img = p.immagine ? '<img loading="lazy" alt="" src="' + esc(p.immagine) + '">' : '<span class="dd-noimg"></span>';
         var info = (p.video ? p.video + ' video' : '') + (p.video && p.livello ? ' · ' : '') + (p.livello ? esc(p.livello) : '');
         return '<button type="button" class="dd-video dd-path" data-p="' + esc(p.id) + '" data-t="' + esc(p.titolo + ' · ' + p.autore) + '">' + img +
-          '<strong>' + esc(p.titolo) + '</strong>' +
+          '<strong><a href="/podcast/' + esc(String(p.file).split("/").pop().replace(/\.[a-z0-9]+$/i, "")) + '/" style="color: inherit;">' + esc(p.titolo) + '</a></strong>' +
           '<span><i class="dd-lang">' + esc(p.lingua) + '</i>' + esc(p.autore) + (info ? ' · ' + info : '') + '</span></button>';
       }).join('');
     }

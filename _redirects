@@ -1,0 +1,4 @@
+# Il vecchio indirizzo di Netlify porta sempre al dominio vero (una sola copia del sito per Google)
+https://contromossa1.netlify.app/*  https://contromossascacchi.it/:splat  301!
+http://contromossa1.netlify.app/*   https://contromossascacchi.it/:splat  301!
+https://www.contromossascacchi.it/*  https://contromossascacchi.it/:splat  301!

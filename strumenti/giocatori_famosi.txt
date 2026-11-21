@@ -1,0 +1,96 @@
+# Giocatori con una pagina propria sul sito (cartella giocatori/).
+# Una riga per giocatore: nome esatto nell'archivio | nome da mostrare | nota (facoltativa)
+# Dopo una modifica: python3 strumenti/genera_pagine.py
+Paul Morphy | Paul Morphy |
+Adolf Anderssen | Adolf Anderssen |
+Howard Staunton | Howard Staunton |
+William Steinitz | Wilhelm Steinitz | Primo campione del mondo ufficiale (1886–1894).
+Johannes Hermann Zukertort | Johannes Zukertort |
+Mikhail Chigorin | Mikhail Chigorin |
+Joseph Henry Blackburne | Joseph Henry Blackburne |
+Siegbert Tarrasch | Siegbert Tarrasch |
+Emanuel Lasker | Emanuel Lasker | Secondo campione del mondo (1894–1921).
+Harry Nelson Pillsbury | Harry Nelson Pillsbury |
+Carl Schlechter | Carl Schlechter |
+Dawid Markelowicz Janowski | Dawid Janowski |
+Geza Maroczy | Géza Maróczy |
+Frank James Marshall | Frank Marshall |
+Akiba Rubinstein | Akiba Rubinstein |
+Jose Raul Capablanca | José Raúl Capablanca | Terzo campione del mondo (1921–1927).
+Alexander Alekhine | Alexander Alekhine | Quarto campione del mondo (1927–1935 e 1937–1946).
+Aaron Nimzowitsch | Aron Nimzowitsch |
+Richard Reti | Richard Réti |
+Rudolf Spielmann | Rudolf Spielmann |
+Saviely Tartakower | Savielly Tartakower |
+Efim Bogoljubow | Efim Bogoljubow |
+Milan Sr Vidmar | Milan Vidmar |
+Max Euwe | Max Euwe | Quinto campione del mondo (1935–1937).
+Salo Flohr | Salo Flohr |
+Mikhail Botvinnik | Mikhail Botvinnik | Sesto campione del mondo (1948–1957, 1958–1960 e 1961–1963).
+Paul Keres | Paul Keres |
+Reuben Fine | Reuben Fine |
+Samuel Herman Reshevsky | Samuel Reshevsky |
+Miguel Najdorf | Miguel Najdorf |
+Vassily Smyslov | Vasily Smyslov | Settimo campione del mondo (1957–1958).
+David I Bronstein | David Bronstein |
+Isaak Boleslavsky | Isaak Boleslavsky |
+Alexander Kotov | Alexander Kotov |
+Laszlo Szabo | László Szabó |
+Svetozar Gligoric | Svetozar Gligorić |
+Mark E Taimanov | Mark Taimanov |
+Yuri L Averbakh | Yuri Averbakh |
+Efim P Geller | Efim Geller |
+Tigran V Petrosian | Tigran Petrosian | Nono campione del mondo (1963–1969).
+Mihail Tal | Mikhail Tal | Ottavo campione del mondo (1960–1961).
+Boris V Spassky | Boris Spassky | Decimo campione del mondo (1969–1972).
+Robert James Fischer | Bobby Fischer | Undicesimo campione del mondo (1972–1975).
+Bror Johannes Larsen | Bent Larsen |
+Viktor Kortschnoj | Viktor Korchnoi |
+Lev Polugaevsky | Lev Polugaevsky |
+Leonid Stein | Leonid Stein |
+Lajos Portisch | Lajos Portisch |
+Vlastimil Hort | Vlastimil Hort |
+Ulf Andersson | Ulf Andersson |
+Jan Smejkal | Jan Smejkal |
+Anatoly Karpov | Anatoly Karpov | Dodicesimo campione del mondo (1975–1985).
+Garry Kasparov | Garry Kasparov | Tredicesimo campione del mondo (1985–2000).
+Jan H Timman | Jan Timman |
+Ljubomir Ljubojevic | Ljubomir Ljubojević |
+Anthony J Miles | Tony Miles |
+Alexander G Beliavsky | Alexander Beliavsky |
+John DM Nunn | John Nunn |
+Yasser Seirawan | Yasser Seirawan |
+Jonathan S Speelman | Jonathan Speelman |
+Nigel D Short | Nigel Short |
+Valery Salov | Valery Salov |
+Vassily Ivanchuk | Vassily Ivanchuk |
+Viswanathan Anand | Viswanathan Anand | Quindicesimo campione del mondo (2007–2013).
+Vladimir Kramnik | Vladimir Kramnik | Quattordicesimo campione del mondo (2000–2007).
+Boris Gelfand | Boris Gelfand |
+Alexei Shirov | Alexei Shirov |
+Evgeny Bareev | Evgeny Bareev |
+Alexey Dreev | Alexey Dreev |
+Michael Adams | Michael Adams |
+Alexander Khalifman | Alexander Khalifman |
+Judit Polgar | Judit Polgár |
+Gata Kamsky | Gata Kamsky |
+Veselin Topalov | Veselin Topalov |
+Loek Van Wely | Loek van Wely |
+Peter Leko | Peter Leko |
+Peter Svidler | Peter Svidler |
+Alexander Morozevich | Alexander Morozevich |
+Etienne Bacrot | Étienne Bacrot |
+Alexander Grischuk | Alexander Grischuk |
+Ruslan Ponomariov | Ruslan Ponomariov |
+Rustam Kasimdzhanov | Rustam Kasimdzhanov |
+Francisco Vallejo Pons | Francisco Vallejo Pons |
+Levon Aronian | Levon Aronian |
+Teimour Radjabov | Teimour Radjabov |
+Shakhriyar Mamedyarov | Shakhriyar Mamedyarov |
+Magnus Carlsen | Magnus Carlsen | Sedicesimo campione del mondo (2013–2023). Nell'archivio ci sono solo le partite fino al 2007.
+Stefano Rosselli del Turco | Stefano Rosselli del Turco |
+Mario Monticelli | Mario Monticelli |
+Enrico Paoli | Enrico Paoli |
+Stefano Tatai | Stefano Tatai |
+Sergio Mariotti | Sergio Mariotti |
+Igor Efimov | Igor Efimov |

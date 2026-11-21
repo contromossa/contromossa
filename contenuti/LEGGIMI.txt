@@ -30,3 +30,17 @@ COME AGGIUNGERE UN QUIZ AL SITO
 
 Il sito apre sempre il primo quiz dell'elenco; gli altri restano nel menu
 «Quiz precedenti».
+
+
+DOPO OGNI NUOVO PODCAST, QUIZ, ARTICOLO O GIOCATORE
+
+Il sito ha anche una pagina propria per ogni contenuto (cartelle articoli/<nome>/,
+quiz/<nome>/, podcast/<nome>/, giocatori/<nome>/) e la mappa per Google (sitemap.xml).
+Si rifanno tutte insieme, dalla cartella principale del sito, con:
+
+  python3 strumenti/genera_pagine.py
+
+Per i podcast, nel blocco di contenuti/podcast.json si può aggiungere
+"spotify": "<codice dell'episodio>" (la parte finale dell'indirizzo open.spotify.com/episode/...):
+la pagina del podcast userà il lettore di Spotify, che non consuma il traffico del nostro sito.
+Per gli articoli, la data di pubblicazione va in articoli/date.json.

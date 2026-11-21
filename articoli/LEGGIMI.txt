@@ -9,3 +9,6 @@ COME AGGIUNGERE O CAMBIARE UN ARTICOLO
 
 Il testo vero va dopo la riga con i tre trattini. Una riga vuota separa un paragrafo dall'altro.
 Il sito mostra il testo così com'è: niente grassetti o link, solo paragrafi.
+
+6. Scrivi la data di pubblicazione in "date.json" (esempio: "apertura-siciliana.md": "2026-12-01").
+7. Rifai le pagine per Google: python3 strumenti/genera_pagine.py (vedi contenuti/LEGGIMI.txt).

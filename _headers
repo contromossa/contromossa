@@ -1,0 +1,7 @@
+# I file di testo degli articoli servono alla pagina iniziale, ma Google deve indicizzare le pagine vere (cartella articoli/<nome>/)
+/articoli/*.md
+  X-Robots-Tag: noindex
+/contenuti/*.json
+  X-Robots-Tag: noindex
+/archivio/*
+  X-Robots-Tag: noindex

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /strumenti/
+
+Sitemap: https://contromossascacchi.it/sitemap.xml
