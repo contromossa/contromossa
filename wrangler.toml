@@ -1,0 +1,6 @@
+# Configurazione per Cloudflare Pages.
+# Il sito è la cartella principale del repository; le funzioni sono in functions/api.
+name = "contromossa"
+pages_build_output_dir = "."
+compatibility_date = "2025-11-01"
+compatibility_flags = ["nodejs_compat"]

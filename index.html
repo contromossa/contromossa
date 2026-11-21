@@ -3541,7 +3541,7 @@ var RANKINGS = null;
     function setRankCadence(c, btn) { rankCadence = c; if (btn) setActiveChip(btn); renderRankings(); }
     async function loadRankings() {
       try {
-        var res = await fetch('/.netlify/functions/rankings');
+        var res = await fetch('/api/rankings');
         if (!res.ok) throw new Error('http ' + res.status);
         RANKINGS = await res.json();
       } catch (e) { RANKINGS = { error: true }; }
@@ -3612,7 +3612,7 @@ var RANKINGS = null;
     async function updateLiveStatusFromAPI() {
       let liveData = null;
       try {
-        const res = await fetch('/.netlify/functions/check-live');
+        const res = await fetch('/api/check-live');
         if (res.ok) liveData = await res.json();
       } catch (err) {
         console.log('Controllo live non riuscito:', err);
@@ -3711,7 +3711,7 @@ var RANKINGS = null;
       const more = document.getElementById('broadcasts-italy-more');
       if (!box) return;
       try {
-        const res = await fetch('/.netlify/functions/tornei-italia');
+        const res = await fetch('/api/tornei-italia');
         if (!res.ok) throw new Error('http ' + res.status);
         const data = await res.json();
         const items = data.items || [];
@@ -3752,7 +3752,7 @@ var RANKINGS = null;
       const box = document.getElementById('broadcasts-list');
       if (!box) return;
       try {
-        const res = await fetch('/.netlify/functions/broadcasts');
+        const res = await fetch('/api/broadcasts');
         if (!res.ok) throw new Error('http ' + res.status);
         const data = await res.json();
         const items = data.items || [];
@@ -3772,7 +3772,7 @@ var RANKINGS = null;
 
     async function loadNews() {
       try {
-        const res = await fetch('/.netlify/functions/news');
+        const res = await fetch('/api/news');
         if (!res.ok) throw new Error('http ' + res.status);
         const data = await res.json();
         NEWS_LIVE = { loaded: true, items: data.items || [] };
@@ -4008,7 +4008,7 @@ var RANKINGS = null;
       $('dd-modal-close').addEventListener('click', closeVideo);
       document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('dd-modal').hidden) closeVideo(); });
       loadPodcasts();
-      fetch('/.netlify/functions/didattica').then(function (r) { return r.json(); }).then(function (d) {
+      fetch('/api/didattica').then(function (r) { return r.json(); }).then(function (d) {
         try { setupPuzzle(d.problema); }
         catch (e) {
           $('pz-info').innerHTML = 'Il problema di oggi non è disponibile. <a href="https://lichess.org/training/daily" target="_blank" rel="noopener noreferrer">Aprilo su Lichess</a>.';
